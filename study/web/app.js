@@ -410,10 +410,11 @@
     }).join("");
 
     view.innerHTML =
-      '<div class="quiz-meta"><span class="pill">D' + q.domain + " · " + esc(q.task_statement) + "</span>" +
+      '<div class="quiz-meta"><span class="pill">D' + q.domain + " · " + esc(q.task_statement) +
+        (q.difficulty != null ? ' <span class="pill__nocaps">(Difficulty: ' + q.difficulty + "/10)</span>" : "") + "</span>" +
         (isMulti ? '<span class="pill">Select ' + q.correct.length + "</span>" : "") +
-        '<div class="progressbar"><span style="width:' + pct + '%"></span></div>' +
-        "<span>Q " + (quiz.idx + 1) + "/" + quiz.pool.length + " · Score " + quiz.score + "</span></div>" +
+        '<div class="progressbar"><span id="q-bar" style="width:' + pct + '%"></span></div>' +
+        '<span id="q-score"></span></div>' +
       '<div class="card">' +
         (q.scenario ? '<div class="scenario">' + esc(q.scenario) + "</div>" : "") +
         '<p class="stem">' + esc(q.stem) + "</p>" +
@@ -428,6 +429,7 @@
       "</div>";
 
     quiz.answered = false;
+    updateQuizMeta();
     if (isMulti) {
       quiz.selected = [];
       document.getElementById("opts").addEventListener("click", function (e) {
@@ -459,6 +461,21 @@
     });
   }
 
+  // Same 90/75/60 breakpoints as the CLI/TUI quiz's accuracy_color().
+  function accuracyClass(pct) {
+    return pct >= 90 ? "acc-green" : pct >= 75 ? "acc-yellow" : pct >= 60 ? "acc-orange" : "acc-red";
+  }
+  // Refresh the "Q n/N · Score X (Y%)" text and the bar's accuracy color.
+  function updateQuizMeta() {
+    var answered = quiz.idx + (quiz.answered ? 1 : 0);
+    var pct = answered ? Math.round((quiz.score / answered) * 100) : null;
+    document.getElementById("q-score").textContent = "Q " + (quiz.idx + 1) + "/" + quiz.pool.length +
+      " · Score " + quiz.score + (pct === null ? "" : " (" + pct + "%)");
+    var bar = document.getElementById("q-bar");
+    bar.style.width = Math.round((answered / quiz.pool.length) * 100) + "%";
+    bar.className = pct === null ? "" : accuracyClass(100 * quiz.score / answered);
+  }
+
   function answerQuiz(q, key) {
     if (quiz.answered) return;
     quiz.answered = true;
@@ -471,6 +488,7 @@
       : map.displayToOrig[key] === q.correct;
     if (correct) quiz.score += 1;
     recordAnswer(q.id, correct);
+    updateQuizMeta();
 
     document.querySelectorAll("#opts .option").forEach(function (btn) {
       var dKey = btn.getAttribute("data-key");

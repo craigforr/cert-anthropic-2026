@@ -108,6 +108,7 @@ a:hover { text-decoration: underline; }
 /* Uppercase, letter-spaced small labels + branded pills (the ref's caption style) */
 .tile__label { text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
 .pill { text-transform: uppercase; letter-spacing: .04em; }
+.pill__nocaps { text-transform: none; letter-spacing: normal; }
 
 .skip-link {
   position: absolute; left: -999px; top: 0; z-index: 100;
@@ -258,6 +259,10 @@ select:focus-visible, .btn:focus-visible, .option:focus-visible, .tab:focus-visi
   overflow: hidden; flex: 1; }
 .progressbar > span { display: block; height: 100%; background: var(--accent);
   transition: width .3s ease; }
+.progressbar > span.acc-green  { background: var(--good); }
+.progressbar > span.acc-yellow { background: #d4b01f; }
+.progressbar > span.acc-orange { background: var(--warning); }
+.progressbar > span.acc-red    { background: var(--critical); }
 
 .scenario { font-size: 1rem; color: var(--ink-2); background: var(--surface-3);
   border-left: 3px solid var(--baseline); padding: .55rem .7rem; border-radius: 8px;
