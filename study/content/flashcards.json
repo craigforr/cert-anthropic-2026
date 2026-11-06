@@ -1774,5 +1774,288 @@
       "custom-tools",
       "mcp"
     ]
+  },
+  {
+    "id": "fc-0197",
+    "front": "What questions test whether an LLM fits a business problem?",
+    "back": "Is the input unstructured language or judgment rather than exact rules or lookups? Can errors be detected, tolerated, or recovered cheaply? Is there a baseline and metric to prove improvement? Does the needed data exist and is it accessible? If code or classic ML solves it exactly, use that."
+  },
+  {
+    "id": "fc-0198",
+    "front": "How should you divide a problem between deterministic code and Claude?",
+    "back": "Give code anything exact, rule-based, or numeric (lookups, calculations, thresholds, permissions). Give Claude the language-heavy parts needing interpretation (extraction from messy text, summarization, drafting, classification). Hybrid designs usually beat all-LLM or no-LLM ones."
+  },
+  {
+    "id": "fc-0199",
+    "front": "What makes a good success criterion for a Claude use case?",
+    "back": "It is measurable on real inputs, compared with a baseline, tied to the business outcome, and covers risk (for example critical-error rate). Prefer outcomes like resolved-without-recontact over activity metrics like deflection or tokens processed."
+  },
+  {
+    "id": "fc-0200",
+    "front": "Where should feedback re-enter an LLM pipeline?",
+    "back": "Capture reviewer edits, rejections, and downstream failures with the input, output, and a reason category. Feed them into the evaluation set and prompt or retrieval changes, which are tested before release. Do not auto-retrain on raw edits or discard corrections."
+  },
+  {
+    "id": "fc-0201",
+    "front": "Why validate between pipeline stages rather than only at the end?",
+    "back": "Errors are cheapest to catch where they originate, before downstream stages build on them. Stage-level checks (schema, ranges, cross-checks against source) localize failures and define clear retry, repair, or escalation points; a final check sees only the blended result."
+  },
+  {
+    "id": "fc-0202",
+    "front": "Name the five workflow patterns and when to use each.",
+    "back": "Prompt chaining: fixed sequential steps. Routing: classify input, send to a specialist path. Parallelization: independent subtasks (sectioning) or multiple attempts (voting). Orchestrator-workers: subtasks unknown until analysis. Evaluator-optimizer: clear criteria and drafts improve with feedback."
+  },
+  {
+    "id": "fc-0203",
+    "front": "How do you map the business value pillars to measurable architecture outcomes?",
+    "back": "Efficiency: time or cost per unit of work vs. baseline. Transformation: a new capability or market enabled. Productivity: delivery speed and quality outcomes. Cost: cost per correct outcome. Performance SLAs: latency percentiles, availability, and accuracy targets."
+  },
+  {
+    "id": "fc-0204",
+    "front": "Why compare designs on cost per outcome instead of cost per call?",
+    "back": "A cheaper call that fails more often shifts cost to retries, rework, and human escalation. Total cost per correct or resolved outcome includes inference, review, and escalation, so it can favor a pricier step that raises quality."
+  },
+  {
+    "id": "fc-0205",
+    "front": "When is a single augmented LLM call enough, and what moves you beyond it?",
+    "back": "One call with retrieval, tools, or memory suffices when a self-contained question has a single grounded answer. Move to a workflow when steps are fixed or independent, and to an agent only when the path cannot be specified and errors are recoverable. Evidence from evaluation should drive each step up."
+  },
+  {
+    "id": "fc-0206",
+    "front": "Which guardrails belong in the system prompt, and which need enforcement outside the model?",
+    "back": "Prompts suit judgment-based, soft constraints: tone, scope, reading level, how to decline and redirect. Anything with security, financial, or legal consequences (access scoping, spend limits, PII blocking) needs deterministic enforcement through permissions, validators, or filters. The prompt is a defense-in-depth layer, never the only control."
+  },
+  {
+    "id": "fc-0207",
+    "front": "When does chain-of-thought help, and what does it cost?",
+    "back": "It helps multi-step reasoning, rule application, and arithmetic, where skipped intermediate steps cause errors. It costs output tokens and latency and adds little to simple classification. Put reasoning before the answer, keep it in separate tags or fields so code parses only the answer, and on current models prefer adaptive thinking with an effort setting."
+  },
+  {
+    "id": "fc-0208",
+    "front": "How do Agent Skills let many agents reuse instructions without paying for them on every request?",
+    "back": "A skill is a folder with a SKILL.md. Only its short name and description sit in context by default; Claude reads the full instructions, and any bundled files, when the task calls for it. One versioned skill serves many agents, and requests that do not need it never carry its tokens."
+  },
+  {
+    "id": "fc-0209",
+    "front": "How should you structure a prompt that mixes instructions, reference material, and user input?",
+    "back": "Separate them with labeled XML tags or clear headings and name each one, say which parts are data rather than instructions, and put stable content first and variable content last. Long reference documents go before the question or instruction. Structure stops material from being mistaken for policy."
+  },
+  {
+    "id": "fc-0210",
+    "front": "Why is per-call latency and error monitoring insufficient for an agent, and what do you add?",
+    "back": "Agent failures often come from step interplay, and many bad runs return 200. Add a trace per run with parent-child spans for model and tool calls, plus run-level metrics (duration, iterations, tokens, tool errors)."
+  },
+  {
+    "id": "fc-0211",
+    "front": "How do you keep telemetry affordable at high volume without losing the rare failures?",
+    "back": "Record lightweight metrics for 100% of traffic. Sample the heavy payload traces with rules (keep errors, retries, slow runs, flagged or negatively rated runs) plus a small random baseline. Uniform random sampling alone misses rare failures."
+  },
+  {
+    "id": "fc-0212",
+    "front": "Why avoid user or request IDs as metric labels, and where do those identifiers go?",
+    "back": "They create an unbounded number of time series, inflating cost and slowing queries. Keep metric labels low-cardinality (tool, model, release). Put IDs on traces and logs, and link an alerting metric to traces via a trace ID."
+  },
+  {
+    "id": "fc-0213",
+    "front": "Why does fixed-size chunking often hurt retrieval, and what is the alternative?",
+    "back": "It cuts through sentences, clauses, tables, and functions, so chunks lose meaning and answers lose conditions. Use structure-aware chunking on headings, clauses, tables, or functions, with modest overlap at the seams, and keep source metadata on each chunk."
+  },
+  {
+    "id": "fc-0214",
+    "front": "What is contextual retrieval and when does it help?",
+    "back": "Before indexing, prepend a short chunk-specific context (document, company, period, section) to each chunk, typically generated by a model, and use it for both embeddings and keyword indexing. It helps when chunks lose identity once separated from their document."
+  },
+  {
+    "id": "fc-0215",
+    "front": "You change the embedding model or chunker. How do you roll it out?",
+    "back": "Rebuild a new, versioned index in parallel, since vectors from different models are not comparable. Evaluate on labeled queries, switch traffic by alias, and keep the old index for rollback. Never mix old and new vectors in one index."
+  },
+  {
+    "id": "fc-0216",
+    "front": "BM25 or embeddings: when does each win, and what do you do when you need both?",
+    "back": "BM25 wins on exact tokens (IDs, codes, names, citations); embeddings win on paraphrase and meaning. When queries mix both, run both and fuse by rank (for example reciprocal rank fusion), then optionally rerank."
+  },
+  {
+    "id": "fc-0217",
+    "front": "When should you skip embeddings and vector search entirely?",
+    "back": "For structured or aggregable data, use SQL or a query tool for exact answers. For small, stable corpora that fit in context, put them in the prompt with caching. For fast-changing code or exact identifiers, let an agent search live with grep-style tools."
+  },
+  {
+    "id": "fc-0218",
+    "front": "What does a reranker do, and what is its trade-off?",
+    "back": "It rescores a first-stage candidate list (for example 30 to 100) pairwise against the query, moving the best passages to the top of a small context. It improves precision but adds latency and cost proportional to candidates, so size the pool to your budget."
+  },
+  {
+    "id": "fc-0219",
+    "front": "How do you choose a model tier and reasoning budget for a route?",
+    "back": "Pick the smallest, fastest tier (and lowest reasoning effort) that clears your measured accuracy bar at the required latency; larger tiers and more reasoning cost more time and money. Route easy requests to cheap settings and escalate hard ones."
+  },
+  {
+    "id": "fc-0220",
+    "front": "Why pair a primary quality metric with guardrail metrics?",
+    "back": "The primary metric states what success is; guardrails (latency, cost, safety, refusal rate) with agreed limits stop an improvement in one dimension from silently degrading another. Set both before the run so thresholds cannot be chosen after seeing results."
+  },
+  {
+    "id": "fc-0221",
+    "front": "How do you pick between mean and percentile latency, and which phase to measure?",
+    "back": "Use percentiles (p95/p99) for interactive use because users feel the tail, and time to first token for streamed chat. For batch or document jobs, measure end-to-end completion against the deadline instead."
+  },
+  {
+    "id": "fc-0222",
+    "front": "What distinguishes a good golden set from a convenient one?",
+    "back": "It mirrors the production input distribution, deliberately over-represents rare and hard cases, uses trusted human labels, and is held out from prompt tuning. Examples that are clean, synthetic-only, or already known to pass overstate quality."
+  },
+  {
+    "id": "fc-0223",
+    "front": "Match grading method to criterion: when code, when an LLM judge, when humans?",
+    "back": "Code for objective, checkable properties (schema, exact values, forbidden actions). LLM judge for subjective qualities, validated against human labels and checked for bias. Humans to build labels, calibrate the judge, and audit samples; they are too costly for every run."
+  },
+  {
+    "id": "fc-0224",
+    "front": "Why change only one thing at a time between experiment arms?",
+    "back": "If prompt, model, and retrieval change together, any metric shift cannot be attributed to a cause. Hold everything else constant, change one factor, and compare concurrent randomized traffic; bundle changes only after each was tested."
+  },
+  {
+    "id": "fc-0225",
+    "front": "Shadow, canary, and A/B: when does each fit?",
+    "back": "Shadow runs the candidate on live traffic with outputs logged, never shown, for no user exposure. Canary sends a small real share with pre-set rollback thresholds. A/B randomizes concurrent groups with a pre-set sample size to measure an effect."
+  },
+  {
+    "id": "fc-0226",
+    "front": "A system's output is wrong. In what order do you localize the fault?",
+    "back": "Check integration first (stop_reason, request validity, dropped tool results), then input completeness (was the data supplied?), then prompt (conflicts, structure), retrieval/context grounding, and finally model capability. Change one variable at a time and confirm with an eval."
+  },
+  {
+    "id": "fc-0227",
+    "front": "Order the cost levers for a Claude application: which come first and why?",
+    "back": "Free wins first: prompt caching on a stable prefix, trimming redundant input, batching non-urgent work. Then quality-trading levers: effort, output length, model routing, each validated on an eval against a quality floor. Judge cost per completed task, not per request."
+  },
+  {
+    "id": "fc-0228",
+    "front": "How should alerts and feedback be set up for a production Claude system?",
+    "back": "Alert on service-level indicators over a window (failure rate after retries, p95 latency, cost per hour, sampled quality versus baseline) with an owner and runbook, not on each transient error. Tie user and reviewer feedback to the trace ID so failures can be reviewed and added to the regression set."
+  },
+  {
+    "id": "fc-0229",
+    "front": "How do you detect silent quality drift when errors and latency look normal?",
+    "back": "Track the input mix by segment and score a stratified sample of production outputs per segment against a baseline, using validated graders and human review. Add new failures to the regression set so the check improves over time."
+  },
+  {
+    "id": "fc-0230",
+    "front": "Which GDPR principles most shape the data flow of an LLM pipeline?",
+    "back": "Data minimization (send only what the task needs), purpose limitation (use data only for its original purpose and lawful basis), storage limitation (defined retention), and data-subject rights such as erasure, which require personal data to be findable and deletable, including embeddings and logs.",
+    "tags": [
+      "gdpr"
+    ]
+  },
+  {
+    "id": "fc-0231",
+    "front": "When is a BAA needed with an AI vendor, and what does 'minimum necessary' add?",
+    "back": "Under HIPAA, a vendor handling PHI on your behalf generally needs a business associate agreement covering that specific service before PHI is shared. Minimum necessary means sending only the PHI fields the task requires. Verify the agreement's scope; do not assume general terms qualify. Prototype on synthetic or de-identified data until one exists.",
+    "tags": [
+      "hipaa"
+    ]
+  },
+  {
+    "id": "fc-0232",
+    "front": "How should an architect check a cloud AI service against FedRAMP needs?",
+    "back": "Identify the impact level (Low, Moderate, High) of the federal data, then confirm that the specific service and deployment boundary you will use holds an authorization at that level. Authorization is scoped to services and boundaries, not to a provider as a whole. If the path is not authorized, use non-sensitive data or a different path.",
+    "tags": [
+      "fedramp"
+    ]
+  },
+  {
+    "id": "fc-0233",
+    "front": "What is a counterfactual (matched-pair) bias test?",
+    "back": "Run the same input with only a demographic signal changed, such as name, pronoun, or dialect, and compare scores or outcomes. Systematic differences indicate bias. Pair it with group-level outcome rates on realistic data, and repeat it on a schedule in production because behavior shifts with prompts, models, and data.",
+    "tags": [
+      "bias"
+    ]
+  },
+  {
+    "id": "fc-0234",
+    "front": "Why is removing protected attributes from the input not enough to ensure fairness?",
+    "back": "Proxies such as ZIP code, school, name, and writing style correlate with protected attributes, and historical labels may carry past bias. Fairness through unawareness also makes disparities harder to detect. Keep demographic data for evaluation, measure outcomes by group, and decide the fairness criterion with legal and business stakeholders.",
+    "tags": [
+      "fairness"
+    ]
+  },
+  {
+    "id": "fc-0235",
+    "front": "What transparency does a Claude-powered system owe the people it affects?",
+    "back": "Disclose that users are dealing with an AI and answer truthfully if asked. For consequential decisions, give reasons derived from the factors actually used, not a post-hoc rationale, and provide a route to human review. Show sources where possible so users can verify, and avoid uncalibrated confidence numbers.",
+    "tags": [
+      "transparency"
+    ]
+  },
+  {
+    "id": "fc-0236",
+    "front": "What should discovery establish about data before choosing between prompt-only, RAG, or another design?",
+    "back": "Where the data lives, its format and quality, freshness and ownership, who may access it, and whether labeled examples exist. Test on a representative sample, including the worst inputs, because real data rarely matches what a sponsor describes."
+  },
+  {
+    "id": "fc-0237",
+    "front": "What belongs in an architecture decision record for a Claude solution?",
+    "back": "Context and constraints, the options considered, the decision and why alternatives lost, consequences accepted (cost, latency, risk), status, and the trigger for revisiting. Supersede a record with a new one instead of editing history."
+  },
+  {
+    "id": "fc-0238",
+    "front": "How should you tailor one architecture decision to executives, security, and engineering?",
+    "back": "Executives: outcome, cost, risk, and the decision needed. Security: data flows, trust boundaries, retention, and controls. Engineering: interfaces, failure modes, and alternatives. The facts and trade-offs stay identical; only emphasis and detail change."
+  },
+  {
+    "id": "fc-0239",
+    "front": "What does honest trade-off framing look like when presenting a design?",
+    "back": "Recommend one option, show the real alternatives, quantify each with measured data (quality, cost, latency distribution), state residual risk and known limits, and say what would change the recommendation. Do not lead with benefits and bury costs."
+  },
+  {
+    "id": "fc-0240",
+    "front": "Why can't a probabilistic Claude system carry a 100 percent accuracy SLA, and what should you offer instead?",
+    "back": "Output is not guaranteed correct on every input, so perfection is unmeasurable and unenforceable. Offer SLOs defined by risk class, measured on sampled graded production traffic, with human review and escalation for the remainder and a stated measurement method."
+  },
+  {
+    "id": "fc-0241",
+    "front": "For a streaming Claude assistant, which latency metric should an SLO use and why?",
+    "back": "A percentile (such as p95) of time to first token, because users perceive responsiveness when output starts. Track total completion time separately, since it varies with reply length, and report percentiles instead of averages to expose the slow tail."
+  },
+  {
+    "id": "fc-0242",
+    "front": "How should stakeholder feedback on a Claude system be handled?",
+    "back": "Triage it into a backlog, turn representative cases into evaluation items, name one owner and a rubric for conflicting requests, and release changes through a gated, versioned process. Never edit the production prompt per complaint."
+  },
+  {
+    "id": "fc-0243",
+    "front": "What should a runbook for a Claude pipeline contain?",
+    "back": "Symptom-keyed entries with diagnosis steps and owners: rate-limit and overload errors, output truncation, schema failures, cost spikes, and quality regressions. Include how to find the change log, the golden-set comparison, rollback steps for prompt and model versions, and escalation paths."
+  },
+  {
+    "id": "fc-0244",
+    "front": "What belongs in a handoff pack for an operations team taking over a Claude system?",
+    "back": "Architecture and data-flow diagrams, runbooks, versioned prompts and model configuration, the evaluation set with baseline scores and how to run it, cost and token assumptions, known limitations, ownership and escalation. Pair them with a supervised first change."
+  },
+  {
+    "id": "fc-0245",
+    "front": "How do you write acceptance criteria for behavior that varies between runs?",
+    "back": "Use thresholds on an evaluation set (such as pass rate by category), exact checks only for deterministic fields such as labels and schemas, and mark example outputs as illustrative. Do not require identical strings; it rejects valid answers and freezes wording."
+  },
+  {
+    "id": "fc-0246",
+    "front": "What separates a successful pilot from production readiness for a Claude system?",
+    "back": "A pilot proves feasibility on friendly users and limited volume. Readiness adds capacity and cost modeling at full volume, monitoring and alerts, evaluation on representative traffic, a baseline, rollback, a support process, and a staged rollout with go/no-go criteria set in advance."
+  },
+  {
+    "id": "fc-0247",
+    "front": "An on-call engineer has a huge incident log. How do you get useful triage from Claude?",
+    "back": "Narrow it first: the incident window, error lines, correlated request IDs, plus what changed (deploy diff, config). Ask for ranked hypotheses that cite supporting lines, then verify each. Dumping everything dilutes the signal and invites confident guesses; remediation comes after diagnosis."
+  },
+  {
+    "id": "fc-0248",
+    "front": "A prompt or model change ships and quality drops. What is the order of operations?",
+    "back": "Contain first: roll back to the last known-good prompt or model pin through the normal pipeline. Then reproduce with captured inputs and the eval set, find the cause, and re-ship through evals. Editing production prompts live or waiting for more data prolongs impact."
+  },
+  {
+    "id": "fc-0249",
+    "front": "Claude-powered feature gives bad output. What do you check before blaming the model?",
+    "back": "Integration facts: stop_reason (max_tokens truncation), the exact request sent, dropped or malformed tool_result blocks, error class and request ID, prompt and model versions. Many apparent model failures are request, limit, or tool-loop bugs."
   }
 ]

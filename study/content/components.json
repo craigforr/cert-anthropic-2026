@@ -3,31 +3,31 @@
     {
       "id": "questions-standard",
       "kind": "questions",
-      "version": "1.1.2",
+      "version": "1.2.0",
       "file": "questions-standard.json"
     },
     {
       "id": "questions-intermediate",
       "kind": "questions",
-      "version": "1.1.1",
+      "version": "1.2.0",
       "file": "questions-intermediate.json"
     },
     {
       "id": "questions-hard",
       "kind": "questions",
-      "version": "1.1.1",
+      "version": "1.2.0",
       "file": "questions-hard.json"
     },
     {
       "id": "flashcards",
       "kind": "flashcards",
-      "version": "1.1.1",
+      "version": "1.2.0",
       "file": "flashcards.json"
     },
     {
       "id": "concepts",
       "kind": "concepts",
-      "version": "1.1.1",
+      "version": "1.2.0",
       "file": "concepts.json"
     },
     {

@@ -6243,5 +6243,2819 @@
       "mcp",
       "permissions"
     ]
+  },
+  {
+    "id": "q-0646",
+    "scenario": "A retail bank wants an assistant that answers customers' questions about account fees. Fee schedules change every quarter, and a wrong answer can create a regulatory complaint. Leadership says only, \"It should be accurate.\"",
+    "stem": "Which set of derived requirements best translates this request into a design?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Fine-tune on last year's chat transcripts, run the largest model at temperature 0, and add a web-search tool for fee data."
+      },
+      {
+        "key": "B",
+        "text": "Ground answers in the current fee documents with citations, escalate when no source is found, and set a measured accuracy bar before launch."
+      },
+      {
+        "key": "C",
+        "text": "Embed the full fee schedule in the system prompt once, and review a sample of live conversations after launch to catch mistakes."
+      },
+      {
+        "key": "D",
+        "text": "Answer only from the model's knowledge for fast responses, and add a disclaimer to every reply recommending customers verify the fees."
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "\"Accurate\" with quarterly-changing facts and regulatory exposure implies grounding in current sources, traceable citations, defined behavior when the answer is missing, and a pre-launch accuracy threshold. Each requirement follows from a stated business constraint.",
+      "distractors": {
+        "A": "Last year's transcripts encode outdated fees, and a web tool adds unvetted sources for a regulated topic.",
+        "C": "A one-time prompt snapshot goes stale each quarter, and post-launch sampling is detective only.",
+        "D": "Model knowledge has no current fee data, and a disclaimer shifts the burden to customers without improving correctness."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "requirements",
+      "financial-services"
+    ]
+  },
+  {
+    "id": "q-0647",
+    "scenario": "A manufacturer wants to predict equipment failures from vibration and temperature time series collected from thousands of machines, and a software team has proposed \"using Claude\" to do it. The plant also wants maintenance technicians to get clear guidance when an alert fires.",
+    "stem": "How should the architect frame Claude's role in the solution?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Feed raw sensor streams to Claude on a schedule and ask it to flag machines likely to fail within a week."
+      },
+      {
+        "key": "B",
+        "text": "Use Claude for both prediction and guidance, after pre-aggregating the sensor data into summary statistics for its prompt."
+      },
+      {
+        "key": "C",
+        "text": "Use a dedicated forecasting model for prediction, and Claude to explain alerts and draft work orders from manuals."
+      },
+      {
+        "key": "D",
+        "text": "Fine-tune Claude on the sensor history so one model handles both the prediction and the technician guidance."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "Numeric time-series prediction is a job for purpose-built statistical or ML models. Claude is strong where language is involved, such as turning an alert and the manual into a clear action plan. Combining each tool where it fits meets both needs.",
+      "distractors": {
+        "A": "Raw numeric streams at scale are costly and unreliable inputs for a language model compared with a dedicated model.",
+        "B": "Aggregation shortens the input, but a language model is still a poor and costly predictor compared with a dedicated model.",
+        "D": "Fine-tuning a language model on numeric sensor data is not the standard route to prediction and ignores existing tooling."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "llm-fit",
+      "manufacturing"
+    ]
+  },
+  {
+    "id": "q-0658",
+    "scenario": "An expense-approval agent works but is slow and costly. A log review shows 95% of reports follow the same three steps: validate receipts, check policy limits, and approve. The remaining 5% need unusual investigation, such as split purchases or foreign-currency disputes.",
+    "stem": "What is the best architectural change?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Replace the agent with a workflow for the common path, and hand only the unusual reports to the agent or a human."
+      },
+      {
+        "key": "B",
+        "text": "Keep the agent for all reports and switch to the smallest model tier to bring down average cost per report."
+      },
+      {
+        "key": "C",
+        "text": "Split the agent into three subagents, one per step, so each step has focused context and its own prompt."
+      },
+      {
+        "key": "D",
+        "text": "Convert everything to a workflow and reject any report that does not fit the three steps for resubmission."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "When most cases follow a stable sequence, put that path in code and spend model autonomy only where it adds value. This keeps cost, latency, and predictability for the 95% and retains flexibility for exceptions.",
+      "distractors": {
+        "B": "A smaller model may fail on the hard cases and still pays the agent loop overhead on every routine report.",
+        "C": "Subagents add coordination and context-passing for steps that already have a fixed order.",
+        "D": "Rejecting valid-but-unusual reports pushes work to employees and loses the capability the agent provided."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "workflow-vs-agent",
+      "cost"
+    ]
+  },
+  {
+    "id": "q-0659",
+    "scenario": "A bank is automating KYC onboarding. Regulators require a documented, repeatable sequence of checks with a bounded cost per case, and auditors must be able to replay what happened for any applicant. Some steps, such as reading a messy proof-of-address letter, need language understanding.",
+    "stem": "Which design best meets these constraints?",
+    "options": [
+      {
+        "key": "A",
+        "text": "A fully autonomous agent that chooses its own checks, with detailed transcripts retained so auditors can read what it did."
+      },
+      {
+        "key": "B",
+        "text": "A workflow whose sequence is fixed in code, with Claude used inside individual steps such as document reading and summarization."
+      },
+      {
+        "key": "C",
+        "text": "A supervisor with specialist subagents for identity, address, and sanctions checks, each deciding its own verification steps."
+      },
+      {
+        "key": "D",
+        "text": "A single prompt containing the full KYC procedure, run once per applicant with the documents attached to the request."
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "Regulatory repeatability and bounded cost point to control flow in code, which makes the sequence identical for every applicant and auditable by design. Claude contributes where interpretation is needed, inside bounded steps with defined outputs.",
+      "distractors": {
+        "A": "Transcripts record what an autonomous agent did but do not make its sequence repeatable or its cost bounded.",
+        "C": "Subagents choosing their own steps recreate unpredictable sequences and add coordination overhead.",
+        "D": "One prompt cannot guarantee that every required check ran in order, and offers no per-step audit trail."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "workflow",
+      "compliance"
+    ]
+  },
+  {
+    "id": "q-0668",
+    "scenario": "A support organization piloted a drafting assistant. Logs show it saves six minutes of writing per ticket, but overall average handle time is unchanged. Agents say they re-check every draft against the knowledge base because they do not trust it.",
+    "stem": "What is missing from the value case, and what should the team do?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Nothing is missing; writing time fell, so the savings are real and will appear in handle time once agents adjust."
+      },
+      {
+        "key": "B",
+        "text": "Agents need more training on prompts, since better prompting will remove the need for them to verify drafts."
+      },
+      {
+        "key": "C",
+        "text": "Measure net time including verification and rework, and add citations and risk-tiered review so trusted drafts need less checking."
+      },
+      {
+        "key": "D",
+        "text": "Replace the assistant with a larger model, because a stronger model will make agents trust its drafts without checking."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "Value is the end-to-end outcome, not one step. Verification time offsets the writing savings, so the architecture should reduce verification cost, for example with source citations and review effort matched to risk, and the metric should be net handle time.",
+      "distractors": {
+        "A": "Writing time is only one component; handle time shows the savings are being absorbed by verification.",
+        "B": "Agents verify because drafts are hard to trust, not because of how they prompt.",
+        "D": "A larger model may be better but does not give agents a quick way to confirm claims, which is the source of the extra work."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "roi",
+      "productivity"
+    ]
+  },
+  {
+    "id": "q-0669",
+    "scenario": "An engineering organization is rolling out an AI coding assistant under the productivity pillar. Leadership proposes to report the lines of code the assistant generates each week as the main success metric.",
+    "stem": "Which measurement approach best reflects real productivity?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Count accepted suggestions per developer per day, and treat higher counts as evidence of larger productivity gains."
+      },
+      {
+        "key": "B",
+        "text": "Track pull-request cycle time and defect escape rate against a pre-rollout baseline, alongside developer-reported friction."
+      },
+      {
+        "key": "C",
+        "text": "Compare total lines of code in the repository before and after rollout, since a larger codebase means more output."
+      },
+      {
+        "key": "D",
+        "text": "Survey developers once at the end of the quarter on whether they feel faster, and use the result as the headline metric."
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "Productivity is delivering working software faster, so measure delivery speed and quality outcomes against a baseline. Volume metrics reward output regardless of value, and generated code that causes rework can lower real productivity.",
+      "distractors": {
+        "A": "Accepted-suggestion counts measure usage, and accepting more code may increase review burden or defects.",
+        "C": "Repository size grows with unneeded code and says nothing about speed or quality.",
+        "D": "A single self-reported survey is subjective and cannot quantify change against a baseline."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "productivity",
+      "metrics"
+    ]
+  },
+  {
+    "id": "q-0670",
+    "scenario": "A company is choosing between two designs for ticket resolution. Design A uses one call and costs $0.02 per ticket, resolving 70% of tickets; unresolved tickets go to a human at $4 each. Design B adds a verification step, costs $0.05 per ticket, and resolves 90%.",
+    "stem": "Which design should the team choose, and why?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Design A, because its per-ticket model cost is lower and cost per call is the standard way to compare designs."
+      },
+      {
+        "key": "B",
+        "text": "Design B, because its higher resolution rate gives a lower total cost per ticket once human escalations are counted."
+      },
+      {
+        "key": "C",
+        "text": "Design A, because a 70% resolution rate is acceptable and adding a verification step adds latency to every ticket."
+      },
+      {
+        "key": "D",
+        "text": "Design B, because a 90% resolution rate is above the usual industry norm, which makes it the safer default choice."
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "Compare cost per outcome, not cost per call. Design A costs about $0.02 + 0.30 x $4 = $1.22 per ticket; Design B costs about $0.05 + 0.10 x $4 = $0.45. The extra model spend is far outweighed by fewer human escalations.",
+      "distractors": {
+        "A": "Per-call cost ignores the escalation cost that dominates total cost per ticket.",
+        "C": "Added latency is a real consideration, but it does not outweigh a large difference in total cost unless an SLA is at risk.",
+        "D": "An industry norm is not the decision criterion; the cost calculation is, and it favors B for a concrete reason."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "roi",
+      "cost-per-outcome"
+    ]
+  },
+  {
+    "id": "q-0678",
+    "scenario": "A document-classification pipeline reached 94% accuracy at launch and now measures 88% on spot checks. Reviewers' corrections are stored but unused, new document types have appeared, and prompt changes are made by developers from recent anecdotes.",
+    "stem": "Which feedback design best restores and protects quality?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Sample production outputs, grade them against reviewer corrections, add new failure types to the eval set, and gate prompt changes."
+      },
+      {
+        "key": "B",
+        "text": "Retrain a model on the reviewer corrections each week and deploy the result automatically when training completes, with no gate."
+      },
+      {
+        "key": "C",
+        "text": "Send each document to human review until accuracy returns to 94%, then switch the manual review off and resume normal operation."
+      },
+      {
+        "key": "D",
+        "text": "Have developers rewrite the prompt whenever a reviewer reports an error, and ship each fix straight to production."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "A durable loop turns corrections into measured evidence: sampling shows current quality, new failure types extend the eval set, and a regression gate makes each prompt change prove it helps. This catches drift without blind changes.",
+      "distractors": {
+        "B": "Automatic retraining on raw corrections with no evaluation can bake in noise and new regressions.",
+        "C": "Universal review removes the backlog benefit and, when switched off, leaves the same drift undetected.",
+        "D": "Anecdote-driven edits shipped directly can fix one case and break others with no way to tell."
+      }
+    },
+    "lab": "lab-18-human-review-calibration",
+    "difficulty": 6,
+    "tags": [
+      "feedback-loop",
+      "drift"
+    ]
+  },
+  {
+    "id": "q-0679",
+    "scenario": "An extraction stage returns free-text paragraphs, and a downstream pricing stage uses regular expressions to pull amounts and dates from them. Small wording changes in the model's output keep breaking the pricing stage.",
+    "stem": "What is the best architectural fix?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Define a versioned schema contract between stages, enforce it with structured output, and validate at the boundary."
+      },
+      {
+        "key": "B",
+        "text": "Add more regular expressions to the pricing stage to cover each wording variation reported so far by the team."
+      },
+      {
+        "key": "C",
+        "text": "Add an instruction to the extraction prompt asking the model to keep the same wording and layout."
+      },
+      {
+        "key": "D",
+        "text": "Combine the extraction and pricing stages into one prompt so no handoff between them can break."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Stages should communicate through explicit, machine-checked contracts. Structured output with boundary validation makes breakage immediate and diagnosable, and versioning lets each stage evolve safely.",
+      "distractors": {
+        "B": "Each new pattern patches a symptom, and the next wording change breaks it again.",
+        "C": "A prompt request improves consistency but gives no guarantee or detection when format drifts.",
+        "D": "Merging removes the contract but also the ability to validate, retry, or debug each stage separately."
+      }
+    },
+    "lab": "lab-04-structured-output",
+    "difficulty": 6,
+    "tags": [
+      "stage-contract",
+      "structured-output"
+    ]
+  },
+  {
+    "id": "q-0680",
+    "scenario": "A lender's pipeline scores loan applications with Claude. Ground truth about which loans defaulted arrives 12 to 18 months later, but the team wants the feedback to improve the system.",
+    "stem": "How should the delayed outcomes be incorporated?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Store each decision's trace, join outcomes to it asynchronously, and recompute quality metrics and eval cases from that data."
+      },
+      {
+        "key": "B",
+        "text": "Hold each application's decision until the outcome is known, so that the system decides using confirmed results at that point."
+      },
+      {
+        "key": "C",
+        "text": "Use the underwriter's approval or rejection as ground truth, since it is available immediately for each application."
+      },
+      {
+        "key": "D",
+        "text": "Skip outcome feedback, since a lag of more than a year means the data cannot be useful for tuning or monitoring."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Delayed ground truth still closes the loop if decisions are traced and outcomes are linked back when they arrive. Interim signals such as reviewer decisions can complement, not replace, the real outcomes.",
+      "distractors": {
+        "B": "Waiting for outcomes before deciding makes the product impossible to operate.",
+        "C": "Underwriter decisions are fast but are themselves the thing being evaluated, and can share the system's blind spots.",
+        "D": "Long lag reduces speed, not value; the joined data is still the most direct evidence of real quality."
+      }
+    },
+    "lab": null,
+    "difficulty": 7,
+    "tags": [
+      "feedback-loop",
+      "delayed-feedback"
+    ]
+  },
+  {
+    "id": "q-0682",
+    "scenario": "An invoice-dispute agent usually resolves cases in about six tool calls, but a few cases run past forty calls and cost many times the average before failing, with the agent repeating the same failing lookup.",
+    "stem": "Which architectural control best contains this behavior?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Bound autonomy with step and cost budgets, stop on repeated failures, and escalate to a person at the limit."
+      },
+      {
+        "key": "B",
+        "text": "Remove the step limit so the agent can finish hard cases, and rely on its own judgment about when to stop."
+      },
+      {
+        "key": "C",
+        "text": "Upgrade to a larger model tier, since a more capable model will not get stuck repeating the same lookup."
+      },
+      {
+        "key": "D",
+        "text": "Add a prompt instruction to be efficient and avoid repeating tool calls, and review the logs again next month."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Agent autonomy needs explicit bounds, because loops are the model's choice. Budgets, repeat-failure detection, and escalation turn runaway cases into cheap, visible handoffs while leaving normal cases untouched.",
+      "distractors": {
+        "B": "Without limits, the costly loop becomes the worst case, with nothing to stop it.",
+        "C": "A stronger model may reduce loops but offers no guarantee, and the cost of one bad case remains unbounded.",
+        "D": "A prompt request is advisory, and waiting a month leaves the cost exposure in production."
+      }
+    },
+    "lab": "lab-03-agentic-loop",
+    "difficulty": 6,
+    "tags": [
+      "agent",
+      "limits"
+    ]
+  },
+  {
+    "id": "q-0686",
+    "scenario": "A fintech routes card-dispute emails to a small, fast model first and escalates to the most capable model when the small model reports low confidence in its own classification. Escalation volume is high, yet an audit shows many confidently wrong small-model answers were never escalated while many correct ones were.",
+    "stem": "How should the team redesign the escalation rule?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Escalate on observable signals such as task features, failed validators, and cross-checks, tuned on a labeled eval."
+      },
+      {
+        "key": "B",
+        "text": "Ask the small model for a 1-to-100 confidence score instead of low, medium, or high, so the threshold has finer resolution."
+      },
+      {
+        "key": "C",
+        "text": "Send every dispute to the most capable model, since the escalation logic evidently cannot be trusted to route."
+      },
+      {
+        "key": "D",
+        "text": "Lower the escalation threshold until the audit shows no confidently wrong answers left unescalated by the small model."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Self-reported confidence is poorly calibrated, especially on exactly the cases the model gets wrong. Signals that can be observed from outside the model can be checked against labeled data, which lets the team tune cost and accuracy together.",
+      "distractors": {
+        "B": "A finer scale on the same unreliable signal does not fix calibration; the problem is the signal, not its granularity.",
+        "C": "This removes the misrouting but also the entire cost advantage of tiering. It is a fallback, not a redesign, when better routing signals are available.",
+        "D": "Pushing the threshold that far escalates nearly everything, so the small tier saves little, and the weak signal still misses some confident errors."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "model-routing",
+      "escalation"
+    ]
+  },
+  {
+    "id": "q-0687",
+    "scenario": "A retailer's order-exception agent runs on the smallest tier, whose per-token price is a small fraction of the mid tier's, so finance wants to keep it. The team's own measurements show the small tier needs about four attempts per resolved case and still hands many cases to humans, while the mid tier resolves most cases in one or two passes.",
+    "stem": "Which comparison should drive the model choice?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Per-token price, because it is the one published cost figure and the easiest for finance to audit."
+      },
+      {
+        "key": "B",
+        "text": "Public benchmark scores, because they are produced independently of any one company's workload."
+      },
+      {
+        "key": "C",
+        "text": "Average response latency per request, because faster replies mean fewer cases reach a human."
+      },
+      {
+        "key": "D",
+        "text": "Cost per completed task on the company's own eval set, including retries and human handling time."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "The business pays for resolved cases, not tokens. Retries multiply token spend and human handoffs add labor cost, so a model with a higher per-token price can be cheaper per resolution.",
+      "distractors": {
+        "A": "Per-token price ignores how many tokens and attempts each resolution takes, which is where the small tier loses in this scenario.",
+        "B": "Benchmarks say little about this company's order-exception tasks, tools, and data; only the team's own eval reflects them.",
+        "C": "Latency per request does not predict resolution rate, and the small tier's extra attempts erase any per-request speed advantage."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "cost-per-task"
+    ]
+  },
+  {
+    "id": "q-0691",
+    "scenario": "A government benefits portal's assistant has four proposed guardrails: (1) answer in plain language at about an 8th-grade reading level and in the applicant's language, (2) disclose case data only for the signed-in applicant, (3) never approve an exception above a set dollar limit, and (4) never print a full Social Security number. The team is deciding which belong in the system prompt and which need enforcement outside the model.",
+    "stem": "Which guardrail is best implemented as a system-prompt instruction validated by evals, rather than enforced in code?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Instruct the model to disclose case data for the signed-in applicant and to refuse questions about anyone else."
+      },
+      {
+        "key": "B",
+        "text": "Instruct the model to approve no exception above the limit and to explain the limit to applicants who ask."
+      },
+      {
+        "key": "C",
+        "text": "Instruct the model to mask any nine-digit number it sees so that a full Social Security number does not appear."
+      },
+      {
+        "key": "D",
+        "text": "Instruct the model to write in plain language at about an 8th-grade level and in the applicant's own language."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "Reading level and language are judgment-based style constraints where a miss is a soft failure. A prompt instruction checked by evals is the proportionate control. The other three carry privacy or financial consequences and need deterministic enforcement.",
+      "distractors": {
+        "A": "This is an access-control requirement. It belongs in tool and data scoping so other cases are never retrievable, with the prompt only as a secondary layer.",
+        "B": "A spending limit is a business rule that should be checked deterministically by code before any approval executes.",
+        "C": "A masking instruction can fail on unusual formats; an output filter or redaction step in code gives a guarantee the prompt cannot."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "guardrails",
+      "prompt-vs-code"
+    ]
+  },
+  {
+    "id": "q-0696",
+    "scenario": "After adding 'think step by step' to a claims-triage prompt, accuracy improved, but the downstream parser, which expects one JSON object, now fails whenever reasoning text precedes the JSON. A developer is choosing a fix.",
+    "stem": "Which fix keeps the accuracy gain and makes parsing reliable?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Reorder the schema so the decision field comes first and the reasoning field last, so the parser reads the answer early."
+      },
+      {
+        "key": "B",
+        "text": "Remove the step-by-step instruction, since reasoning text cannot coexist with machine-readable output."
+      },
+      {
+        "key": "C",
+        "text": "Ask for reasoning inside designated tags and the final decision in a separate field or tag, and parse only the decision."
+      },
+      {
+        "key": "D",
+        "text": "Strip everything before the first opening brace with a regex and parse the remainder as JSON."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "Separating reasoning from the answer preserves the benefit of working through the problem while giving the parser a stable, isolated target.",
+      "distractors": {
+        "A": "Answer-first ordering removes the reasoning benefit: the model commits to an answer before it has reasoned, so the reasoning field only rationalizes it.",
+        "B": "They can coexist when reasoning and answer are kept in separate tags or fields; dropping reasoning gives up the accuracy gain.",
+        "D": "Reasoning text can itself contain braces or quoted JSON, so the regex fails unpredictably."
+      }
+    },
+    "lab": "lab-06-few-shot-and-criteria",
+    "difficulty": 5,
+    "tags": [
+      "chain-of-thought",
+      "parsing"
+    ]
+  },
+  {
+    "id": "q-0698",
+    "scenario": "A procurement team's prompt starts with a two-paragraph question and instructions, then pastes three vendor contracts of about 60,000 tokens each back to back with no labels. Answers cover the first contract well but often miss clauses that appear only in the third, and sometimes attribute a clause to the wrong vendor.",
+    "stem": "Which restructuring is most likely to improve the answers?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Wrap each contract in labeled document tags with vendor metadata so every clause stays attributable to its vendor."
+      },
+      {
+        "key": "B",
+        "text": "Repeat the question above each contract so the model keeps track of what it was originally asked."
+      },
+      {
+        "key": "C",
+        "text": "Summarize each contract to about 500 tokens first, then ask the question over the three summaries."
+      },
+      {
+        "key": "D",
+        "text": "Order the contracts alphabetically by vendor so that their positions are predictable from run to run, whatever their size."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Labeled tags and metadata give the model clear document boundaries, which fixes misattribution and helps coverage of the third contract. Placing the long documents before the question, with instructions last, is useful secondary guidance but is not what carries the fix.",
+      "distractors": {
+        "B": "Repeating the question adds tokens but does nothing about unlabeled boundaries, which cause the misattribution.",
+        "C": "Summaries drop the clause-level detail the question depends on, trading a coverage problem for a fidelity problem.",
+        "D": "A predictable order does not remove the position effect or add labels; the third contract is still disadvantaged."
+      }
+    },
+    "lab": "lab-14-context-management",
+    "difficulty": 5,
+    "tags": [
+      "long-context",
+      "placement"
+    ]
+  },
+  {
+    "id": "q-0703",
+    "scenario": "A document-analysis service fans out 40 parallel requests that share a 30,000-token prefix and differ only in the final question. Right after a deploy, with a cold cache, usage shows large cache writes on nearly every request and almost no reads, although the breakpoint is correctly placed at the end of the shared prefix.",
+    "stem": "What explains this, and what is the best remedy?",
+    "options": [
+      {
+        "key": "A",
+        "text": "A cache entry is readable once a response starts streaming: send one request, await its first token, then the rest."
+      },
+      {
+        "key": "B",
+        "text": "Parallel requests cannot use caching, so run the 40 requests one after another and accept the added wall-clock time it takes."
+      },
+      {
+        "key": "C",
+        "text": "Repeat the breakpoint on every question block so that each request has its own cache entry to read."
+      },
+      {
+        "key": "D",
+        "text": "Switch to the 1-hour TTL, since the 5-minute entries expire before the parallel requests finish."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Parallel requests with an identical cold prefix all pay for their own writes because none can read an entry still being written. Warming the cache with one request first lets the other 39 read it.",
+      "distractors": {
+        "B": "Parallel requests can read an entry once it exists; serializing everything wastes wall-clock time when one warming request is enough.",
+        "C": "Question blocks differ per request, so entries placed after them would never be read and only add write cost.",
+        "D": "Expiry is not the issue; the entries do not exist yet at the moment the parallel requests start."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "caching",
+      "fan-out"
+    ]
+  },
+  {
+    "id": "q-0709",
+    "scenario": "A retail platform renders its system prompt from a template with optional sections. When customer data is missing, the engine leaves placeholders in place, and the model has begun greeting customers with 'Dear {{first_name}}' and treating 'tier = {{loyalty_tier}}' as a real value in its discount reasoning.",
+    "stem": "What is the best fix?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Add a line to the prompt telling the model to ignore anything in curly braces and to proceed as if the data were not there."
+      },
+      {
+        "key": "B",
+        "text": "Move all variables to the end of the prompt, where unfilled placeholders are less likely to be noticed."
+      },
+      {
+        "key": "C",
+        "text": "Switch to a larger model tier, which should recognize unfilled placeholders and work around them."
+      },
+      {
+        "key": "D",
+        "text": "Validate required variables before rendering, default or cleanly omit optional ones, and test rendered prompts in CI."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "The defect is in prompt assembly, so the fix belongs there: fail or default deterministically so the model never sees a raw placeholder, and test the rendered output the way any other code path is tested.",
+      "distractors": {
+        "A": "This depends on the model recognizing every unfilled placeholder correctly, and curly braces appear in legitimate content, so it will misfire.",
+        "B": "Reordering does not fill the data, and the model still reads the placeholders; it may only change where they do harm.",
+        "C": "A larger tier may guess better but still reasons over invented values at times, and the cause stays in the pipeline."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "templates",
+      "variables"
+    ]
+  },
+  {
+    "id": "q-0710",
+    "scenario": "A claims-chatbot team has twelve prompt-level guardrails, such as staying in scope, using a neutral tone, and declining to speculate on coverage decisions. Each prompt edit is checked by a developer reading a handful of conversations. Violations keep appearing in production after edits that looked fine.",
+    "stem": "Which practice best controls the risk of guardrail regressions?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Read more sample conversations per edit, since larger manual samples should reveal violations before the change is released."
+      },
+      {
+        "key": "B",
+        "text": "Ask the model at the end of each reply to confirm that it followed every guardrail, and block replies where it says no."
+      },
+      {
+        "key": "C",
+        "text": "Build an adversarial test set per guardrail, run it on each prompt change, and track violation rates, with code checks for severe rules."
+      },
+      {
+        "key": "D",
+        "text": "Add each failed conversation to the prompt as a new rule, so that the same failure cannot recur in later conversations."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "Prompt-level guardrails are probabilistic, so their reliability has to be measured. A regression suite run on each change catches drift that hand reading misses, and high-severity rules still need deterministic enforcement outside the prompt.",
+      "distractors": {
+        "A": "Manual reading scales poorly, is inconsistent between reviewers, and rarely probes the adversarial cases where guardrails fail.",
+        "B": "A model reporting on its own compliance is not independent evidence, and non-compliant replies usually self-certify.",
+        "D": "Accretion grows the prompt and creates conflicts between rules, and it patches single cases without testing for regressions elsewhere."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "guardrails",
+      "evals"
+    ]
+  },
+  {
+    "id": "q-0712",
+    "scenario": "A bank's agent platform has 25 skills of about 3,000 tokens each, and architects worry that adopting them will add 75,000 tokens to every request. A developer suggests merging them into one always-loaded prompt for simplicity.",
+    "stem": "Which design decision most determines whether skills actually save context?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Write distinct descriptions that state each skill's task and trigger, so relevant skills load and the rest stay short entries."
+      },
+      {
+        "key": "B",
+        "text": "Merge the 25 skills into one skill with a single description, so that one item needs maintaining."
+      },
+      {
+        "key": "C",
+        "text": "Put each skill's summary steps into its description so that Claude rarely needs to open the full file for any of them."
+      },
+      {
+        "key": "D",
+        "text": "Move the skills into CLAUDE.md-style instructions that are loaded each time, so a request cannot miss them."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Because only descriptions are preloaded, cost scales with the skills a request actually uses. That works only if descriptions are specific and non-overlapping enough for the right skills, and no others, to be loaded.",
+      "distractors": {
+        "B": "A merged skill loads all 25 bodies whenever it triggers, which recreates the 75,000-token cost on any request that touches it.",
+        "C": "Long descriptions are always in context, so they add up across 25 skills and grow cost on every request.",
+        "D": "Always-on content is paid for on every request, which is exactly the cost the architects wanted to avoid."
+      }
+    },
+    "lab": "lab-07-rules-commands-skills",
+    "difficulty": 6,
+    "tags": [
+      "skills",
+      "progressive-loading"
+    ]
+  },
+  {
+    "id": "q-0719",
+    "scenario": "A six-person platform team must monitor its agents across 20 services. They are weighing a custom trace store and query engine against instrumenting with a vendor-neutral tracing standard and exporting to a managed backend.",
+    "stem": "Which choice best fits their situation?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Adopt a vendor's proprietary SDK throughout the code, since tight integration gives the fastest path to dashboards."
+      },
+      {
+        "key": "B",
+        "text": "Write structured log lines to a file share and search them with scripts, since logs avoid new infrastructure."
+      },
+      {
+        "key": "C",
+        "text": "Build a custom trace store and query engine so the team controls storage format, retention, and the query features."
+      },
+      {
+        "key": "D",
+        "text": "Instrument with a vendor-neutral tracing standard and export to a managed backend, keeping the option to switch backends."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "A small team gains most from not building undifferentiated storage and query systems. Standard instrumentation keeps application code portable, while a managed backend supplies scale and tooling; build is justified only for needs no backend meets.",
+      "distractors": {
+        "A": "Proprietary SDK calls spread through 20 services create lock-in that is costly to unwind if pricing or fit changes.",
+        "B": "Scripts over files lack trace structure, scale poorly, and give no ready way to follow a request across services.",
+        "C": "A custom store consumes scarce engineering time on infrastructure, and the team must keep it scaling and secure."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "build-vs-buy"
+    ]
+  },
+  {
+    "id": "q-0720",
+    "scenario": "A platform team wants cost visibility for a shared Claude integration used by 30 internal products. Finance asks for a view by product and feature, plus an alert when any product's spend jumps unexpectedly within a day.",
+    "stem": "Which design delivers this most directly?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Review the monthly invoice from the provider and split the total across the products in proportion to the headcount of each team."
+      },
+      {
+        "key": "B",
+        "text": "Tag each request with product and feature, emit token usage from each response as metrics by tag, and alert on rate changes."
+      },
+      {
+        "key": "C",
+        "text": "Ask each product team to estimate its own token consumption each quarter and submit the estimate to the platform team."
+      },
+      {
+        "key": "D",
+        "text": "Record the full prompt text for every request and compute token counts offline from the text once a week in a batch job."
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "Each response reports its own token usage, so emitting that with product and feature labels gives accurate, near-real-time attribution. Rate-based alerts on those low-cardinality labels catch spikes within hours instead of at month end.",
+      "distractors": {
+        "A": "A monthly invoice split by headcount neither reflects actual usage nor arrives soon enough to detect a within-day spike.",
+        "C": "Self-reported quarterly estimates are inaccurate by construction and cannot trigger daily alerts.",
+        "D": "Recomputing counts offline from stored prompts is expensive, ignores output and cached tokens, and runs weekly, so it misses the daily-alert requirement."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "cost-attribution"
+    ]
+  },
+  {
+    "id": "q-0721",
+    "scenario": "A government agency runs a document-review agent that calls a retrieval tool, a classification tool, and a summarizer. Reviewers report inconsistent outcomes for similar documents, and the team suspects one tool but cannot tell which, because each tool logs to its own file in a different format.",
+    "stem": "What is the most effective observability improvement?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Increase log verbosity in the retrieval tool only, since retrieval is the most common source of wrong documents in such systems."
+      },
+      {
+        "key": "B",
+        "text": "Merge the three tool log files into one archive each night so engineers can search a single place using a text editor."
+      },
+      {
+        "key": "C",
+        "text": "Standardize all components on one structured telemetry schema with shared run and span IDs so any run can be reconstructed end to end."
+      },
+      {
+        "key": "D",
+        "text": "Add a model-written explanation to each final summary describing which tools were used and why each tool was chosen."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "Correlating signals is the core problem: without a common schema and run identity you cannot compare behavior across runs or isolate the faulty component. A shared structure also enables queries by tool, outcome, and step.",
+      "distractors": {
+        "A": "Guessing the retrieval tool is the culprit repeats the current problem; more verbosity in one component does not provide a cross-component view.",
+        "B": "Concatenating differently formatted files still leaves no shared run identifier, so lines cannot be tied back to a specific review.",
+        "D": "A model-written account of its own process is unverified narrative, not telemetry, and can differ from what actually executed."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "correlation"
+    ]
+  },
+  {
+    "id": "q-0730",
+    "scenario": "An engineering firm's knowledge base mixes Markdown guides, PDF specifications with large tables, and source code. One splitter cuts everything at 800 tokens. Questions about specification limits return table fragments with no headers, and code questions return half-functions.",
+    "stem": "What is the best redesign of the ingestion pipeline?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Treat each file as one chunk so that tables and functions stay unsplit, and rely on the reranker to select useful files."
+      },
+      {
+        "key": "B",
+        "text": "Keep the 800-token splitter and add a 400-token overlap so that fragments contain more text from neighboring chunks."
+      },
+      {
+        "key": "C",
+        "text": "Convert the sources to plain text first and then split at a uniform 1,000 tokens so that content is treated consistently."
+      },
+      {
+        "key": "D",
+        "text": "Chunk per content type: headings for guides, whole tables with headers for specs, functions for code, tagged by type."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "Different sources have different natural units. Respecting them (sections, intact tables with their header rows, functions) means each chunk is self-explanatory, and a type tag lets queries filter or weight sources.",
+      "distractors": {
+        "A": "File-sized chunks blur many topics into one vector and bloat context, as with whole-manual chunks.",
+        "B": "A large overlap duplicates text and still lacks table headers or function boundaries, so fragments remain hard to interpret.",
+        "C": "Flattening to text destroys the table and code structure that the splitter needed, and a bigger uniform size does not restore it."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "content-types"
+    ]
+  },
+  {
+    "id": "q-0731",
+    "scenario": "A team set 50% overlap between chunks 'to be safe.' The index is nearly twice as large, and the top-5 results for many queries are near-duplicates of the same passage, leaving little room for other relevant material.",
+    "stem": "What is the most appropriate change?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Remove overlap entirely, since any overlap duplicates text, and accept that boundary-spanning facts are then occasionally lost."
+      },
+      {
+        "key": "B",
+        "text": "Keep 50% overlap and increase top-k to 20 so that enough distinct passages survive after the near-duplicates are included."
+      },
+      {
+        "key": "C",
+        "text": "Use modest overlap aligned to sentence or section boundaries, and merge or deduplicate adjacent hits before building the prompt."
+      },
+      {
+        "key": "D",
+        "text": "Keep 50% overlap but switch to a more expensive embedding model so that near-duplicate chunks are scored as clearly different."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "Overlap protects facts that straddle a boundary, but heavy overlap multiplies storage and fills the result list with redundant chunks. Modest overlap on natural boundaries, plus merging adjacent hits, keeps the benefit at far lower cost.",
+      "distractors": {
+        "A": "Zero overlap solves the duplication but reintroduces boundary losses, so it swaps one failure mode for another.",
+        "B": "A larger top-k spends more tokens on context to compensate for a problem caused by the index design, and still contains duplicates.",
+        "D": "Embedding quality does not change the fact that overlapping chunks contain the same text, so duplicates still dominate."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "overlap"
+    ]
+  },
+  {
+    "id": "q-0732",
+    "scenario": "A bank wants contextual retrieval for 5 million chunks from long reports: for each chunk, a model writes a short context situating it in its document. A pilot is slow and costly because every call includes the entire report as well as one chunk.",
+    "stem": "Which approach best controls cost while keeping the benefit?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Generate contexts once at ingestion, caching the report prefix across its chunks and using a smaller, faster model for generation."
+      },
+      {
+        "key": "B",
+        "text": "Run contextualization with the largest available model so that fewer, higher-quality contexts need to be generated for each report."
+      },
+      {
+        "key": "C",
+        "text": "Drop the whole report from each call and give the model just the chunk, accepting weaker context that costs much less."
+      },
+      {
+        "key": "D",
+        "text": "Generate the context at query time, for just the chunks retrieved, so that no ingestion-time model cost is paid for rarely used chunks."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Contextualization is an indexing-time cost paid once per chunk. Every chunk of a report shares the same long prefix, so prompt caching makes repeated reads cheap, and a short, constrained summarization task rarely needs the largest model.",
+      "distractors": {
+        "B": "The largest model raises cost per chunk and does not reduce the number of contexts required, as every chunk still needs one.",
+        "C": "Without the report the model cannot say where the chunk fits, so the output no longer disambiguates, defeating the purpose.",
+        "D": "Generating at query time moves cost and latency into every user request and the chunk's embedding would still lack context at search time."
+      }
+    },
+    "lab": null,
+    "difficulty": 7,
+    "tags": [
+      "contextual-retrieval",
+      "caching"
+    ]
+  },
+  {
+    "id": "q-0742",
+    "scenario": "A legal-research team runs BM25 and vector search in parallel. BM25 scores range from 0 to 40, while cosine similarity ranges from 0 to 1. A teammate merges the lists by adding raw scores, and the results are dominated by the keyword list.",
+    "stem": "What is the best way to merge the two lists?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Combine them by rank, for example with reciprocal rank fusion, then optionally rerank the fused candidates."
+      },
+      {
+        "key": "B",
+        "text": "Multiply the cosine scores by 40 so that they lie in the same range as the BM25 scores before adding them."
+      },
+      {
+        "key": "C",
+        "text": "Drop the BM25 results whenever the vector search returns anything, since embeddings are the more modern method."
+      },
+      {
+        "key": "D",
+        "text": "Alternate results from the two lists one by one, so that each retriever contributes exactly half of the final list."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Scores from different retrievers are on incompatible scales and distributions, so adding them is arbitrary. Rank-based fusion uses only each list's ordering, so documents that rank well in both rise without any calibration.",
+      "distractors": {
+        "B": "A fixed multiplier is a brittle guess because score distributions change with the query and corpus.",
+        "C": "Discarding BM25 loses exact-match strength, which is the reason for running both retrievers in the first place.",
+        "D": "Strict alternation ignores how confident each retriever is, so a weak result can displace a strong one from the other list."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "hybrid",
+      "fusion"
+    ]
+  },
+  {
+    "id": "q-0743",
+    "scenario": "An enterprise assistant answers questions such as 'Which suppliers of component X were affected by the port closure, and what is our exposure?' Single-shot retrieval on the question returns generic port-closure articles and misses the supplier records and exposure data.",
+    "stem": "Which retrieval design best fits this query pattern?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Increase the single-shot top-k to 100 so that the supplier and exposure records are included in the retrieved set."
+      },
+      {
+        "key": "B",
+        "text": "Embed the full question with a larger embedding model so the vector represents every part of its multi-step meaning."
+      },
+      {
+        "key": "C",
+        "text": "Let the agent decompose the question and search iteratively, using each result to shape the next query, within a step limit."
+      },
+      {
+        "key": "D",
+        "text": "Pre-compute answers to the most common multi-part questions and serve them from a cache whenever a question matches."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "Multi-hop questions need evidence that depends on earlier findings: first identify the suppliers, then look up exposure. An agent that reformulates queries across steps can follow the chain, and a step budget keeps cost and latency bounded.",
+      "distractors": {
+        "A": "A larger top-k still ranks by similarity to the original question, so the records that depend on intermediate answers remain unreachable.",
+        "B": "A single vector cannot contain facts that are only discovered after the first retrieval, regardless of model size.",
+        "D": "Precomputed answers cover anticipated questions only and go stale, so they cannot handle new combinations."
+      }
+    },
+    "lab": null,
+    "difficulty": 7,
+    "tags": [
+      "agentic-search",
+      "multi-hop"
+    ]
+  },
+  {
+    "id": "q-0744",
+    "scenario": "A customer-chat feature has a 1.5-second latency target for retrieval plus generation. A cross-encoder reranker over 300 candidates improves relevance but adds about a second, pushing the 95th percentile over budget.",
+    "stem": "What is the most appropriate adjustment?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Remove the reranker, since first-stage retrieval already meets the quality bar and the latency budget matters more."
+      },
+      {
+        "key": "B",
+        "text": "Send the 300 candidates to the generation model and let it choose among them to avoid a separate reranking step."
+      },
+      {
+        "key": "C",
+        "text": "Rerank the 300 candidates but asynchronously, returning the first-stage top 5 immediately and ignoring the reranked order."
+      },
+      {
+        "key": "D",
+        "text": "Rerank a smaller candidate set (for example 30 to 50 from the hybrid stage) and measure the quality and latency trade-off."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "Reranking cost grows with candidates scored, so limiting the pool captures most of the quality gain inside the budget. The right pool size is found by measuring recall and latency together, not by dropping the stage outright.",
+      "distractors": {
+        "A": "Removing the reranker discards a proven quality gain when a smaller pool may satisfy both the quality and the latency goals.",
+        "B": "Passing 300 candidates to the generator adds large token cost and latency, and attention dilutes across mostly irrelevant text.",
+        "C": "If the reranked order is ignored, the work buys nothing: users still get the first-stage top 5 and the cost has been paid."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "reranking",
+      "latency"
+    ]
+  },
+  {
+    "id": "q-0748",
+    "scenario": "A claims agent built by one team must obtain fraud scores from a separate fraud-detection agent owned by another team. That agent has its own tools, memory, and prompts, runs analyses that can take minutes, and is upgraded on its own schedule.",
+    "stem": "Which integration approach is most appropriate?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Have both agents read and write messages in a shared database table and poll it for new work and results."
+      },
+      {
+        "key": "B",
+        "text": "Copy the fraud agent's prompts and tools into the claims agent so one agent handles scoring in a single process."
+      },
+      {
+        "key": "C",
+        "text": "Expose each of the fraud agent's internal tools to the claims agent as separate tools, so that it can run the analysis steps itself."
+      },
+      {
+        "key": "D",
+        "text": "Integrate through a versioned, task-oriented interface between the two agents, with asynchronous status and results, and no shared internals."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "An autonomous agent owned by another team is best treated as a peer service: a stable contract describing tasks, status, and results lets it evolve and run long jobs independently. This is an architectural pattern regardless of which specific agent protocol is used.",
+      "distractors": {
+        "A": "A shared table is an ad hoc, hidden contract with no versioning, status semantics, or access control between teams.",
+        "B": "Copying prompts and tools duplicates ownership, breaks when the fraud team upgrades, and couples the two release cycles.",
+        "C": "Exposing internal tools makes the claims agent responsible for fraud-analysis orchestration it was meant to delegate, and leaks implementation details."
+      }
+    },
+    "lab": "lab-19-multi-agent-orchestration",
+    "difficulty": 6,
+    "tags": [
+      "agent-to-agent"
+    ]
+  },
+  {
+    "id": "q-0749",
+    "scenario": "A nightly pipeline at a retailer re-prices 50,000 products. For each product it calls an internal pricing API with fixed parameters and writes the result to a table. A step that explains unusual price moves in prose is the only part needing language understanding.",
+    "stem": "How should the pricing API calls be integrated?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Call the API directly from pipeline code, and invoke Claude only for the explanation step on the flagged price changes."
+      },
+      {
+        "key": "B",
+        "text": "Define the pricing API as a custom tool and let Claude decide in a loop which products to re-price each night."
+      },
+      {
+        "key": "C",
+        "text": "Wrap the pricing API in an MCP server and have Claude call it as a tool for every product in the nightly run."
+      },
+      {
+        "key": "D",
+        "text": "Run the pricing CLI through Claude's Bash tool for each product so that the process stays consistent with agentic tooling."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Deterministic, high-volume calls with fixed parameters need no model judgment, so routing them through an LLM adds cost, latency, and nondeterminism. Use the model only where language understanding is needed.",
+      "distractors": {
+        "B": "A custom tool still places 50,000 deterministic calls inside model loops and lets the model decide work that code already knows.",
+        "C": "MCP is valuable for reuse across clients, but here no model decision is needed, so each call would pay for LLM turns it does not need.",
+        "D": "Shelling out through the model keeps the cost and variability of an LLM in the loop for each product without any benefit."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "direct-api"
+    ]
+  },
+  {
+    "id": "q-0754",
+    "scenario": "A knowledge-search tool returns the full text of the top five documents, around 20,000 tokens per document, into the agent's context on each call. Agents often need only one section of one document, and long sessions run out of context.",
+    "stem": "Which redesign best applies progressive disclosure?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Return just the single highest-ranked document in full so each search consumes about a fifth of the previous tokens."
+      },
+      {
+        "key": "B",
+        "text": "Return titles, short summaries, and IDs from search, and add a fetch tool that retrieves a specific section the agent selects."
+      },
+      {
+        "key": "C",
+        "text": "Keep the full results but compress older tool results in the conversation once the context reaches a size threshold."
+      },
+      {
+        "key": "D",
+        "text": "Truncate each returned document to its first 2,000 tokens so that the five documents still appear in each result."
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "A layered design lets the agent scan cheap metadata first, then pay for detail only where it matters, which keeps each step small while preserving access to any part of any document.",
+      "distractors": {
+        "A": "Returning one document in full risks omitting the right one and still delivers far more text than needed from it.",
+        "C": "Compressing later treats the symptom: the large payloads are still loaded first and only shrunk after consuming context.",
+        "D": "Truncating to the document openings drops the sections the agent actually needs, which are often deeper in the text."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "layered-retrieval"
+    ]
+  },
+  {
+    "id": "q-0755",
+    "scenario": "A company has 40 Skills, and the agent is given each Skill's name and description up front. Engineers see that relevant Skills are frequently not used, even for tasks they were written for. Descriptions are one vague line, such as 'Helps with reports.'",
+    "stem": "What is the most likely fix?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Rewrite each Skill's description to state what it does and when to use it, using the vocabulary of real task requests."
+      },
+      {
+        "key": "B",
+        "text": "Move the 40 Skills' full instructions into the system prompt so that the agent no longer needs to decide when to load them."
+      },
+      {
+        "key": "C",
+        "text": "Add a router prompt that preselects five likely Skills and loads their full instructions before each task."
+      },
+      {
+        "key": "D",
+        "text": "Raise the number of Skills whose full text is loaded by default to ten, to improve their usage rates."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "With progressive disclosure the description is the only thing the model sees when deciding to load a Skill, so discoverability depends entirely on it. Specific, trigger-oriented descriptions fix selection without giving up lazy loading.",
+      "distractors": {
+        "B": "Pasting everything up front abandons progressive loading and brings back the cost and dilution it was meant to avoid.",
+        "C": "A router that preloads five Skills before each task spends context on likely-but-unneeded content, and its picks rest on the same vague descriptions.",
+        "D": "Loading ten Skills by default gives up lazy loading and fills context with irrelevant instructions without making the right Skill any easier to find."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "skills",
+      "descriptions"
+    ]
+  },
+  {
+    "id": "q-0756",
+    "scenario": "A team's incident-response Skill has grown to a 6,000-line SKILL.md that holds the overview, per-system runbooks, and command reference. Whenever the Skill is invoked, all of it enters context, even though most incidents touch one system.",
+    "stem": "What is the best restructuring?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Move the entire content into the project's always-loaded instruction file so that it is present without a Skill decision."
+      },
+      {
+        "key": "B",
+        "text": "Summarize the runbooks to a few lines each inside SKILL.md and delete the detailed originals to save space."
+      },
+      {
+        "key": "C",
+        "text": "Split the Skill into 12 separate Skills, one per system, each with a full copy of the shared overview and command reference."
+      },
+      {
+        "key": "D",
+        "text": "Keep a short SKILL.md as overview and index, and move per-system runbooks into separate reference files loaded when needed."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "Progressive disclosure applies within a Skill too: the entry file stays small and points to detailed files that are read only when the incident calls for them, keeping invocation cheap without losing detail.",
+      "distractors": {
+        "A": "An always-loaded file puts all 6,000 lines in every session, including those unrelated to incidents, which is the cost being avoided.",
+        "B": "Deleting the detailed originals removes the specifics responders need during an incident, trading missing detail for token savings.",
+        "C": "Twelve Skills duplicate shared content and add 12 descriptions competing for selection, which makes discovery and maintenance worse."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "skills",
+      "reference-files"
+    ]
+  },
+  {
+    "id": "q-0770",
+    "scenario": "A retailer is about to ship a revised returns-advice prompt. The new version improves answer quality on the eval set, but it also calls for longer answers and an extra retrieval step. Stakeholders disagree on whether to ship, because each cites a different number.",
+    "stem": "What is the best way to structure the ship decision?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Ship whenever the quality score rises, since quality is the product and the other numbers can be optimized later."
+      },
+      {
+        "key": "B",
+        "text": "Average quality, latency, and cost into one composite score and ship if the composite rises by any amount."
+      },
+      {
+        "key": "C",
+        "text": "Ask each stakeholder group to vote on the metric that matters most and ship if the majority agrees."
+      },
+      {
+        "key": "D",
+        "text": "Name one primary quality metric with a minimum gain, and set limits on latency, cost, and safety as guardrails."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "A primary metric states what success is, and guardrail metrics with agreed limits stop an improvement in one dimension from silently degrading others. Agreeing these before the run prevents post-hoc metric shopping.",
+      "distractors": {
+        "A": "Ignoring latency and cost lets a quality gain ship even when it breaks an SLA or budget the business already committed to.",
+        "B": "A composite hides trade-offs; a small quality gain can mask a large cost regression, and the weights become arbitrary.",
+        "C": "Voting substitutes preference for measurement and does not define thresholds that can be checked on the next change."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "metrics",
+      "guardrails"
+    ]
+  },
+  {
+    "id": "q-0771",
+    "scenario": "A university uses Claude as a tutoring assistant and tracks a single LLM-judge 'helpfulness' score. After a prompt change the score rose 12%, yet teachers report students getting long, repetitive explanations and not finishing the exercises.",
+    "stem": "What is the most likely explanation, and the best metric change?",
+    "options": [
+      {
+        "key": "A",
+        "text": "The judge is miscalibrated at random; replace it with a larger judge model and keep the single helpfulness score."
+      },
+      {
+        "key": "B",
+        "text": "Students need more time; lengthen the tutoring session limit and keep tracking the same score."
+      },
+      {
+        "key": "C",
+        "text": "Verbosity is gaming the score; add task-completion and length-normalized metrics, and validate the judge against humans."
+      },
+      {
+        "key": "D",
+        "text": "Helpfulness cannot be measured automatically; drop it and rely on teacher anecdotes each term."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "A single proxy metric invites optimizing for what the judge rewards, here length. Pairing it with outcome metrics (exercise completion) and checking the judge against human labels restores validity.",
+      "distractors": {
+        "A": "A larger judge may still reward verbosity; the issue is a proxy metric with a systematic bias, not random error.",
+        "B": "Longer sessions treat a symptom and ignore that the measured score no longer tracks the outcome teachers care about.",
+        "D": "Automated judging is usable once validated; discarding it removes a scalable signal instead of fixing its blind spot."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "metrics",
+      "llm-judge"
+    ]
+  },
+  {
+    "id": "q-0772",
+    "scenario": "A government agency has two Claude workloads: an interactive chat for case workers and a nightly job that classifies a backlog of scanned letters. The team wants one latency metric for both and proposes p95 time to first token.",
+    "stem": "What is the better approach?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Use p95 time to first token for both, because it is the standard industry metric for model responsiveness."
+      },
+      {
+        "key": "B",
+        "text": "Use time to first token for the chat, and end-to-end completion time or throughput against the deadline for the nightly job."
+      },
+      {
+        "key": "C",
+        "text": "Use average output tokens per second for both, since it captures how fast the model generates."
+      },
+      {
+        "key": "D",
+        "text": "Skip latency metrics for the nightly job and for the chat, since cost and accuracy are the only metrics that matter."
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "Metrics should match how value is delivered: interactive users feel the wait for the first token, while a batch job succeeds if the whole backlog finishes before the morning. The same number cannot measure both.",
+      "distractors": {
+        "A": "No one watches the first token of a nightly job; the metric would be measurable but irrelevant to its success criterion.",
+        "C": "Generation speed is one input to latency but ignores queueing, retries, and the job-level deadline.",
+        "D": "Dropping latency removes the SLO-style check the chat requires, and the batch deadline is itself a latency requirement."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "metrics",
+      "latency"
+    ]
+  },
+  {
+    "id": "q-0779",
+    "scenario": "A SaaS company uses a pairwise LLM judge to choose between a current and a candidate prompt. The candidate wins 68% of comparisons, but an analyst notices that the candidate output is always presented as 'Response A' and the judge selects 'A' more often than 'B' on a control set of identical responses.",
+    "stem": "What is the best correction?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Accept the 68% result, since a win rate above 50% means the candidate is better regardless of ordering."
+      },
+      {
+        "key": "B",
+        "text": "Instruct the judge to be fair, and keep the fixed order, since explicit instructions remove position preferences."
+      },
+      {
+        "key": "C",
+        "text": "Replace the judge with human raters for all future comparisons, since position bias makes model judges unusable."
+      },
+      {
+        "key": "D",
+        "text": "Present each pair in both orders (or randomize the order), and count a win only when the judge's preference is consistent."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "Position bias is a known judge artifact. Swapping or randomizing order and aggregating (or requiring consistency) cancels it, and the identical-response control confirms the correction works.",
+      "distractors": {
+        "A": "The control set shows the judge favors position A even for identical responses, so the 68% is confounded.",
+        "B": "Instructions reduce but do not reliably eliminate position bias; a structural fix is more reliable.",
+        "C": "Model judges remain useful at scale once the bias is controlled; humans are better reserved for calibration samples."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "llm-judge",
+      "bias"
+    ]
+  },
+  {
+    "id": "q-0786",
+    "scenario": "A two-arm test of a new Claude prompt shows no significant difference in the primary metric. An analyst then slices results by 20 customer segments and finds one segment where the new prompt wins with p = 0.03. She proposes making the new prompt the default for that segment.",
+    "stem": "What is the best response?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Roll it out for that segment, since a p-value under 0.05 indicates a reliable effect."
+      },
+      {
+        "key": "B",
+        "text": "Roll it out everywhere, since one segment gaining shows that the new prompt has real merit overall."
+      },
+      {
+        "key": "C",
+        "text": "Discard the experiment entirely, since slicing the data after the fact makes all conclusions invalid."
+      },
+      {
+        "key": "D",
+        "text": "Treat the segment result as a hypothesis and confirm it with a pre-specified follow-up test."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "Testing 20 slices makes one apparent win likely by chance alone. A post-hoc subgroup finding is a hypothesis; confirming it with a new, pre-specified test is the sound way to act on it.",
+      "distractors": {
+        "A": "With 20 comparisons, a p of 0.03 somewhere is expected by chance, so it is not reliable evidence.",
+        "B": "The overall test found no effect; one noisy segment does not justify a global change.",
+        "C": "The pre-specified overall result remains valid; only the exploratory slice is unreliable, and it can still guide a follow-up."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "ab-testing",
+      "multiple-comparisons"
+    ]
+  },
+  {
+    "id": "q-0787",
+    "scenario": "A bank's Claude agent can call a tool that issues small refunds. The team wants to evaluate a newer model on real traffic before any customer sees it, and proposes shadow mode: run both models on each request and compare.",
+    "stem": "What must the shadow design handle to be safe and meaningful?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Log the shadow model's intended tool calls without executing them, and compare them with the live model's actions."
+      },
+      {
+        "key": "B",
+        "text": "Run shadow mode just on conversations that do not reach the refund step, excluding the tool from the comparison."
+      },
+      {
+        "key": "C",
+        "text": "Let the shadow model execute tools too, but cap its refunds at a small dollar amount."
+      },
+      {
+        "key": "D",
+        "text": "Nothing special, since shadow runs are read-only by definition and do not affect customers."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "A shadow model with live tools could take real actions, so its tool calls must be intercepted and logged only. Comparing intended actions against the live model's still evaluates the behavior that matters.",
+      "distractors": {
+        "B": "Excluding the refund path removes the highest-risk behavior from the comparison, so the evaluation misses what matters.",
+        "C": "A cap limits but does not remove real financial side effects, and the extra actions would double-count refunds.",
+        "D": "Shadow runs are only read-only if side-effecting tools are disabled; with a refund tool attached they are not."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "shadow",
+      "agents"
+    ]
+  },
+  {
+    "id": "q-0791",
+    "scenario": "A government benefits assistant answers from retrieved policy passages. Auditors find answers that cite 'Section 14.3(b)', which does not exist in any policy. Logs show the correct policy document was retrieved and appears in the model's context on every failing request.",
+    "stem": "What is the best next step?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Increase the retrieval top-k, since more passages will give the model the section it is citing."
+      },
+      {
+        "key": "B",
+        "text": "Rebuild the vector index with smaller chunks, since the right text was not found precisely enough."
+      },
+      {
+        "key": "C",
+        "text": "Require quoted support for each claim, verify the quotes against context, and let the assistant abstain."
+      },
+      {
+        "key": "D",
+        "text": "Switch to a larger embedding model, since the retrieval layer is evidently returning the wrong passages."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "The right document was in context, so retrieval is not the cause: the model produced an unsupported citation. Forcing verifiable quotes, checking them mechanically, and permitting abstention addresses grounding at the generation layer.",
+      "distractors": {
+        "A": "The needed material is already present; more passages add noise and do not stop the model from inventing a citation.",
+        "B": "Chunk size affects what is retrieved, but retrieval has already returned the correct document in these failures.",
+        "D": "Embedding quality matters for retrieval, which is working here; the fault is in grounded generation."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "diagnosis",
+      "hallucination"
+    ]
+  },
+  {
+    "id": "q-0792",
+    "scenario": "A team bumps its Claude model to a newer version without changing the prompt. Overall accuracy is flat, but a tool-calling workflow now fails on one category: dates are passed in a different format than the downstream API accepts. The previous model passed the same cases.",
+    "stem": "What is the best way to confirm the cause and fix it?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Assume an infrastructure bug and restart the services, since nothing in the prompt has changed."
+      },
+      {
+        "key": "B",
+        "text": "Add a regular expression after each call that rewrites any date it finds, and leave the prompt as it is."
+      },
+      {
+        "key": "C",
+        "text": "Roll back the model permanently and stop evaluating newer versions, since they behave unpredictably."
+      },
+      {
+        "key": "D",
+        "text": "Rerun the failures on both models with one prompt, then state the date format in the prompt and tool schema."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "An identical prompt with a different outcome isolates the model as the changed variable. Running both models confirms the behavior shift, and making the format explicit in the prompt and schema fixes it at the right layer.",
+      "distractors": {
+        "A": "Restarting services does not affect a deterministic difference between model versions on identical inputs.",
+        "B": "A post-hoc rewrite hides the symptom for one field and does not address how tool arguments are specified.",
+        "C": "Permanently avoiding upgrades forgoes improvements and leaves the team with a retired model; the issue is fixable."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "diagnosis",
+      "model-mismatch"
+    ]
+  },
+  {
+    "id": "q-0793",
+    "scenario": "A financial analyst tool puts its extraction rules at the top of the prompt, followed by a 90-page filing, and ends without restating the task. For long filings, the model often ignores the rules and returns a loose summary. Short filings follow the rules.",
+    "stem": "What change is most likely to fix the failures?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Move the task and rules to after the document, and restate the required output format at the end."
+      },
+      {
+        "key": "B",
+        "text": "Set the temperature to zero so that the model follows the rules at the top of the prompt more closely."
+      },
+      {
+        "key": "C",
+        "text": "Remove the rules completely, because the model infers the expected extraction from the document itself."
+      },
+      {
+        "key": "D",
+        "text": "Split the output into two requests, one for the first half of the filing and one for the second half, without changing the prompt."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Failures that appear only with long inputs suggest the instructions are far from the point of generation. Placing the task and format after the long document, where the model produces its answer, restores adherence.",
+      "distractors": {
+        "B": "Temperature changes sampling, not how far instructions sit from a long document, so adherence will not improve reliably.",
+        "C": "Without the rules the model has no extraction target, so the failure would worsen.",
+        "D": "Splitting without moving the instructions leaves the same structure, and halves the context for cross-references."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "diagnosis",
+      "prompt-structure"
+    ]
+  },
+  {
+    "id": "q-0800",
+    "scenario": "A SaaS company's chat assistant has a fast time to first token, but total response time is slow: logs show most of the time is spent generating long, heavily reasoned answers at a high effort level, even for routine questions. Leadership rejects any plan that doubles per-token pricing.",
+    "stem": "What is the best approach?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Lower the effort level and tighten the output format on routine routes, verifying on the eval set that quality holds."
+      },
+      {
+        "key": "B",
+        "text": "Enable the premium faster-output mode for the whole workload, since it reduces generation time for each request."
+      },
+      {
+        "key": "C",
+        "text": "Stream the responses, which shortens the total time to complete each response without changing generation."
+      },
+      {
+        "key": "D",
+        "text": "Switch each request to the largest model, since stronger models finish their reasoning more quickly."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Generation time scales with output and reasoning tokens, so reducing effort and output length on routine routes cuts both latency and cost. The eval check keeps the savings from degrading quality, and it avoids the cost premium.",
+      "distractors": {
+        "B": "Faster-output modes carry a premium price, which conflicts with the stated cost constraint, and are not available on every model.",
+        "C": "Streaming improves perceived latency by showing text sooner but does not shorten the total generation time.",
+        "D": "A larger model is typically slower and costlier, so it works against both goals."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "latency",
+      "effort"
+    ]
+  },
+  {
+    "id": "q-0801",
+    "scenario": "A research agent holds long conversations. To save money, the team routes each turn to a small model when the question looks simple and to a large model when it looks hard, with the same system prompt and a long cached history. Cache hit rates collapsed and costs rose.",
+    "stem": "What is the most likely cause, and the best remedy?",
+    "options": [
+      {
+        "key": "A",
+        "text": "The router adds latency; remove it, and send each turn to the large model so the cache is shared."
+      },
+      {
+        "key": "B",
+        "text": "The cache time-to-live was reduced; raise it to the maximum so that both models share the same entries."
+      },
+      {
+        "key": "C",
+        "text": "Caches are model-scoped, so alternating models re-pays for the history; keep one model per conversation."
+      },
+      {
+        "key": "D",
+        "text": "The history is too long to be cached; truncate it to the last two turns on each request."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "Prompt caches are model-scoped, so switching models turn by turn forfeits cache reads on the long history. Keep the main loop on one model and hand cheaper sub-tasks to a separate subagent or route at the conversation level.",
+      "distractors": {
+        "A": "Sending every turn to the large model restores cache hits but gives up the routing savings, and the router's latency was not the problem.",
+        "B": "A longer lifetime does not let two different models share entries; the entries are per model.",
+        "D": "Truncating history discards context the agent needs and is not what broke the cache reuse."
+      }
+    },
+    "lab": null,
+    "difficulty": 7,
+    "tags": [
+      "caching",
+      "routing"
+    ]
+  },
+  {
+    "id": "q-0807",
+    "scenario": "A government service handles about 400,000 Claude requests a day. The team wants continuous quality monitoring with an LLM judge, but judging every response would add significant cost and the judge has only been validated on a small sample.",
+    "stem": "What is the best monitoring design?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Skip the judge and use average response length as the quality indicator."
+      },
+      {
+        "key": "B",
+        "text": "Judge every response, since only full coverage can detect rare failures reliably."
+      },
+      {
+        "key": "C",
+        "text": "Judge the first hundred responses of each day, since early-day quality represents the whole day."
+      },
+      {
+        "key": "D",
+        "text": "Judge a stratified daily sample plus thumbs-down cases, and check the judge against human labels."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "A stratified sample keeps cost bounded while estimating quality by segment; adding flagged cases targets known trouble; and periodic checks against human labels keep the judge itself trustworthy.",
+      "distractors": {
+        "A": "Length is a weak proxy that can remain steady while correctness falls.",
+        "B": "Full coverage is costly and, with an unvalidated judge, produces confident numbers of uncertain meaning.",
+        "C": "The first hundred cases are not random: they skew toward early-day traffic, so segments and later patterns are missed."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "monitoring",
+      "llm-judge"
+    ]
+  },
+  {
+    "id": "q-0812",
+    "scenario": "A hospital scheduling assistant calls a patient-lookup tool whose response includes the patient's national ID number. Twice this month the assistant repeated that number in a chat reply to a caller who had not been verified.",
+    "stem": "Which approach prevents recurrence with the least residual risk?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Add a second Claude call that rewrites each reply to strip sensitive identifiers before the reply is shown to the caller."
+      },
+      {
+        "key": "B",
+        "text": "Instruct the assistant not to repeat identifiers, and add three few-shot examples of masked replies to the system prompt."
+      },
+      {
+        "key": "C",
+        "text": "Remove the ID field from the tool response before the model sees it, and add pattern-based output redaction as a backstop."
+      },
+      {
+        "key": "D",
+        "text": "Log each reply and run a nightly scan for ID-number patterns, notifying the privacy team about each match found."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "The safest place to stop a leak is upstream: data the model never receives cannot be repeated, and a deterministic output filter catches residual patterns. Both layers are enforced in code, independent of how the model behaves on a given turn.",
+      "distractors": {
+        "A": "A second model call is probabilistic and adds latency and cost; it can miss an identifier or alter the reply's meaning, and the raw ID is still in context.",
+        "B": "Instructions and examples reduce the rate but cannot guarantee compliance; the identifier remains in context and can still be disclosed.",
+        "D": "Nightly scanning is detective: it reports disclosures after they have reached callers rather than preventing them."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": []
+  },
+  {
+    "id": "q-0813",
+    "scenario": "A bank uses Claude to draft credit memos. Analysts approve about 99% of drafts unchanged. A quarterly audit then finds several memos with figures that do not match the source financial statements.",
+    "stem": "Which change best addresses the underlying risk?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Require analysts to confirm key figures against cited sources, and audit a sample of approved memos."
+      },
+      {
+        "key": "B",
+        "text": "Add a banner to each memo stating that AI-generated content may contain errors and must be reviewed by the approving analyst."
+      },
+      {
+        "key": "C",
+        "text": "Move drafting to a larger model so the error rate becomes low enough that analyst review is unnecessary."
+      },
+      {
+        "key": "D",
+        "text": "Limit analyst review to memos in which the model itself reports low confidence in its own figures."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Analysts approving nearly everything shows overreliance: review has become a formality. Verification must be built into the workflow with evidence in front of the reviewer, and an independent sample audit measures whether review is working.",
+      "distractors": {
+        "B": "A banner is a passive warning; it does nothing to make verification happen and is quickly ignored.",
+        "C": "A larger model may reduce errors, but it cannot reduce them to zero, and removing review in a high-stakes setting just removes the safety net.",
+        "D": "Self-reported confidence is poorly calibrated, so confidently wrong figures would skip review entirely."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": []
+  },
+  {
+    "id": "q-0814",
+    "scenario": "An insurer's claims pipeline has three Claude stages: extract claim facts, classify the claim type, and draft the payout letter. A recent incident traced an incorrect loss date, extracted in stage one, through to a letter that denied a valid claim. Each stage looked correct given its input.",
+    "stem": "Which design change best limits this kind of error propagation?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Merge the three stages into one prompt so that no intermediate output can be mishandled by a later stage."
+      },
+      {
+        "key": "B",
+        "text": "Validate each stage's output against the source document and business rules at the boundary, before the next stage consumes it."
+      },
+      {
+        "key": "C",
+        "text": "Let the letter-drafting stage re-read the original claim and silently overwrite any earlier field it disagrees with."
+      },
+      {
+        "key": "D",
+        "text": "Add a final stage that reads the finished letter and rates how plausible the overall decision looks."
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "Errors compound when later stages treat earlier output as ground truth. Checking each output against the source and deterministic rules at stage boundaries catches a bad date before it drives classification and the letter.",
+      "distractors": {
+        "A": "A single prompt removes the boundaries where checks can happen and makes errors harder to locate; it does not make the extraction itself more accurate.",
+        "C": "Silent overwriting hides the discrepancy and lets a later stage change facts without any record or check, which creates new, untraceable errors.",
+        "D": "A plausibility rating at the end judges how the letter reads, not whether the facts are right, so a consistent but wrong chain of reasoning still passes."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": []
+  },
+  {
+    "id": "q-0816",
+    "scenario": "A procurement agent creates purchase orders. Policy says orders above $10,000 need human approval, but approvers now see about 200 requests a day, and a review finds they approve nearly all of them within seconds.",
+    "stem": "Which change would make the approval gate most effective?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Require approvers to type a written justification of at least 200 characters for each request they approve."
+      },
+      {
+        "key": "B",
+        "text": "Send each order to two approvers in sequence so that each approval is independently double-checked by a peer."
+      },
+      {
+        "key": "C",
+        "text": "Replace pre-approval with a weekly report of all orders for managers to skim after the money is committed."
+      },
+      {
+        "key": "D",
+        "text": "Show approvers a concise summary with risk flags, and raise the threshold so only material orders queue."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "Approval fatigue is a volume and presentation problem. Reserving the gate for material actions and giving reviewers the information needed to decide turns approval back into a real control without removing it.",
+      "distractors": {
+        "A": "Forced typing adds friction without improving what reviewers see; people paste boilerplate and still approve in seconds.",
+        "B": "Doubling approvals doubles the workload and fatigue, and each approver assumes the other is checking carefully.",
+        "C": "A weekly report is detective: it converts a preventive control into one that only reveals problems after commitment."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": []
+  },
+  {
+    "id": "q-0823",
+    "scenario": "A German insurer deploys Claude through an EU-region path to meet a residency requirement. The observability stack, however, ships complete prompts and responses to a SaaS logging vendor hosted in the United States.",
+    "stem": "What is the gap in this design?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Enable the logging vendor's EU data-center option and treat the requirement as met without checking retention or sub-processors."
+      },
+      {
+        "key": "B",
+        "text": "Sample only 1% of conversations for logging, since a small share of prompts leaving the EU is acceptable."
+      },
+      {
+        "key": "C",
+        "text": "Keep the US logging but add a notice to the privacy policy saying that prompts may be processed outside the EU."
+      },
+      {
+        "key": "D",
+        "text": "Residency covers every copy, including logs, so keep logs in-region or redact personal data before export."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "Residency and minimization obligations follow the data wherever it is stored, including logs, caches, traces, and analytics. Observability pipelines are a common place for personal data to leave the approved boundary.",
+      "distractors": {
+        "A": "An EU data center alone does not settle retention, sub-processors, or support access from outside the EU, so the gap may remain unverified.",
+        "B": "Sampling reduces volume but still moves personal data out of region, so the gap remains.",
+        "C": "Disclosure does not satisfy a residency requirement or provide a transfer mechanism; the data still leaves the EU."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": []
+  },
+  {
+    "id": "q-0824",
+    "scenario": "A SaaS company collected support tickets under a privacy notice that says data is used to provide support. The product team now wants to use the tickets to build a Claude-powered marketing personalization feature.",
+    "stem": "What should the architect require before this proceeds?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Assess whether the new use is compatible with the original purpose and lawful basis; seek consent or another basis if not."
+      },
+      {
+        "key": "B",
+        "text": "Pseudonymize the tickets and proceed under legitimate interest without assessing compatibility with the original purpose."
+      },
+      {
+        "key": "C",
+        "text": "Treat internal use as covered, since the tickets are already in the company's database and only reach the model internally."
+      },
+      {
+        "key": "D",
+        "text": "Proceed now and update the privacy policy after launch to describe the new use."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Purpose limitation and lawful basis apply to new uses of existing personal data. A new purpose needs a compatibility assessment or a fresh basis before processing begins, not after.",
+      "distractors": {
+        "B": "Pseudonymization reduces risk but pseudonymized data is still personal data, and legitimate interest still requires an assessment of the purpose.",
+        "C": "Holding the data does not authorize any use of it; sending it to a model for a new purpose is still processing.",
+        "D": "Notice after the fact does not establish a lawful basis for processing that already took place."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": []
+  },
+  {
+    "id": "q-0825",
+    "scenario": "A hospital's Claude agent can read patient records through tools. Compliance wants to be able to answer, for any patient, who accessed the record and when, with context where policy requires it.",
+    "stem": "Which design best supports this?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Write each full conversation transcript to the application log so each access can be reconstructed from it."
+      },
+      {
+        "key": "B",
+        "text": "Record each access at the tool layer with user, patient, action, and time in a tamper-evident store."
+      },
+      {
+        "key": "C",
+        "text": "Ask the model to keep a running list of patients it has accessed and print that list at the end of each session."
+      },
+      {
+        "key": "D",
+        "text": "Rely on the model provider's usage dashboard to show which patients' records were accessed."
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "Audit controls need reliable, structured events produced by the system that performs the access, tied to a real user identity. The tool layer sees every access regardless of what the model says.",
+      "distractors": {
+        "A": "Transcripts are unstructured, may be incomplete, and spread PHI into general logs, which creates its own exposure.",
+        "C": "A model-maintained list is neither complete nor tamper-evident, and it depends on the model's behavior rather than a control.",
+        "D": "A provider usage dashboard reports API usage, not which patient records your tools accessed."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": []
+  },
+  {
+    "id": "q-0834",
+    "scenario": "A hiring tool's pilot shows that candidates from group B are selected at 70% of the rate of group A, while accuracy against recruiter labels is nearly identical for both groups. Leadership asks whether the system can be called fair.",
+    "stem": "What is the best response?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Treat equal accuracy as proof of fairness, since the system is equally correct for both groups of candidates."
+      },
+      {
+        "key": "B",
+        "text": "Force equal selection rates by randomly advancing candidates from the lower-rate group to the next stage."
+      },
+      {
+        "key": "C",
+        "text": "Examine selection and error rates by group, find the features driving the gap, and agree a fairness criterion."
+      },
+      {
+        "key": "D",
+        "text": "Drop demographic fields from the evaluation data, since the model never sees them."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "Equal accuracy can coexist with unequal outcomes, especially if the labels carry past bias. Fairness criteria are a decision with trade-offs, so measure, diagnose, and choose deliberately with the right stakeholders.",
+      "distractors": {
+        "A": "Accuracy against possibly biased labels says nothing about whether outcomes are fair across groups.",
+        "B": "Random advancement ignores job-relevant qualifications and treats a symptom, creating its own fairness and validity problems.",
+        "D": "Removing demographic data from evaluation makes disparities impossible to measure, not impossible to occur."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": []
+  },
+  {
+    "id": "q-0835",
+    "scenario": "An HR policy assistant answers employee questions about leave and benefits. Employees act on the answers without checking. The company wants the assistant to be transparent about how reliable it is.",
+    "stem": "Which design best supports transparency?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Show each answer with links to the passages it relied on, state it is AI-generated, and give an HR contact."
+      },
+      {
+        "key": "B",
+        "text": "Show a confidence percentage generated by the model next to each answer so that employees can judge reliability."
+      },
+      {
+        "key": "C",
+        "text": "Show the model's full chain of thought alongside each answer so employees can see how it reasoned."
+      },
+      {
+        "key": "D",
+        "text": "Show just the final answer, and publish accuracy statistics for the assistant in an annual internal report."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Transparency is most useful when users can verify claims and know what they are dealing with. Citations let employees check the source, and the disclosure and contact give a path to confirmation.",
+      "distractors": {
+        "B": "Self-reported percentages are poorly calibrated and give a false sense of precision.",
+        "C": "Raw reasoning is long and hard to interpret, and does not point employees to authoritative sources to verify.",
+        "D": "Annual statistics do not help an employee judge the answer in front of them."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": []
+  },
+  {
+    "id": "q-0836",
+    "scenario": "A recruiting team plans to use recruiters' past hire and no-hire decisions as few-shot examples and as ground truth for evaluating a Claude screening assistant.",
+    "stem": "What is the most significant fairness risk, and the best mitigation?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Use the full decision history as examples, since it is the most representative record of how the organization hires."
+      },
+      {
+        "key": "B",
+        "text": "Use decisions by the most senior recruiters as the ground truth, since greater experience removes bias."
+      },
+      {
+        "key": "C",
+        "text": "Keep the historical examples and instruct the model in the prompt to disregard names and gender."
+      },
+      {
+        "key": "D",
+        "text": "Define job-relevant rubric criteria, audit historical labels by group, and curate examples against the rubric."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "Examples and labels teach the system what counts as good, so biased history becomes the standard. Anchoring on job-relevant criteria and checking labels by group breaks that loop.",
+      "distractors": {
+        "A": "A larger history carries the same systematic bias, which is amplified when used as ground truth.",
+        "B": "Seniority does not guarantee unbiased judgments, and narrowing the data does not audit it.",
+        "C": "The examples still carry the bias through patterns beyond names and gender, and the instruction cannot remove them."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": []
+  },
+  {
+    "id": "q-0851",
+    "scenario": "In discovery for an insurance claims triage system, operations wants maximum automation, compliance wants every decision reviewed by a person, and IT reports that the legacy claims platform accepts updates only through a nightly batch.",
+    "stem": "What is the most effective way to move these stakeholders toward a requirement set?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Escalate to the most senior stakeholder and design to that person's preference"
+      },
+      {
+        "key": "B",
+        "text": "Build to compliance's full-review requirement and revisit automation once the system is live and stable"
+      },
+      {
+        "key": "C",
+        "text": "Propose a risk-tiered flow with thresholds, test it on past claims, and get all three groups' sign-off"
+      },
+      {
+        "key": "D",
+        "text": "Build the automated version operations wants and add review later for claims that draw complaints"
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "Conflicting requirements usually hide a shared underlying aim. A tiered design with explicit thresholds, checked against historical data and signed off by every group, makes the trade-off concrete, and the nightly batch can be treated as a stated constraint on timing.",
+      "distractors": {
+        "A": "Escalating picks a winner without testing whether the conflict can be resolved by design.",
+        "B": "Full review removes most of the business value and defers a trade-off that should be made explicitly now.",
+        "D": "Adding compliance after the fact turns it into rework and risks a launch that cannot be approved."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "discovery",
+      "conflicting-requirements"
+    ]
+  },
+  {
+    "id": "q-0852",
+    "scenario": "A support organization wants a Claude assistant to \"reduce average handle time by 20 percent.\" Nobody has measured current handle time by ticket type, and the pilot is two weeks away.",
+    "stem": "What should the team do first?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Use an industry benchmark for handle time as the baseline for the 20 percent target"
+      },
+      {
+        "key": "B",
+        "text": "Instrument the current process to measure handle time by ticket type before the pilot starts"
+      },
+      {
+        "key": "C",
+        "text": "Have a sample of agents estimate their usual handle time and use the average"
+      },
+      {
+        "key": "D",
+        "text": "Treat the first month of the pilot as the baseline and measure improvement from there"
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "A target of 20 percent needs a measured baseline from the same population and ticket mix. Measuring before the pilot lets the team separate the assistant's effect from the novelty effect and from changes in ticket mix.",
+      "distractors": {
+        "A": "Industry benchmarks describe other organizations and ticket mixes, so a percentage reduction against them cannot be verified for this team.",
+        "C": "Estimates are subjective and tend to be biased, which makes them weak evidence against which to judge a numeric target.",
+        "D": "The first pilot month already includes the assistant and the novelty effect, so it cannot serve as a pre-change baseline."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "discovery",
+      "success-metrics"
+    ]
+  },
+  {
+    "id": "q-0853",
+    "scenario": "A sponsor expects a Claude assistant to answer questions from the company's internal wiki. Discovery finds that roughly 40 percent of pages are outdated, and wiki access is controlled per team, whereas the sponsor assumes everyone should see all answers.",
+    "stem": "How should discovery treat these findings?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Index the whole wiki and rely on the model to disregard outdated content"
+      },
+      {
+        "key": "B",
+        "text": "Index only the 100 most-viewed pages for everyone and add per-team access control in a later release"
+      },
+      {
+        "key": "C",
+        "text": "Fine-tune a model on the wiki so that answers no longer depend on page-level permissions"
+      },
+      {
+        "key": "D",
+        "text": "Make freshness, ownership, and access control gating requirements and audit a sample before choosing retrieval"
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "Content quality and permission boundaries decide whether retrieval can be trusted and whether it can leak restricted pages. Discovery should size the problem with a sample audit and make freshness owners and permission mirroring explicit requirements before the design is chosen.",
+      "distractors": {
+        "A": "The model cannot reliably tell that a page is outdated, and indexing everything ignores permissions.",
+        "B": "Popular pages can still be stale, and exposing restricted content in the pilot is the risk to avoid.",
+        "C": "Fine-tuning bakes in outdated content and removes per-document access control, worsening the permission problem."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "discovery",
+      "data-availability",
+      "access"
+    ]
+  },
+  {
+    "id": "q-0861",
+    "scenario": "A risk committee reviews a design in which a human reviews the 15 percent of outputs that the system rates as highest risk. A committee member insists that every output be reviewed. You have pilot data that includes the outcomes of reviewing a random sample of the remaining 85 percent.",
+    "stem": "What is the best response?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Agree to full review for now and propose revisiting the policy after launch"
+      },
+      {
+        "key": "B",
+        "text": "Argue that reviewing each output does not scale and ask the committee to accept the risk-based approach"
+      },
+      {
+        "key": "C",
+        "text": "Offer to raise the reviewed share to 30 percent as a compromise"
+      },
+      {
+        "key": "D",
+        "text": "Show error rates from the unreviewed random sample, with review costs, and propose a measured, audited approach"
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "Honest trade-off communication uses evidence. Pilot data on errors in the unreviewed segment shows the residual risk and the cost of reducing it, and an audited sampling plan gives the committee a basis to accept or tighten the policy.",
+      "distractors": {
+        "A": "Conceding without evidence accepts a large cost that the data may not justify.",
+        "B": "Scale alone does not answer the risk concern and gives the committee no evidence about residual risk.",
+        "C": "A 30 percent figure is a negotiated compromise, not derived from the error data."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "risk-committee",
+      "trade-offs"
+    ]
+  },
+  {
+    "id": "q-0862",
+    "scenario": "Six months ago, ADR-007 recorded a decision to use chunked retrieval rather than loading whole documents into context. A newer model release with a larger context window makes that decision worth revisiting, and the team has just completed an evaluation that favors a hybrid approach.",
+    "stem": "How should the decision change be documented?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Write a new record that supersedes ADR-007, link both ways, and mark ADR-007 as superseded"
+      },
+      {
+        "key": "B",
+        "text": "Edit ADR-007 in place so that the record always reflects the current design"
+      },
+      {
+        "key": "C",
+        "text": "Close ADR-007 with a comment and describe the hybrid approach in the design document"
+      },
+      {
+        "key": "D",
+        "text": "Describe the change in the release notes of the model upgrade that prompted it"
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Decision records are a history. A new record with the new context and evidence, linked to the old one, preserves why the earlier choice was reasonable at the time and shows what changed.",
+      "distractors": {
+        "B": "Editing in place erases the original context and makes it impossible to see why the team decided differently before.",
+        "C": "A comment and a design-document update leave no decision record with the context, alternatives, and evidence for the change.",
+        "D": "Release notes are transient and operational; they do not capture context, alternatives, and consequences."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "adr",
+      "documentation"
+    ]
+  },
+  {
+    "id": "q-0863",
+    "scenario": "An executive sponsor championed an autonomous agent design. A controlled evaluation against pre-agreed criteria shows it matched a simpler fixed workflow on quality while costing about three times as much per task.",
+    "stem": "How should the architect communicate the result?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Hold the result while the team tunes the agent to see whether its numbers improve before reporting"
+      },
+      {
+        "key": "B",
+        "text": "Show both designs as equally viable and let the sponsor choose"
+      },
+      {
+        "key": "C",
+        "text": "Report against the agreed criteria, recommend the workflow, and name what evidence would revisit the agent"
+      },
+      {
+        "key": "D",
+        "text": "Report it as a learning exercise and keep both designs in development until the next review cycle"
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "Results should be reported against the criteria agreed in advance, with a clear recommendation. Naming the conditions under which the agent would be reconsidered keeps the sponsor's idea alive on evidence rather than preference.",
+      "distractors": {
+        "A": "Delaying the report to improve the numbers shifts the goalposts and hides a decision-relevant result.",
+        "B": "Presenting equal viability contradicts the data and gives the sponsor the decision without the architect's judgment.",
+        "D": "Calling it a learning exercise avoids a recommendation and leaves the organization paying for two designs."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "trade-offs",
+      "negative-results"
+    ]
+  },
+  {
+    "id": "q-0873",
+    "scenario": "A 200-item golden set shows 94 percent of pilot answers passing. The sponsor wants the production contract to state \"at least 95 percent accuracy.\" Production inputs are messier than the golden set.",
+    "stem": "What should the architect do before agreeing to the figure?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Agree to 95 percent, since the pilot figure is close"
+      },
+      {
+        "key": "B",
+        "text": "Set the target at 90 percent instead, so that the pilot result of 94 percent leaves a safety margin for messier inputs"
+      },
+      {
+        "key": "C",
+        "text": "Define how the figure is measured (population, sampling, grading, window), then set a target from production-like data"
+      },
+      {
+        "key": "D",
+        "text": "Agree to 95 percent but just apply it to the golden-set results, which the team controls"
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "A number means little without a measurement definition. Specifying the population, sampling, rubric, and window, and calibrating on representative production-like data, prevents disputes and produces a target the system can reliably be held to.",
+      "distractors": {
+        "A": "The 94 percent comes from a cleaner set and 200 items give a wide margin of error, so committing to 95 percent is a gamble.",
+        "B": "An arbitrary margin may still miss the production reality and does not define how the figure would be measured or disputed.",
+        "D": "Measuring only on the golden set means the contract would not describe real production performance and the sponsor would be misled."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "sla",
+      "measurement"
+    ]
+  },
+  {
+    "id": "q-0874",
+    "scenario": "Legal reviewers asked for longer disclaimers in generated emails, while sales reviewers asked for shorter, simpler ones. Both send feedback directly to the prompt engineer, who changes the prompt after each message.",
+    "stem": "What is the best way to improve the feedback process?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Apply the request from the group with the most users"
+      },
+      {
+        "key": "B",
+        "text": "Let each group maintain its own prompt version, and let the sender select the one that suits the audience at send time"
+      },
+      {
+        "key": "C",
+        "text": "Apply the most recent request, since it reflects the latest understanding"
+      },
+      {
+        "key": "D",
+        "text": "Name one feedback owner, agree a rubric and priorities with both groups, and verify each change on the evaluation set"
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "Contradictory feedback needs a decision process, not alternating edits. A single owner, an agreed rubric, and a gated evaluation make trade-offs explicit and prevent changes from undoing each other.",
+      "distractors": {
+        "A": "Headcount ignores that legal exposure and sales effectiveness are different kinds of risk that need explicit weighing.",
+        "B": "Separate prompt versions per group fragment the product and double the maintenance without resolving whether the content is acceptable.",
+        "C": "Following whoever spoke last makes behavior oscillate and rewards timing, not merit or risk."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "feedback-loop",
+      "governance"
+    ]
+  },
+  {
+    "id": "q-0875",
+    "scenario": "The business unit using a classification service says it expects \"no change in behavior\" for the next two years. A model deprecation notice has just been published for the model in use, requiring migration within a year.",
+    "stem": "How should expectations be reset?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Promise a behavior freeze by pinning the current model for the full two years"
+      },
+      {
+        "key": "B",
+        "text": "Tell the unit when the retirement date is close, to avoid unsettling it before then"
+      },
+      {
+        "key": "C",
+        "text": "Agree a change-management commitment: notice, evaluation before promotion, rollback, and regression thresholds"
+      },
+      {
+        "key": "D",
+        "text": "Commit that the replacement model will behave the same, based on the vendor's migration guidance and notes"
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "Model retirements are a known part of operating on a hosted model. Agreeing in advance how changes will be announced, evaluated, and rolled back sets expectations about stability honestly and keeps the business protected from regressions.",
+      "distractors": {
+        "A": "A freeze cannot be promised because a retired model stops working on a fixed date.",
+        "B": "Late notice compresses evaluation time and removes the unit's chance to prepare or sign off on acceptable change.",
+        "D": "Behavior can shift between models, so promising sameness sets an expectation that cannot be met and ignores the need for evaluation."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "expectations",
+      "change-management"
+    ]
+  },
+  {
+    "id": "q-0885",
+    "scenario": "A two-week handoff of a Claude-based claims assistant to a client platform team is scheduled. The team has strong software skills but no LLM experience. The consultancy has produced a 200-page design document.",
+    "stem": "How should the handoff time be spent?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Give a recorded training session on prompt engineering and rely on the 200-page design document for the rest of the knowledge transfer"
+      },
+      {
+        "key": "B",
+        "text": "Provide runbooks, walk through the evaluation harness with a live regression run, and supervise the client team as it makes its first changes"
+      },
+      {
+        "key": "C",
+        "text": "Keep consultants on call indefinitely so the client team can ask questions as they arise"
+      },
+      {
+        "key": "D",
+        "text": "Walk the client team through every page of the design document in order"
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "Operating the system depends on the ability to detect regressions and make safe changes. Runbooks, a live evaluation run, and supervised first changes transfer those skills, whereas documents alone do not.",
+      "distractors": {
+        "A": "Prompt-engineering training addresses authoring, not operation, and a long document is a poor operational reference.",
+        "C": "Indefinite consultant availability creates dependency and avoids building the client team's own capability.",
+        "D": "A page-by-page reading is passive and spends scarce time on reference material rather than on practicing operational tasks."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "handoff"
+    ]
+  },
+  {
+    "id": "q-0886",
+    "scenario": "Different teams will add new document types to a shared RAG pipeline over the next year. The first two additions each broke retrieval for existing sources because chunking, metadata, and permissions were handled inconsistently.",
+    "stem": "Which guidance should the platform team publish?",
+    "options": [
+      {
+        "key": "A",
+        "text": "A link to the vendor's guidance on chunking, embeddings, and retrieval quality for new sources"
+      },
+      {
+        "key": "B",
+        "text": "A shared channel where teams can ask the platform team for advice before adding a source"
+      },
+      {
+        "key": "C",
+        "text": "An instruction to start from the most recent ingestion script and adapt it for the new type"
+      },
+      {
+        "key": "D",
+        "text": "An add-a-source playbook: chunking choice, metadata, permission mapping, eval cases, regression run"
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "Repeatable changes need a repeatable procedure that encodes the lessons learned. A checklist-based playbook with required evaluation and regression steps prevents the inconsistencies that broke earlier additions.",
+      "distractors": {
+        "A": "Generic guidance is not specific to this pipeline's schema, permissions, or evaluation process.",
+        "B": "A help channel is reactive and depends on teams knowing what to ask, so the same omissions will recur.",
+        "C": "Copying the latest script propagates its hidden assumptions and shortcuts, which is how the inconsistencies spread."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "implementation-guidance",
+      "rag"
+    ]
+  },
+  {
+    "id": "q-0887",
+    "scenario": "A maintainer deleted an unusual instruction from a production prompt because it looked redundant. Extraction quality for one document type dropped sharply afterward. No one remembered why the instruction had been added.",
+    "stem": "Which documentation practice would best prevent a repeat?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Add a comment saying \"do not edit\" above the instruction"
+      },
+      {
+        "key": "B",
+        "text": "Keep a separate wiki page that describes the purpose of the prompt in general terms and is updated by the team whenever the prompt changes substantially"
+      },
+      {
+        "key": "C",
+        "text": "Restrict prompt edits to the original author"
+      },
+      {
+        "key": "D",
+        "text": "Version prompts in the repository with a change log linking each non-obvious instruction to the evaluation case or incident that motivated it"
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "The rationale for a prompt instruction must travel with it and be checkable. Linking each instruction to the case that motivated it, in a versioned history, lets maintainers see why it exists and lets the evaluation suite catch removals.",
+      "distractors": {
+        "A": "A warning with no reason invites the next maintainer to ignore or work around it and does not explain the purpose.",
+        "B": "A general wiki description drifts from the actual prompt and rarely captures the specific reasons for individual lines.",
+        "C": "Limiting edits to one person creates a bottleneck and a single point of failure without recording the reasoning."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "prompts",
+      "documentation"
+    ]
+  },
+  {
+    "id": "q-0896",
+    "scenario": "A bank wants to replace a human triage step with Claude. The compliance team is wary, and the pilot must produce evidence rather than opinions.",
+    "stem": "Which pilot design is most appropriate?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Run Claude in shadow mode alongside the human decisions, compare results, then move to human-reviewed assistance before any autonomy"
+      },
+      {
+        "key": "B",
+        "text": "Route a random 10 percent of live cases to Claude with no human review, to learn quickly"
+      },
+      {
+        "key": "C",
+        "text": "Let Claude decide the lowest-risk tier autonomously from the first day, and compare customer satisfaction between tiers some months later"
+      },
+      {
+        "key": "D",
+        "text": "Hold a demonstration for compliance with hand-picked cases"
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Shadow mode produces comparison data against the existing decisions with no customer impact, and staged assistance builds trust and evidence before autonomy is considered. It matches the risk posture of a regulated setting.",
+      "distractors": {
+        "B": "Unreviewed live decisions expose customers to errors before any evidence exists.",
+        "C": "Autonomy from day one in even a low tier skips the comparison data and relies on later satisfaction scores, which do not measure decision correctness.",
+        "D": "A hand-picked demonstration shows possibility, not the error rates compliance needs to see."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "pilot",
+      "shadow-mode"
+    ]
+  },
+  {
+    "id": "q-0897",
+    "scenario": "A pilot of a document-classification assistant reached 91 percent on the agreed quality measure against a 95 percent target. Its errors concentrate in two of eight document categories. The sponsor wants to launch on the committed date.",
+    "stem": "What is the best recommendation?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Launch every category on schedule, tell users which two are weaker, and fix them in later releases"
+      },
+      {
+        "key": "B",
+        "text": "Lower the overall target to 93 percent so that the pilot counts as a pass and the date holds"
+      },
+      {
+        "key": "C",
+        "text": "Launch the six categories meeting the threshold, keep two with human handling, and set a re-entry gate"
+      },
+      {
+        "key": "D",
+        "text": "Delay the whole launch until the two weakest categories also reach the target, then launch together"
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "A gate defined in design should be applied by category. Launching what meets the threshold, keeping humans on the rest, and defining the criteria for bringing the weak categories in delivers value while honoring the quality bar.",
+      "distractors": {
+        "A": "Launching all categories ships known failures and breaks the agreed quality gate.",
+        "B": "Moving the target to fit the result defeats the purpose of agreeing it in advance.",
+        "D": "Delaying everything withholds value from categories that are ready, when a partial launch can control the risk."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "go-no-go",
+      "pilot-to-production"
+    ]
+  },
+  {
+    "id": "q-0898",
+    "scenario": "A live invoice-coding system uses a model that has just received a deprecation notice with a retirement date 11 months away. The system is in steady-state operation, and the team has a regression suite and a canary release process.",
+    "stem": "How should the team handle the notice?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Switch to the replacement in a single release now, to remove the retirement risk early"
+      },
+      {
+        "key": "B",
+        "text": "Plan the migration: evaluate on the regression suite, adjust prompts, canary, finish before retirement"
+      },
+      {
+        "key": "C",
+        "text": "Wait until the final quarter so that the replacement's behavior has had time to settle and be documented"
+      },
+      {
+        "key": "D",
+        "text": "Freeze all changes to the system until the model is retired and the replacement is chosen"
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "Retirement is a scheduled change that the lifecycle must absorb. Using the notice period to evaluate, adapt, and canary the replacement lets the team find regressions while the old model still works and leaves time to roll back.",
+      "distractors": {
+        "A": "A single release skips evaluation and canarying, so any regression reaches all users at once.",
+        "C": "Waiting compresses the evaluation window and raises the chance of a rushed migration under a hard deadline.",
+        "D": "Freezing does not stop the retirement date and halts improvements users need."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "iteration",
+      "deprecation"
+    ]
+  },
+  {
+    "id": "q-0910",
+    "scenario": "A SaaS company's Claude-powered contract summarizer receives occasional user complaints about wrong summaries. The team cannot reproduce them: logs hold only the final summary text and a timestamp, and engineers re-running the same document get a good summary.",
+    "stem": "What change would most improve the team's ability to debug such reports?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Set the temperature to 0 so that re-running a document returns the same output as the original run did"
+      },
+      {
+        "key": "B",
+        "text": "Log a request ID, prompt and model versions, inputs, stop reason, and tool calls per call, with sensitive fields redacted"
+      },
+      {
+        "key": "C",
+        "text": "Ask Claude to explain in each summary how it arrived at the result, and store that explanation alongside the summary"
+      },
+      {
+        "key": "D",
+        "text": "Add a thumbs-up and thumbs-down control to each summary and review the downvoted summaries together weekly"
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "To debug an intermittent failure you need to replay what actually happened: the exact inputs, prompt and model versions, and response metadata. Correlating them by request ID, with redaction for sensitive content, turns a complaint into a reproducible case.",
+      "distractors": {
+        "A": "Lower temperature reduces variability but does not guarantee identical output, and it does not tell you what the failing request contained.",
+        "C": "A model's self-explanation is not a reliable record of what it did, and it is not a substitute for the real request and response data.",
+        "D": "Feedback shows which summaries are bad but not why; without the underlying request data the team still cannot reproduce or diagnose them."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "observability",
+      "replay",
+      "debugging"
+    ]
+  },
+  {
+    "id": "q-0916",
+    "scenario": "After a platform team sets `allowManagedPermissionRulesOnly` in the organization's managed settings, engineers report that the `Bash(npm run test *)` allow rule in their repository's committed `.claude/settings.json` no longer stops the permission prompts.",
+    "stem": "What is the correct response?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Add the approved allow rules to the managed settings, since only managed permission rules apply while the lock is on"
+      },
+      {
+        "key": "B",
+        "text": "Move the rule into each engineer's `settings.local.json`, which sits above project settings in precedence"
+      },
+      {
+        "key": "C",
+        "text": "Remove the `allowManagedPermissionRulesOnly` setting, because it is incompatible with repository settings"
+      },
+      {
+        "key": "D",
+        "text": "Pass the rule with `--allowedTools` in a shell alias, so it overrides the managed settings on that machine"
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "The lock tells Claude Code to ignore permission rules from other scopes, so the behavior is intended. Approved rules belong in the managed policy, where the organization reviews them once and applies them everywhere.",
+      "distractors": {
+        "B": "Local settings rank below managed settings, so a local allow rule is ignored by the same lock.",
+        "C": "Removing the lock defeats its purpose of letting only the organization define permission rules; the issue is where the rule lives.",
+        "D": "Managed settings take precedence over command-line values, so the alias would not override the policy."
+      }
+    },
+    "lab": "lab-02-claude-code-config-foundations",
+    "difficulty": 6,
+    "tags": [
+      "managed-settings",
+      "permissions"
+    ]
+  },
+  {
+    "id": "q-0917",
+    "scenario": "A SaaS company commits a `.mcp.json` listing vetted MCP servers in about 200 repositories. Interactive Claude Code shows an approval prompt for project servers, but a pull request could add a new, unvetted server. The same repositories run `claude -p` review jobs in CI on Linux runners built from a company image. Security wants only vetted servers to run in both places.",
+    "stem": "Which control best meets this requirement?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Deploy a managed allowlist (`allowManagedMcpServersOnly` plus `allowedMcpServers`) to laptops and the runner image"
+      },
+      {
+        "key": "B",
+        "text": "Rely on the interactive approval prompt, since engineers will decline a server they do not recognize in the dialog"
+      },
+      {
+        "key": "C",
+        "text": "Add a CODEOWNERS rule requiring security approval for changes to `.mcp.json` in each of the repositories"
+      },
+      {
+        "key": "D",
+        "text": "Tell Claude in CLAUDE.md to ask for confirmation before using an MCP server that is not on the approved list"
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "A managed allowlist is enforced on every machine it is deployed to, including the runner image, regardless of what a repository's `.mcp.json` declares. Non-interactive runs load project servers without an approval prompt, so the prompt alone does not protect CI.",
+      "distractors": {
+        "B": "Non-interactive `claude -p` runs load project MCP servers without asking, and in interactive use engineers may approve a server by habit.",
+        "C": "CODEOWNERS protects one file in each repository, but it does not cover servers added in user or local scope or on a branch that is never merged.",
+        "D": "A CLAUDE.md instruction is advisory and is not enforced at connection time."
+      }
+    },
+    "lab": null,
+    "difficulty": 7,
+    "tags": [
+      "mcp",
+      "managed-settings",
+      "ci"
+    ]
+  },
+  {
+    "id": "q-0921",
+    "scenario": "An insurance company's on-call engineers use Claude to summarize alerts and logs during incidents. In the last incident, Claude's summary stated that a database failover caused the outage. No failover had occurred, but responders had already started a failover rollback before finding that out.",
+    "stem": "Which change best makes AI-assisted triage trustworthy?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Require each claim to cite specific log lines, trace IDs, or queries, and have the engineer verify with a query before acting"
+      },
+      {
+        "key": "B",
+        "text": "Add an instruction to the triage prompt not to speculate and to state only facts supported by the data"
+      },
+      {
+        "key": "C",
+        "text": "Restrict Claude to writing summaries after a human has identified the root cause, so it cannot influence decisions"
+      },
+      {
+        "key": "D",
+        "text": "Move the triage workflow to a larger model, which is less likely to assert unsupported causes"
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Cited evidence makes each claim checkable, and verifying with a deterministic query before a risky action keeps a plausible but wrong hypothesis from driving remediation. Claude speeds hypothesis generation; it does not replace verification.",
+      "distractors": {
+        "B": "An instruction to avoid speculation reduces but cannot remove unsupported claims, and it leaves no way to check them.",
+        "C": "Using Claude only after the root cause is known removes most of its value during the incident, which is when speed matters.",
+        "D": "A larger model may be more accurate but can still assert unsupported causes, and the workflow would still lack verification."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "incident-triage",
+      "overreliance",
+      "verification"
+    ]
   }
 ]
