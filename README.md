@@ -1,6 +1,6 @@
 # Claude Certification Exam Prep (2026)
 
-![The study app — the CCAR-F Concepts view with a syntax-highlighted code sample; the header switches between CCAR-F, CCDV-F, and CCAR-P](docs/study-app.png)
+![The study app — the CCAR-P Concepts view (2.1, model selection) with a syntax-highlighted code sample; the header switches between CCAR-F, CCDV-F, and CCAR-P](docs/study-app.png)
 
 Study materials, hands-on labs, and a fully offline study app for Anthropic's Claude
 certifications. The repo is built to hold **any number of exams**: content lives in
