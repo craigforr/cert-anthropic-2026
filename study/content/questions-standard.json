@@ -7408,7 +7408,7 @@
   },
   {
     "id": "q-0190",
-    "scenario": "You are designing a review stage that must scale to hundreds of findings per day. You want humans to spend their limited time on the findings most likely to be real and severe, and to auto-accept or lightly sample the rest.",
+    "scenario": "You are designing a review stage that must scale to hundreds of findings per day. You want humans to spend their limited time on the findings most likely to be real and severe, and to spot-check the rest rather than read every one.",
     "stem": "Which review design best supports calibrated routing of findings to human attention?",
     "options": [
       {
@@ -7421,7 +7421,7 @@
       },
       {
         "key": "C",
-        "text": "Have the model tag each finding with self-reported confidence, then route low-confidence or high-severity findings to humans."
+        "text": "Tag each finding with model-reported confidence; send low-confidence or high-severity ones to humans and spot-check a sample of the rest."
       },
       {
         "key": "D",
@@ -7430,7 +7430,7 @@
     ],
     "correct": "C",
     "rationale": {
-      "correct": "A verification pass in which the model self-reports confidence alongside each finding gives you a calibration signal you can act on: uncertain or high-stakes findings go to humans, while confident low-risk ones are fast-tracked or lightly sampled. This is the calibrated review routing the guide describes.",
+      "correct": "A verification pass in which the model self-reports confidence alongside each finding gives you a signal for routing review effort: uncertain or high-stakes findings go to humans first, and the rest are spot-checked rather than read in full. Self-reported confidence is not calibrated — a model can be confidently wrong — so it prioritizes attention but doesn't auto-accept findings; sampling the confident ones (and calibrating against labeled outcomes before any threshold acts on its own) catches what it misses.",
       "distractors": {
         "A": "Alphabetical ordering is unrelated to the likelihood or severity of a finding, so it routes human attention arbitrarily rather than where it is most valuable.",
         "B": "Discarding low-confidence findings throws away exactly the cases most likely to need a human look; the point of confidence is to route them, not delete them.",

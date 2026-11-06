@@ -2148,7 +2148,7 @@
     ],
     "correct": "B",
     "rationale": {
-      "correct": "A verification pass that attaches self-reported confidence to each finding gives reviewers a signal for allocating attention — read the uncertain ones closely, skim the confident ones. That is the recognized use of self-reported confidence in multi-pass review: routing effort, not making automated accept/reject decisions.",
+      "correct": "A verification pass that attaches self-reported confidence to each finding gives reviewers a signal for allocating attention — read the uncertain ones closely, skim the confident ones. That is the recognized use of self-reported confidence in multi-pass review: routing effort, not making automated accept/reject decisions. Because the scores are not calibrated (a model can be confidently wrong), confident findings still get sampled rather than trusted outright.",
       "distractors": {
         "A": "Category grouping is a genuine ergonomic improvement and reduces context switching for reviewers. It reorganizes the same undifferentiated list, so reviewers still cannot tell which items within a category warrant scrutiny.",
         "C": "Suppressing lower-severity findings would cut volume immediately and is tempting under throughput pressure. Severity and reliability are different axes — a low-severity finding can be certainly correct and a high-severity one speculative — so this discards real issues while leaving the confidence question unanswered.",

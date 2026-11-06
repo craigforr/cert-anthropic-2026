@@ -947,7 +947,7 @@
   {
     "id": "fc-0105",
     "front": "What is a verification pass with self-reported confidence used for?",
-    "back": "The model reports a confidence level alongside each finding so you can route review effort in a calibrated way: send low-confidence or high-severity findings to humans and fast-track confident low-risk ones. Confidence routes findings; it should not be used to silently discard uncertain ones.",
+    "back": "The model reports a confidence level alongside each finding so you can prioritize review effort: send low-confidence or high-severity findings to humans first. The scores aren't calibrated (models can be confidently wrong), so spot-check the confident ones rather than fast-track them unchecked, and never use confidence to silently discard uncertain findings.",
     "tags": [
       "verification-pass",
       "self-reported-confidence",
