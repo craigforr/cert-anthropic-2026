@@ -12,19 +12,23 @@ switch between exams.
 | Claude Certified Architect – Foundations | **CCAR-F** | Complete — guide, 25 labs, full study content |
 | Claude Certified Developer – Foundations | **CCDV-F** | Complete — guide, full study content; links the 19 labs that fit its skills |
 | Claude Certified Architect – Professional | **CCAR-P** | Complete — guide, full study content; links the 22 labs that fit its objectives |
+| Claude Certified Developer – Professional | **CCDV-P** | Complete — guide, full study content; links the 14 labs that fit its skills |
 
 **CCAR-F** validates practical judgment about building production applications with
 **Claude Code, the Claude Agent SDK, the Claude API, and the Model Context Protocol
 (MCP)**. **CCDV-F** validates building, integrating, and shipping Claude-powered
 applications, agents, and workflows — API integration, agent and tool construction,
-prompt and context engineering, evaluation, security, and model selection. **CCAR-P**
+prompt and context engineering, evaluation, security, and model selection. **CCDV-P** validates
+operating Claude systems in production at scale — observability, incident response, evaluation
+engineering, resilient integration, cost and latency optimization, runtime guardrails, and fleets of
+coding agents. **CCAR-P**
 validates architect-level judgment for production Claude solutions — solution design,
 model and prompt choices, integration (RAG, MCP, auth, observability), evaluation,
 governance and compliance, stakeholder communication, and team enablement. This repo
 pairs each exam's official guide with two ways to prepare: a buildable, testable
 **lab curriculum** and a polished, fully offline **study app** (a three-tier practice
-quiz — four tiers for CCAR-P — with real "Select N" multi-response items, flashcards,
-concept explainers, browsable labs, and a readiness dashboard) — so you gain hands-on experience with
+quiz — four tiers for CCAR-P and CCDV-P — with real "Select N" multi-response items, flashcards,
+concept explainers, browsable labs, a readiness dashboard, and a Guide front page with the official exam guide inline) — so you gain hands-on experience with
 *every* feature, concept, and topic the exams cover, not just read about them.
 
 ## By the Numbers
@@ -34,20 +38,23 @@ concept explainers, browsable labs, and a readiness dashboard) — so you gain h
 | **CCAR-F** | **435** | **135** | **30** | **25** |
 | **CCDV-F** | **322** | **93** | **25** | **19** linked |
 | **CCAR-P** | **533** | **114** | **38** | **22** linked |
+| **CCDV-P** | **350** | **75** | **25** | **14** linked |
 
-All exams draw from one shared content pool (**997** questions, **249** flashcards,
-**86** concept explainers; 362 items serve more than one exam), each through its own item map.
-Questions span three difficulty tiers (four for CCAR-P) — CCAR-F: **Standard** (240), **Intermediate**
+All exams draw from one shared content pool (**1,347** questions, **324** flashcards,
+**111** concept explainers; 362 items serve more than one exam), each through its own item map.
+Questions span three difficulty tiers (four for CCAR-P and CCDV-P) — CCAR-F: **Standard** (240), **Intermediate**
 (120), and **Hard** (75, including 10 multi-response "Select N" items calibrated to the
 real exam's format); CCDV-F: Standard (192), Intermediate (65), and Hard (65, including
 18 "Select N"); CCAR-P: Standard (229), Intermediate (114), Hard (114, including
 30 "Select N"), and **Expert** (76, difficulty 9–10: close distractors, multi-constraint
-cases, 37 "Select N", and 25 root-cause-from-evidence items) — dynamically selectable in the Web UI, or chosen with `--set` (any
+cases, 37 "Select N", and 25 root-cause-from-evidence items); CCDV-P: Standard (150), Intermediate (75),
+Hard (75, including 26 "Select N"), and **Expert** (50, including 25 "Select N" and 38 evidence-based items) — dynamically selectable in the Web UI, or chosen with `--set` (any
 combination) in the CLI/TUI. CCAR-F covers all **5 exam domains** and **30 task
 statements** (40 syntax-highlighted code samples across its concept explainers);
 CCDV-F covers all **8 domains** and **25 skills**, with Standard-tier questions per
 skill scaled to the skill's exam weight (24 code samples); CCAR-P covers all **7 domains**
-and **38 objectives** at 6 Standard questions per objective (5 code samples). Questions and concepts
+and **38 objectives** at 6 Standard questions per objective (5 code samples); CCDV-P covers all **8 domains**
+and **25 skills** at 6 Standard, 3 Intermediate, 3 Hard, and 2 Expert questions per skill (11 code samples). Questions and concepts
 link to the lab that drills them where one exists. The whole study app runs locally
 and offline, with zero runtime dependencies.
 
@@ -55,13 +62,14 @@ and offline, with zero runtime dependencies.
 
 | Path | What it is |
 |------|------------|
-| [`study/exams/ccarf/anthropic-ccarf-exam-guide-2026-07.md`](study/exams/ccarf/anthropic-ccarf-exam-guide-2026-07.md) | The CCAR-F exam guide: 5 domains, 30 task statements, 6 scenarios, sample questions, prep exercises. Each exam's guide and manifest live in `study/exams/<exam>/`. |
-| [`study/exams/ccdvf/anthropic-ccdvf-exam-guide-2026-10.md`](study/exams/ccdvf/anthropic-ccdvf-exam-guide-2026-10.md) | The CCDV-F exam guide: 8 domains, 25 skills, sample questions. |
-| [`study/exams/ccarp/anthropic-ccarp-exam-guide-2026-07.md`](study/exams/ccarp/anthropic-ccarp-exam-guide-2026-07.md) | The CCAR-P exam guide: 7 domains, 38 objectives, sample questions. |
+| [`study/exams/ccarf/anthropic-ccarf-exam-guide-2026-11.md`](study/exams/ccarf/anthropic-ccarf-exam-guide-2026-11.md) | The CCAR-F exam guide: 5 domains, 30 task statements, 6 scenarios, sample questions, prep exercises. Each exam's guide and manifest live in `study/exams/<exam>/`. |
+| [`study/exams/ccdvf/anthropic-ccdvf-exam-guide-2026-11.md`](study/exams/ccdvf/anthropic-ccdvf-exam-guide-2026-11.md) | The CCDV-F exam guide: 8 domains, 25 skills, sample questions. |
+| [`study/exams/ccdvp/anthropic-ccdvp-exam-guide-2026-11.md`](study/exams/ccdvp/anthropic-ccdvp-exam-guide-2026-11.md) | The CCDV-P exam guide: 8 domains, 25 skills, sample questions. |
+| [`study/exams/ccarp/anthropic-ccarp-exam-guide-2026-11.md`](study/exams/ccarp/anthropic-ccarp-exam-guide-2026-11.md) | The CCAR-P exam guide: 7 domains, 38 objectives, sample questions. |
 | [`labs/`](labs/) | 25 hands-on CCAR-F labs + a shared test harness. Start at [`labs/README.md`](labs/README.md). |
 | [`labs/README.md`](labs/README.md) | Master matrix: labs by dependency tier & difficulty, with effort estimates and a full task-statement → lab / scenario → capstone traceability map. |
 | [`labs/_shared/`](labs/_shared/) | Reusable test harness (deterministic mock Claude client, `starter`/`solution` switching, opt-in LLM grading). See [`labs/_shared/README.md`](labs/_shared/README.md). |
-| [`study/`](study/) | A local, offline, multi-exam study app — a 3-tier practice quiz (Standard/Intermediate/Hard, plus Expert for CCAR-P, with multi-select items), flashcards with self-graded recall tracking, concept explainers (with code samples), browsable labs, and a readiness dashboard. Web UI (`uv run study/serve.py`) plus standalone CLI/TUI quiz and flashcard tools. See [`study/README.md`](study/README.md). |
+| [`study/`](study/) | A local, offline, multi-exam study app — a Guide front page per exam (overview, domain-weight chart, study plan, and the official guide inline with a link to the PDF), a 3-tier practice quiz (Standard/Intermediate/Hard, plus Expert for CCAR-P, with multi-select items), flashcards with self-graded recall tracking, concept explainers (with code samples), browsable labs, and a readiness dashboard. Web UI (`uv run study/serve.py`) plus standalone CLI/TUI quiz and flashcard tools. See [`study/README.md`](study/README.md). |
 | `.claude/` | Project Claude Code config (enables the `pyright-lsp` and `agent-sdk-dev` plugins). |
 
 ## Labs At A Glance
@@ -121,6 +129,6 @@ into the six CCAR-F exam scenarios.
 - Certification content is derived from the publicly distributed exam guides.
 - Test suite status: labs (`cd labs && LAB_TARGET=solution uv run pytest`) → 376 passed,
   3 `llm`-marked tests deselected (they run only with an API key); study content and
-  app (`cd study && uv run pytest`) → 85 passed.
+  app (`cd study && uv run pytest`) → 113 passed.
 
 <!-- EOF -->

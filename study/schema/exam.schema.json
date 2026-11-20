@@ -4,12 +4,32 @@
   "description": "One certification exam: identity, guide, domains + weights, task statements (with their labs), and the content components each section pins.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["slug", "code", "name", "guide", "config", "domains", "task_statements", "sections"],
+  "required": ["slug", "code", "name", "guide", "guide_pdf_url", "config", "domains", "task_statements", "sections"],
   "properties": {
     "slug": { "type": "string", "pattern": "^[a-z0-9]+$" },
     "code": { "type": "string", "pattern": "^[A-Z]+-[A-Z]$" },
     "name": { "type": "string", "minLength": 1 },
     "guide": { "description": "Exam-guide Markdown file, relative to this exam's directory.", "type": "string", "pattern": "^[a-z0-9-]+\\.md$" },
+    "guide_pdf_url": { "description": "URL of the official exam-guide PDF; the Guide view links back to it.", "type": "string", "pattern": "^https://\\S+\\.pdf$" },
+    "overview": {
+      "description": "Optional content for the Guide view's overview: a one-paragraph summary and key exam facts. Each fact value must appear in the guide (tested).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["summary", "facts"],
+      "properties": {
+        "summary": { "type": "string", "minLength": 1 },
+        "facts": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["label", "value"],
+            "properties": { "label": { "type": "string", "minLength": 1 }, "value": { "type": "string", "minLength": 1 } }
+          }
+        }
+      }
+    },
     "config": {
       "type": "object",
       "additionalProperties": false,

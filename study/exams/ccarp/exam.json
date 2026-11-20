@@ -2,7 +2,17 @@
   "slug": "ccarp",
   "code": "CCAR-P",
   "name": "Claude Certified Architect – Professional",
-  "guide": "anthropic-ccarp-exam-guide-2026-07.md",
+  "guide": "anthropic-ccarp-exam-guide-2026-11.md",
+  "guide_pdf_url": "https://cc.sj-cdn.net/instructor/6nizmqk8tpzpfjvt6qmmav7rh/public/1794946331/Claude_Certified_Architect_-_Professional_Exam_Guide.pdf",
+  "overview": {
+    "summary": "Validates that you can design, build, and deliver production-grade AI solutions on Anthropic's Claude platform: choosing models, architectures, and API patterns, engineering prompts and context, integrating Claude into enterprise systems, and building in evaluation, security, compliance, and governance.",
+    "facts": [
+      { "label": "Items", "value": "63" },
+      { "label": "Time limit", "value": "120 minutes" },
+      { "label": "Passing score", "value": "720" },
+      { "label": "Scale", "value": "100–1,000" }
+    ]
+  },
   "config": {
     "questions_per_task_target": 6,
     "coverage_component": "questions-standard",

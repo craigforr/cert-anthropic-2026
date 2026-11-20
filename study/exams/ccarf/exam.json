@@ -2,7 +2,17 @@
   "slug": "ccarf",
   "code": "CCAR-F",
   "name": "Claude Certified Architect – Foundations",
-  "guide": "anthropic-ccarf-exam-guide-2026-07.md",
+  "guide": "anthropic-ccarf-exam-guide-2026-11.md",
+  "guide_pdf_url": "https://cc.sj-cdn.net/instructor/6nizmqk8tpzpfjvt6qmmav7rh/public/1794946250/Claude_Certified_Architect_-_Foundations_Exam_Guide.pdf",
+  "overview": {
+    "summary": "Validates that you can make informed tradeoff decisions when implementing real-world solutions with Claude, across Claude Code, the Claude Agent SDK, the Claude API, and the Model Context Protocol (MCP). Questions are grounded in realistic scenarios drawn from actual customer use cases.",
+    "facts": [
+      { "label": "Items", "value": "60" },
+      { "label": "Time limit", "value": "120 minutes" },
+      { "label": "Passing score", "value": "720" },
+      { "label": "Scale", "value": "100–1,000" }
+    ]
+  },
   "config": {
     "questions_per_task_target": 8,
     "coverage_component": "questions-standard",

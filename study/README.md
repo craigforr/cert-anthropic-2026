@@ -2,14 +2,16 @@
 
 A **local, offline, single-user**, **multi-exam** study app for Claude certification
 exams. It covers the **Claude Certified Architect – Foundations (CCAR-F)**,
-**Claude Certified Developer – Foundations (CCDV-F)**, and **Claude Certified
-Architect – Professional (CCAR-P)** exams: a **3-tier practice-question bank**
-(CCAR-F 435 questions, CCDV-F 322, CCAR-P 533 —
-Standard/Intermediate/Hard, plus an Expert tier for CCAR-P, including real
+**Claude Certified Developer – Foundations (CCDV-F)**, **Claude Certified
+Architect – Professional (CCAR-P)**, and **Claude Certified Developer –
+Professional (CCDV-P)** exams: a **3-tier practice-question bank**
+(CCAR-F 435 questions, CCDV-F 322, CCAR-P 533, CCDV-P 350 —
+Standard/Intermediate/Hard, plus an Expert tier for CCAR-P and CCDV-P, including real
 multi-response "Select N" items),
-**flashcards** (135 / 93 / 114 cards, with self-graded recall tracking), **concept
-explainers** (30 / 25 / 38), **browsable labs**, and a **readiness dashboard** that tracks
-your progress over time.
+**flashcards** (135 / 93 / 114 / 75 cards, with self-graded recall tracking), **concept
+explainers** (30 / 25 / 38 / 25), **browsable labs**, and a **readiness dashboard** that tracks
+your progress over time. Each exam opens on a **Guide** page: an overview, a
+domain-weight chart, a study plan, and the official exam guide inline.
 Switch exams from the header (each exam keeps its own progress); links name the
 exam and section, e.g. `#/ccarf/quiz`, so bookmarks stay on the right exam.
 No cloud, no accounts, no backend — everything runs on your machine and your
@@ -130,8 +132,17 @@ stays in their own browser).
 
 ## Features
 
+- **Guide** — the front page of each exam (the default view, and the first tab). An
+  **Exam Overview** (summary, key facts, and an SVG bar chart of the domain weights,
+  switchable between exam order and sorted by percent), a **Study Plan** that walks
+  Exam Guide → Concepts → Flashcards → Labs → Quiz → Readiness with live counts and
+  links, and the **Exam Guide**: the official guide reprinted inline, labelled as the
+  official guide reformatted, with a link to the official PDF. The wording is
+  verbatim; only PDF layout artifacts (repeated page headers, broken tables) are repaired.
+  The active tab and the selected exam pill are blue for Professional-level (-P) exams and clay for Foundations, instead of
+  one accent for all exams, as a quiet level cue.
 - **Quiz** — scenario multiple-choice (the exam's format), across three difficulty
-  tiers (**Standard**, **Intermediate**, **Hard**; CCAR-P adds **Expert** — difficulty
+  tiers (**Standard**, **Intermediate**, **Hard**; CCAR-P and CCDV-P add **Expert** — difficulty
   9–10, close distractors, multi-constraint and root-cause-from-evidence cases) — pick
   a set from the dropdown, or combine files on the CLI/TUI. Includes real multi-response **"Select N"** items,
   matching the exam's mixed single-/multi-answer format. Each question's answer
@@ -144,7 +155,7 @@ stays in their own browser).
   domain and task statement, shuffle, and self-grade each card (✓ Got It / ✗ Missed
   It) to drive a "review missed" mode, tracked separately from quiz mastery.
 - **Concepts** — one explainer per task statement of the selected exam (CCAR-F's
-  1.1–5.6, CCDV-F's 25 skills 1.1–8.3, CCAR-P's 38 objectives 1.1–7.3): the idea, why it matters, the common trap,
+  1.1–5.6, CCDV-F's 25 skills 1.1–8.3, CCAR-P's 38 objectives 1.1–7.3, CCDV-P's 25 skills 1.1–8.4): the idea, why it matters, the common trap,
   code samples where the topic is code-shaped, and a link to the relevant hands-on lab.
 - **Labs** — the 25 hands-on labs from `../labs/`, browsable in the app: read a lab's
   instructions, then reveal its solution write-up to check your work.
@@ -173,13 +184,15 @@ toward. One item can serve several exams, each under its own task.
 | `exams/index.json` | The available exams, by slug (the first is the default). |
 | `exams/ccarf/exam.json` | The CCAR-F exam: code, name, guide, domains + weights, the 30 task statements and their labs, `config` (a flat per-task question target, `questions_per_task_target`; pass threshold), and `sections` — the components each section pins by id + version range (e.g. `"questions-hard"` at `^1.0`). Section entries' labels drive the Web UI's set pickers. |
 | `exams/ccarf/map.json` | The CCAR-F item map: per kind (`questions`, `flashcards`, `concepts`), each pool item CCAR-F uses → its task statement (e.g. `"q-0001": "1.1"`). Items not listed aren't part of the exam. |
-| `exams/ccdvf/exam.json`, `exams/ccdvf/map.json` | The CCDV-F exam (8 domains, 25 skills numbered 1.1–8.3 in guide order, with the guide's fractional domain and skill weights) and its item map. Its `config` uses a weight-scaled question target (`questions_target_total`: each skill needs ⌈150 × weight / 100⌉ + 1 Standard questions). Guide: `exams/ccdvf/anthropic-ccdvf-exam-guide-2026-10.md`. |
-| `exams/ccarp/exam.json`, `exams/ccarp/map.json` | The CCAR-P exam (7 domains with the guide's weights, 38 objectives numbered 1.1–7.3 in guide order — the guide doesn't number them) and its item map. Its `config` uses a flat target of 6 Standard questions per objective (`questions_per_task_target`). Guide: `exams/ccarp/anthropic-ccarp-exam-guide-2026-07.md`. |
-| `exams/ccarf/anthropic-ccarf-exam-guide-2026-07.md` | The CCAR-F exam guide — source of truth for its content (`-2026-06` is the prior edition). |
+| `exams/ccdvf/exam.json`, `exams/ccdvf/map.json` | The CCDV-F exam (8 domains, 25 skills numbered 1.1–8.3 in guide order, with the guide's fractional domain and skill weights) and its item map. Its `config` uses a weight-scaled question target (`questions_target_total`: each skill needs ⌈150 × weight / 100⌉ + 1 Standard questions). Guide: `exams/ccdvf/anthropic-ccdvf-exam-guide-2026-11.md`. |
+| `exams/ccarp/exam.json`, `exams/ccarp/map.json` | The CCAR-P exam (7 domains with the guide's weights, 38 objectives numbered 1.1–7.3 in guide order — the guide doesn't number them) and its item map. Its `config` uses a flat target of 6 Standard questions per objective (`questions_per_task_target`). Guide: `exams/ccarp/anthropic-ccarp-exam-guide-2026-11.md`. |
+| `exams/<slug>/guide.html` | Generated by `tools/build_guides.py` from the exam's guide Markdown: the cleaned, rendered guide the Guide view shows inline. Never hand-edited. |
+| `exams/ccdvp/exam.json`, `exams/ccdvp/map.json` | The CCDV-P exam (8 domains with the guide's weights, 25 skills numbered 1.1–8.4 in guide order; the guide gives no per-skill weights) and its item map. Its `config` uses a flat target of 6 Standard questions per skill, and it pins all four question tiers (Standard 150, Intermediate 75, Hard 75, Expert 50). |
+| `exams/ccarf/anthropic-ccarf-exam-guide-2026-11.md` | The CCAR-F exam guide — source of truth for its content (`-2026-06` is the prior edition). |
 | `content/components.json` | Registry of every pool component: `{id, kind, version, file}`. |
-| `content/questions-standard.json` (506), `content/questions-intermediate.json` (235), `content/questions-hard.json` (180, incl. 44 multi-response), `content/questions-expert.json` (76, incl. 37 multi-response; pinned by CCAR-P only) | Scenario multiple-choice questions by difficulty tier: stem, 4-5 options (A-E), a `correct` key (a single letter, or a 2+-letter array for a "Select N" item), per-distractor rationale, lab link. All tiers are schema-identical and interchangeable across every surface. Scenario line breaks are preserved (Expert's evidence items put each log line or metric on its own line). |
-| `content/flashcards.json` | Front/back fact-recall cards (249), each testing a single concept. |
-| `content/concepts.json` | Concept explainers (86; each exam maps one to each of its task statements). |
+| `content/questions-standard.json` (656), `content/questions-intermediate.json` (310), `content/questions-hard.json` (255, incl. 70 multi-response), `content/questions-expert.json` (126, incl. 62 multi-response; pinned by CCAR-P and CCDV-P) | Scenario multiple-choice questions by difficulty tier: stem, 4-5 options (A-E), a `correct` key (a single letter, or a 2+-letter array for a "Select N" item), per-distractor rationale, lab link. All tiers are schema-identical and interchangeable across every surface. Scenario line breaks are preserved (Expert's evidence items put each log line or metric on its own line). |
+| `content/flashcards.json` | Front/back fact-recall cards (324), each testing a single concept. |
+| `content/concepts.json` | Concept explainers (111; each exam maps one to each of its task statements). |
 | `content/labs.json` | The labs catalog, generated from `../labs/` by `tools/build_labs.py`. |
 | `migrations/pool-ids-2026-10.json` | Historical: the old exam-prefixed IDs (`ccarf-q-1.1-001`) → pool IDs, used once to re-key saved progress, exports, and CLI/TUI history. Never edited. |
 | `schema/*.schema.json` | JSON Schemas; every manifest, map, and component is validated against these. |
@@ -204,11 +217,11 @@ The tests check schema validity; component integrity (valid answer keys, complet
 distractor rationales, neutral unique IDs, resolvable lab links, the registry staying
 in sync with the files on disk); exam integrity for every exam directory, listed or
 not (domain weights summing to 100 and any per-task weights to their domain's, the guide
-existing, every pin resolving to a component of the right kind and version); map
+existing, its official-PDF URL, overview facts appearing in the guide, every pin resolving to a component of the right kind and version); map
 integrity (every mapped item exists in a component the exam pins and counts toward a
 real task statement; no item listed twice; no pinned component left unused);
 coverage per listed exam, through its map (question count per task statement, per-tier
-minimums, one concept per task statement); and no answer-length tell (no correct option
+minimums, one concept per task statement); the generated `guide.html` files being current and verbatim (no words added, none lost beyond the PDF's repeated page headers); and no answer-length tell (no correct option
 1.1× or more longer than every distractor). Deleting an item an exam still maps fails
 the tests.
 
@@ -224,6 +237,29 @@ uv run study/tools/content_map.py                 # summary
 uv run study/tools/content_map.py --orphans       # unused items/components
 uv run study/tools/content_map.py --item q-0001   # where one item is used
 ```
+
+### The Guide Page (`tools/build_guides.py`)
+
+Each exam's Guide view shows its official guide inline from `exams/<slug>/guide.html`,
+which is **generated** from the guide Markdown named in `exam.json`. The Markdown
+files are text extractions of the official PDFs, cleaned once by hand to match them
+(the repo's guides are the current v1.1, November 2026, editions) and kept clean: a
+test fails if one regains PDF artifacts such as repeated page headers. The build
+repairs layout artifacts only (page headers, sentences split by a page break, broken
+tables) and never changes wording; a test checks that no words were added or lost.
+When Anthropic publishes a new edition, replace the Markdown (the file name carries
+the edition, e.g. `-2026-11`), update `guide` in `exam.json`, and re-run it:
+
+```bash
+uv run study/tools/build_guides.py                # rebuild every exam's guide.html
+uv run study/tools/build_guides.py --exam ccarp   # one exam
+uv run study/tools/build_guides.py --check        # exit 1 if any guide.html is stale
+```
+
+Other `exam.json` fields feed the page: `guide_pdf_url` (required; the link to the
+official PDF) and `overview` (a one-paragraph summary plus key facts such as item
+count and time limit; each fact's value must appear in the guide). The domain chart
+and study-plan counts come from the exam's domains and loaded content.
 
 ## Command-Line & TUI Tools (`tools/`)
 

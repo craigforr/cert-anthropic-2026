@@ -3,7 +3,7 @@
 A buildable, testable lab curriculum for the **Claude Certified Architect –
 Foundations (CCAR-F)** exam. Working through these labs in order gives you hands-on
 experience with *every* feature, property, concept, and topic in
-[`../study/exams/ccarf/anthropic-ccarf-exam-guide-2026-07.md`](../study/exams/ccarf/anthropic-ccarf-exam-guide-2026-07.md) —
+[`../study/exams/ccarf/anthropic-ccarf-exam-guide-2026-11.md`](../study/exams/ccarf/anthropic-ccarf-exam-guide-2026-11.md) —
 all 5 domains, 30 task statements, and 6 exam scenarios.
 
 ## How the Labs Work

@@ -1,7 +1,7 @@
 # Claude Certified Architect – Foundations
 ## Exam Guide
 
-> **Version 1.0 · Effective July 2026 · Exam code: CCAR-F**
+> **Version 1.1 · Effective November 2026 · Exam code: CCAR-F**
 > This guide is subject to change without notice.
 
 ---
@@ -34,9 +34,8 @@ The candidate typically has 6+ months of practical experience building with Clau
 
 ## 3. Exam Details at a Glance
 
-| Item | Detail |
+| Credential | Claude Certified Architect – Foundations |
 |---|---|
-| **Credential** | Claude Certified Architect – Foundations |
 | **Exam code** | CCAR-F |
 | **Number of items** | 60 |
 | **Item format** | Multiple-choice and multiple-response items; each item states how many responses to select |
@@ -825,20 +824,18 @@ The Claude Certified Architect – Foundations exam is a criterion-referenced as
 
 Registration and scheduling are handled through the Anthropic Partner Academy and Pearson VUE:
 
-1. Go to the certification page for your exam on the Anthropic Partner Academy and review the exam details.
-2. Download the Exam Guide and review the Certification Terms and Conditions and the Certification Exam Policy before registering.
-3. Register for the exam and complete checkout. The fee shown at checkout reflects any discount that applies to your partner tier.
-4. Follow the confirmation instructions to create your Pearson VUE account, then sign in to schedule your exam session.
-5. Choose an available date and select either online proctoring or a Pearson test center. The exam is delivered by Pearson VUE.
-6. You may cancel or reschedule up to 24 hours before your appointment. Changes made within 24 hours forfeit the exam fee.
-
----
+1. Go to your certification page on the Anthropic Partner Academy and review the exam details.
+2. Download the Exam Guide and review the Certification Terms and Conditions and the Certification Exam Policy.
+3. Click Register, confirm your exam and exam profile, then select Continue to Pearson.
+4. At Pearson, choose online proctoring or a test center, select a date and time, and complete checkout. The price reflects any partner discount.
+5. If you have already registered, use Go to my Pearson account to schedule, take your exam, or view your results and receipts.
+6. OnVUE (online proctored) exams can be canceled or rescheduled up to one hour before your appointment, and test center exams up to 48 hours before. Later changes forfeit the exam fee. Rescheduling keeps your price, including any discount. Canceling starts an automatic refund of anything you paid at Pearson's checkout, which takes 7 to 10 business days. If you paid through the Anthropic Partner Academy before 8 a.m. PT on November 12, 2026, Anthropic refunds your payment after you cancel, which can take a few extra days. If your refund has not arrived after 10 business days, email certifications-support@anthropic.com.
 
 ## 12. Exam Policies
 
 ### Identification
 
-On exam day you must present a valid, unexpired, government-issued photo identification. The name on your ID must match the name on your registration exactly. If you need to correct the name on your registration, contact certifications-support@anthropic.com before scheduling your exam.
+On exam day you must present a valid, unexpired, government-issued photo identification. The name on your ID must match the name on your registration exactly. If you need to correct the name on your registration, you can update this information in your exam profile within your Partner Academy profile before scheduling your exam. For OnVUE (online proctored) exams, updates sync in near real time. For test center appointments, updates sync only once per day — update your name at least 24 hours in advance, or the update may not be reflected when you check in. NOTE: You can update your name yourself once; it locks when you confirm your profile. For any later change, contact certifications-support@anthropic.com.
 
 ### Accommodations
 
@@ -865,7 +862,7 @@ During the exam you must:
 - Refrain from communicating with any other person during the exam
 - Not capture, copy, photograph, or reproduce any exam content in any form
 
-**Prohibited items** include mobile phones, smart watches, headphones, study materials, and any recording device. Permitted items, if any, such as scratch paper provided by the proctor, are specified by Pearson VUE.
+**Prohibited items** include mobile phones, smart watches, smart glasses, headphones, study materials, and any recording device. Permitted items, if any, such as scratch paper provided by the proctor, are specified by Pearson VUE.
 
 **Consequences of misconduct.** Cheating, attempting to access prohibited resources, or disclosing exam content may result in invalidation of your result, revocation of your credential, and a ban from future exams.
 
@@ -893,7 +890,7 @@ Holders remain subject to the rules of conduct described in Section 13.
 
 ### Support
 
-To correct the name on your registration, contact certifications-support@anthropic.com. For all other questions, including registration, scheduling, accommodations, and results, contact Pearson VUE support at pearsonvue.com/us/en/anthropic.html.
+To correct the name on your registration, update your exam profile in your Partner Academy profile before you confirm it. For trouble signing in or reaching Pearson, an exam missing from your Pearson account, a missing partner discount, or profile details you can't change, email certifications-support@anthropic.com. For exam-day problems, other checkout issues, scheduling, rescheduling, canceling, accommodations, and results, contact Pearson support at pearsonvue.com/us/en/anthropic.html.
 
 ### Appeals and complaints
 
@@ -977,9 +974,4 @@ The following related topics will **not** appear on the exam:
 | Version | Summary of change | Date |
 |---|---|---|
 | 1.0 | Formatting and layout updates | July 2026 |
-| 0.2 | Draft revision | June 2026 |
-| 0.1 | Initial draft | February 2026 |
-
----
-
-*Claude Certification Program — Exam Guide*
+| 1.1 | Registration, identification, and support updates | November 2026 |

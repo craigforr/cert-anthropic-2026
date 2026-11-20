@@ -2,7 +2,17 @@
   "slug": "ccdvf",
   "code": "CCDV-F",
   "name": "Claude Certified Developer – Foundations",
-  "guide": "anthropic-ccdvf-exam-guide-2026-10.md",
+  "guide": "anthropic-ccdvf-exam-guide-2026-11.md",
+  "guide_pdf_url": "https://cc.sj-cdn.net/instructor/6nizmqk8tpzpfjvt6qmmav7rh/public/1794946716/Claude_Certified_Developer_-_Foundations_Exam_Guide.pdf",
+  "overview": {
+    "summary": "Validates that you can build, integrate, and ship production-grade applications, agents, and workflows on Anthropic's Claude platform: API integration, agent and tool construction, prompt and context engineering, evaluation, security, and model selection.",
+    "facts": [
+      { "label": "Items", "value": "53" },
+      { "label": "Time limit", "value": "120 minutes" },
+      { "label": "Passing score", "value": "720" },
+      { "label": "Scale", "value": "100–1,000" }
+    ]
+  },
   "config": {
     "questions_target_total": 150,
     "coverage_component": "questions-standard",

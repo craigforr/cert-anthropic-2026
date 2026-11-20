@@ -1,0 +1,299 @@
+{
+  "slug": "ccdvp",
+  "code": "CCDV-P",
+  "name": "Claude Certified Developer – Professional",
+  "guide": "anthropic-ccdvp-exam-guide-2026-11.md",
+  "guide_pdf_url": "https://cc.sj-cdn.net/instructor/6nizmqk8tpzpfjvt6qmmav7rh/public/1794947325/Claude_Certified_Developer-Professional_Exam_Guide.pdf",
+  "overview": {
+    "summary": "Validates that you can operate Claude-powered applications, agents, and workflows in production at scale: observability and monitoring, incident response, evaluation engineering, resilient integration, cost and latency optimization, runtime guardrails and security, and fleets of coding agents.",
+    "facts": [
+      {
+        "label": "Items (60 scored)",
+        "value": "70"
+      },
+      {
+        "label": "Time limit",
+        "value": "120 minutes"
+      },
+      {
+        "label": "Passing score",
+        "value": "720"
+      },
+      {
+        "label": "Scale",
+        "value": "100–1,000"
+      }
+    ]
+  },
+  "config": {
+    "questions_per_task_target": 6,
+    "coverage_component": "questions-standard",
+    "pass_threshold": 72
+  },
+  "domains": [
+    {
+      "id": 1,
+      "name": "Advanced Agent Architecture and Orchestration",
+      "weight": 17
+    },
+    {
+      "id": 2,
+      "name": "Production Integration, Reliability, and Knowledge Grounding",
+      "weight": 20
+    },
+    {
+      "id": 3,
+      "name": "Observability and Production Monitoring",
+      "weight": 12
+    },
+    {
+      "id": 4,
+      "name": "Advanced Debugging and Incident Response",
+      "weight": 10
+    },
+    {
+      "id": 5,
+      "name": "Evaluation Engineering and Quality Assurance",
+      "weight": 12
+    },
+    {
+      "id": 6,
+      "name": "Cost and Latency Optimization at Scale",
+      "weight": 8
+    },
+    {
+      "id": 7,
+      "name": "Runtime Guardrails and Production Security",
+      "weight": 11
+    },
+    {
+      "id": 8,
+      "name": "Agent Fleet Operations for Software Delivery",
+      "weight": 10
+    }
+  ],
+  "task_statements": [
+    {
+      "id": "1.1",
+      "domain": 1,
+      "title": "Multi-Agent Orchestration",
+      "labs": [
+        "lab-19-multi-agent-orchestration",
+        "lab-24-capstone-research-system"
+      ]
+    },
+    {
+      "id": "1.2",
+      "domain": 1,
+      "title": "Durable Execution and State Management",
+      "labs": [
+        "lab-13-session-state"
+      ]
+    },
+    {
+      "id": "1.3",
+      "domain": 1,
+      "title": "Architecture Selection at Scale",
+      "labs": []
+    },
+    {
+      "id": "1.4",
+      "domain": 1,
+      "title": "Context and Memory Architecture",
+      "labs": [
+        "lab-14-context-management"
+      ]
+    },
+    {
+      "id": "2.1",
+      "domain": 2,
+      "title": "Reliability Engineering for Claude Services",
+      "labs": [
+        "lab-09-errors-and-tool-distribution"
+      ]
+    },
+    {
+      "id": "2.2",
+      "domain": 2,
+      "title": "Scale and Throughput Management",
+      "labs": [
+        "lab-17-batch-processing"
+      ]
+    },
+    {
+      "id": "2.3",
+      "domain": 2,
+      "title": "Production MCP and Change Management",
+      "labs": [
+        "lab-15-mcp-integration"
+      ]
+    },
+    {
+      "id": "2.4",
+      "domain": 2,
+      "title": "Retrieval and Knowledge Grounding at Scale",
+      "labs": []
+    },
+    {
+      "id": "3.1",
+      "domain": 3,
+      "title": "Telemetry and Instrumentation",
+      "labs": []
+    },
+    {
+      "id": "3.2",
+      "domain": 3,
+      "title": "Production Monitoring and Alerting",
+      "labs": []
+    },
+    {
+      "id": "3.3",
+      "domain": 3,
+      "title": "Trace Analysis at Scale",
+      "labs": []
+    },
+    {
+      "id": "4.1",
+      "domain": 4,
+      "title": "Complex Failure Diagnosis",
+      "labs": [
+        "lab-20-error-propagation-provenance"
+      ]
+    },
+    {
+      "id": "4.2",
+      "domain": 4,
+      "title": "Incident Response and Learning Loops",
+      "labs": []
+    },
+    {
+      "id": "5.1",
+      "domain": 5,
+      "title": "Evaluation System Design",
+      "labs": []
+    },
+    {
+      "id": "5.2",
+      "domain": 5,
+      "title": "LLM-as-Judge Engineering",
+      "labs": [
+        "lab-18-human-review-calibration"
+      ]
+    },
+    {
+      "id": "5.3",
+      "domain": 5,
+      "title": "Online Quality Measurement",
+      "labs": []
+    },
+    {
+      "id": "6.1",
+      "domain": 6,
+      "title": "Cost Architecture at Scale",
+      "labs": []
+    },
+    {
+      "id": "6.2",
+      "domain": 6,
+      "title": "Latency Engineering",
+      "labs": []
+    },
+    {
+      "id": "7.1",
+      "domain": 7,
+      "title": "Runtime Guardrail Systems",
+      "labs": [
+        "lab-11-hooks-and-enforcement"
+      ]
+    },
+    {
+      "id": "7.2",
+      "domain": 7,
+      "title": "Threat Defense and Adversarial Testing for Agentic Systems",
+      "labs": []
+    },
+    {
+      "id": "7.3",
+      "domain": 7,
+      "title": "Identity, Secrets, and Audit at Scale",
+      "labs": []
+    },
+    {
+      "id": "8.1",
+      "domain": 8,
+      "title": "Parallel Agent Orchestration for Engineering Work",
+      "labs": [
+        "lab-19-multi-agent-orchestration"
+      ]
+    },
+    {
+      "id": "8.2",
+      "domain": 8,
+      "title": "Verification and AI Code Review Operations",
+      "labs": [
+        "lab-21-claude-code-cicd"
+      ]
+    },
+    {
+      "id": "8.3",
+      "domain": 8,
+      "title": "Unattended and Event-Driven Agent Operations",
+      "labs": [
+        "lab-21-claude-code-cicd"
+      ]
+    },
+    {
+      "id": "8.4",
+      "domain": 8,
+      "title": "Organization-Wide Coding Agent Configuration",
+      "labs": [
+        "lab-02-claude-code-config-foundations",
+        "lab-07-rules-commands-skills",
+        "lab-25-capstone-team-workflow"
+      ]
+    }
+  ],
+  "sections": {
+    "questions": [
+      {
+        "component": "questions-standard",
+        "version": "^1.0",
+        "label": "Standard"
+      },
+      {
+        "component": "questions-intermediate",
+        "version": "^1.0",
+        "label": "Intermediate"
+      },
+      {
+        "component": "questions-hard",
+        "version": "^1.0",
+        "label": "Hard"
+      },
+      {
+        "component": "questions-expert",
+        "version": "^1.0",
+        "label": "Expert"
+      }
+    ],
+    "flashcards": [
+      {
+        "component": "flashcards",
+        "version": "^1.0",
+        "label": "Standard"
+      }
+    ],
+    "concepts": [
+      {
+        "component": "concepts",
+        "version": "^1.0"
+      }
+    ],
+    "labs": [
+      {
+        "component": "labs",
+        "version": "^1.0"
+      }
+    ]
+  }
+}

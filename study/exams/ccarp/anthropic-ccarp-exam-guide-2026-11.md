@@ -1,18 +1,18 @@
-## Claude Certified Architect - Professional
+# Claude Certified Architect – Professional
 
-Exam Guide
+## Exam Guide
 
-Version 1.0 · Effective July 2026 · Exam code: CCAR-P · This guide is subject to change without notice.
+Version 1.1 · Effective November 2026 · Exam code: CCAR-P · This guide is subject to change without notice.
 
 ## 1. About This Certification
 
-The Claude Certified Architect - Professional certification validates that an individual can design, build, and deliver production-grade AI solutions using Anthropic's Claude platform. It is intended for practitioners working in an architect role who select appropriate models, architectures, and API patterns; apply prompt and context engineering; integrate Claude into enterprise systems; and incorporate evaluation, security, compliance, and governance considerations into their designs.
+The Claude Certified Architect – Professional certification validates that an individual can design, build, and deliver production-grade AI solutions using Anthropic's Claude platform. It is intended for practitioners working in an architect role who select appropriate models, architectures, and API patterns; apply prompt and context engineering; integrate Claude into enterprise systems; and incorporate evaluation, security, compliance, and governance considerations into their designs.
 
 This guide is the authoritative reference for candidates preparing to sit the exam. It describes the credential's purpose, the intended audience, the exam format and content blueprint, scoring, policies, and the rules of conduct that all candidates agree to. Read it in full before scheduling your exam.
 
 ## 2. Purpose and Value of the Credential
 
-The primary purpose of the Claude Certified Architect - Professional certification is to provide an independent assessment of the knowledge, skills, and abilities required to architect Claude-based solutions competently in production environments. Earning the credential signals to employers, clients, and teams that the holder can own or significantly contribute to the full lifecycle of a Claudepowered system.
+The primary purpose of the Claude Certified Architect – Professional certification is to provide an independent assessment of the knowledge, skills, and abilities required to architect Claude-based solutions competently in production environments. Earning the credential signals to employers, clients, and teams that the holder can own or significantly contribute to the full lifecycle of a Claude-powered system.
 
 Candidates who earn the credential can demonstrate that they are able to:
 
@@ -38,38 +38,35 @@ The exam is targeted at the minimally qualified candidate (MQC): an experienced 
 
 The MQC demonstrates the ability to design end-to-end AI systems, including prompt and context engineering, retrieval-augmented generation (RAG), API integration, orchestration, and evaluation frameworks, and understand trade-offs related to cost, latency, performance, safety, and maintainability.
 
-## Recommended experience
+### Recommended experience
 
 - A foundation in software engineering best practices (modular design, separation of concerns, scalability)
 - 3+ years of experience in systems architecture or platform engineering
 - 6+ months of hands-on experience with Claude or comparable LLM-based systems in production
 - Experience delivering end-to-end systems from discovery through deployment and operationalization
 
-## Claude Certification Program
-
 Prerequisites: There are no mandatory prerequisites or courses required to sit this exam. The experience above is recommended, not required. The credential is awarded based on exam performance alone.
 
 ## 5. Exam Details at a Glance
 
-| Credential       | Claude Certified Architect - Professional                                                   |
+| Credential       | Claude Certified Architect – Professional                                                   |
 |------------------|---------------------------------------------------------------------------------------------|
 | Exam code        | CCAR-P                                                                                      |
 | Number of items  | 63                                                                                          |
 | Item format      | Multiple-choice and multiple-response items; each item states how many responses to select  |
 | Time limit       | 120 minutes                                                                                 |
 | Delivery         | Proctored: online proctored and/or test center, per program policy                          |
-| Passing score    | Scaled score of 720 on a scale of 100-1,000                                                 |
+| Passing score    | Scaled score of 720 on a scale of 100–1,000                                                 |
 | Exam fee         | $175 USD                                                                                    |
 | Validity period  | 12 months from the date the credential is awarded                                           |
-| Result reporting | Pass/fail with scaled score (100-1,000), plus percent-correct by domain on the score report |
+| Result reporting | Pass/fail with scaled score (100–1,000), plus percent-correct by domain on the score report |
 
 ## 6. Exam Content Outline (Blueprint)
 
 The exam blueprint defines the content domains measured and the approximate weight of each domain on the exam. Weights reflect the relative importance of each domain to competent performance as determined through the job task analysis. The percentages indicate the approximate proportion of scored items drawn from each domain.
 
-| Claude Certification Program   | Claude Certification Program                     | Exam guide   |
-|--------------------------------|--------------------------------------------------|--------------|
 | Domain                         | Content Domain                                   | Weight       |
+|--------------------------------|--------------------------------------------------|--------------|
 | 1                              | Solution Design & Architecture                   | 17%          |
 | 2                              | Claude Models, Prompting & Context Engineering   | 13%          |
 | 3                              | Integration                                      | 19%          |
@@ -77,13 +74,13 @@ The exam blueprint defines the content domains measured and the approximate weig
 | 5                              | Governance, Safety & Risk Management             | 14%          |
 | 6                              | Stakeholder Communication & Lifecycle Management | 14%          |
 | 7                              | Developer Productivity & Operational Enablement  | 7%           |
-| &#124; Total                   | 100%                                             |              |
+| | Total | 100% |
 
-## Detailed objectives by domain
+### Detailed objectives by domain
 
 Each domain below lists the tasks a candidate is expected to perform. Exam items are written against these objectives.
 
-## Domain 1: Solution Design &amp; Architecture (17%)
+#### Domain 1: Solution Design & Architecture (17%)
 
 - Translate business problems into Claude-based AI solutions
 - Design end-to-end architectures (input → processing → output → feedback loops)
@@ -92,7 +89,7 @@ Each domain below lists the tasks a candidate is expected to perform. Exam items
 - Apply decomposition techniques for complex problem solving
 - Align solutions to business value pillars (efficiency, transformation, productivity, cost, performance SLAs)
 
-## Domain 2: Claude Models, Prompting &amp; Context Engineering (13%)
+#### Domain 2: Claude Models, Prompting & Context Engineering (13%)
 
 - Select appropriate Claude models based on trade-offs
 - Design system prompts, templates, and guardrails
@@ -100,9 +97,7 @@ Each domain below lists the tasks a candidate is expected to perform. Exam items
 - Optimize context windows and manage token usage
 - Implement prompt reuse strategies (caching, modular prompts, Skills)
 
-## Claude Certification Program
-
-## Domain 3: Integration (19%)
+#### Domain 3: Integration (19%)
 
 - Evaluate tool/agent configuration for capability bloat
 - Analyze authentication and authorization requirements to identify security gaps
@@ -113,7 +108,7 @@ Each domain below lists the tasks a candidate is expected to perform. Exam items
 - Evaluate connection protocols and select the appropriate integration mechanism (MCP, API/CLI, agent-to-agent)
 - Evaluate progressive discovery vs. monolithic context strategy
 
-## Domain 4: Evaluation, Testing &amp; Optimization (16%)
+#### Domain 4: Evaluation, Testing & Optimization (16%)
 
 - Define evaluation metrics (accuracy, latency, cost, safety, security)
 - Design evaluation datasets and test frameworks using mixed methodologies
@@ -122,7 +117,7 @@ Each domain below lists the tasks a candidate is expected to perform. Exam items
 - Optimize token usage, latency, and cost-performance trade-offs
 - Monitor system performance using logging and observability tools
 
-## Domain 5: Governance, Safety &amp; Risk Management (14%)
+#### Domain 5: Governance, Safety & Risk Management (14%)
 
 - Implement guardrails and safety controls
 - Identify risks, limitations, and failure modes of LLM systems
@@ -130,7 +125,7 @@ Each domain below lists the tasks a candidate is expected to perform. Exam items
 - Ensure compliance with regulations (e.g., GDPR, HIPAA, FedRAMP)
 - Address ethical AI considerations (bias, fairness, transparency)
 
-## Domain 6: Stakeholder Communication &amp; Lifecycle Management (14%)
+#### Domain 6: Stakeholder Communication & Lifecycle Management (14%)
 
 - Conduct structured discovery and requirement gathering
 - Communicate architectural decisions and trade-offs
@@ -138,9 +133,7 @@ Each domain below lists the tasks a candidate is expected to perform. Exam items
 - Document architectures and provide implementation guidance
 - Support lifecycle phases (discovery, design, handoff, monitoring, iteration)
 
-## Claude Certification Program
-
-## Domain 7: Developer Productivity &amp; Operational Enablement (7%)
+#### Domain 7: Developer Productivity & Operational Enablement (7%)
 
 - Configure Claude tools and environments for teams (e.g., Claude Code)
 - Improve developer workflows using AI-assisted tooling
@@ -153,25 +146,23 @@ There is no single required course. Anthropic does not guarantee that any partic
 - Study the exam blueprint in Section 6 and self-assess against each objective
 - Review official Anthropic documentation for the Claude API, models, prompt engineering, MCP, and Skills
 - Build and operate at least one end-to-end Claude solution, including RAG, evaluation, and observability
-- Practice architectural decision-making: model selection, integration protocols, and security tradeoffs
+- Practice architectural decision-making: model selection, integration protocols, and security trade-offs
 - Complete the sample questions in Section 8 to familiarize yourself with item style
 
 ## 8. Sample Questions
 
 These illustrative items show the style and cognitive level of the exam. They are not drawn from the live item bank. Correct answers and rationale appear after the questions.
 
-## Sample 1 · Domain 3 - Integration
+### Sample 1 · Domain 3 – Integration
 
-A team exposes a customer-support agent that can read tickets, draft replies, issue refunds, and delete user accounts. Support staff only ever need to read tickets and draft replies. Applying leastprivilege principles, which change best reduces risk?
+A team exposes a customer-support agent that can read tickets, draft replies, issue refunds, and delete user accounts. Support staff only ever need to read tickets and draft replies. Applying least-privilege principles, which change best reduces risk?
 
 - A. Add logging to the refund and delete tools so misuse can be audited later.
 - B. Remove the refund and delete tools from the agent's configuration entirely.
 - C. Keep all tools but add a confirmation prompt before refunds and deletions.
 - D. Replace the agent with a larger model that follows instructions more reliably.
 
-## Claude Certification Program
-
-## Sample 2 · Domain 2 - Models, Prompting &amp; Context
+### Sample 2 · Domain 2 – Models, Prompting & Context
 
 An application sends the same 8,000-token system prompt and policy document on every request, followed by a short, varying user message. Latency and cost are both concerns. Which optimization most directly addresses both?
 
@@ -180,7 +171,7 @@ An application sends the same 8,000-token system prompt and policy document on e
 - C. Place the static system prompt and policy before the dynamic content and enable prompt caching.
 - D. Move the policy document into a few-shot example block.
 
-## Sample 3 · Domain 4 - Evaluation &amp; Optimization
+### Sample 3 · Domain 4 – Evaluation & Optimization
 
 A RAG system suddenly returns confident but incorrect answers after a document refresh, while latency and model version are unchanged. What is the most likely first place to investigate?
 
@@ -189,21 +180,20 @@ A RAG system suddenly returns confident but incorrect answers after a document r
 - C. The temperature setting is too low.
 - D. The context window has shrunk.
 
-## Answer key and rationale
+### Answer key and rationale
 
 Sample 1: B. Least privilege means removing capabilities the role does not require, eliminating the attack surface rather than monitoring or guarding it. Logging (A) and confirmations (C) are detective/compensating controls, not removal of unnecessary privilege; model size (D) is unrelated to authorization scope.
 
 Sample 2: C. Ordering stable content first and enabling prompt caching lets repeated prefixes be reused, reducing both time-to-first-token and per-request cost without discarding required context. Truncation (A) loses needed policy; downsizing blindly (B) risks quality; relocating to few-shot (D)
-
 does not create a cacheable, reusable prefix.
 
 Sample 3: B. Confident-but-wrong answers following a document refresh, with model and latency unchanged, point to retrieval feeding the model poor context, for example a broken re-index or mismatched embeddings. The other options would not be triggered specifically by a document refresh.
 
 ## 9. How the Exam Is Scored
 
-The Claude Certified Architect - Professional exam is a criterion-referenced assessment: each candidate is measured against a fixed performance standard, not against other candidates. You pass by demonstrating the knowledge and skills defined in the blueprint, not by outperforming a percentage of peers.
+The Claude Certified Architect – Professional exam is a criterion-referenced assessment: each candidate is measured against a fixed performance standard, not against other candidates. You pass by demonstrating the knowledge and skills defined in the blueprint, not by outperforming a percentage of peers.
 
-Passing standard. The passing score was established through a formal standard-setting study in which trained subject matter experts judged the level of performance expected of a minimally qualified candidate. The score is reported on a scaled range of 100-1,000, and the cut score is 720.
+Passing standard. The passing score was established through a formal standard-setting study in which trained subject matter experts judged the level of performance expected of a minimally qualified candidate. The score is reported on a scaled range of 100–1,000, and the cut score is 720.
 
 Result reporting. Your result is reported as a pass or fail status with a scaled score from 100 to 1,000. Your score report also shows the percentage of items you answered correctly within each content domain. Section-level percentages are provided to help you understand your performance and are not used to determine your pass or fail result, which is based on your total scaled score.
 
@@ -211,28 +201,28 @@ Result reporting. Your result is reported as a pass or fail status with a scaled
 
 Registration and scheduling are handled through the Anthropic Partner Academy and Pearson VUE:
 
-1. Go to the certification page for your exam on the Anthropic Partner Academy and review the exam details.
-2. Download the Exam Guide and review the Certification Terms and Conditions and the Certification Exam Policy before registering.
-3. Register for the exam and complete checkout. The fee shown at checkout reflects any discount that applies to your partner tier.
-4. Follow the confirmation instructions to create your Pearson VUE account, then sign in to schedule your exam session.
-5. Choose an available date and select either online proctoring or a Pearson test center. The exam is delivered by Pearson VUE.
-6. You may cancel or reschedule up to 24 hours before your appointment. Changes made within 24 hours forfeit the exam fee.
+1. Go to your certification page on the Anthropic Partner Academy and review the exam details.
+2. Download the Exam Guide and review the Certification Terms and Conditions and the Certification Exam Policy.
+3. Click Register, confirm your exam and exam profile, then select Continue to Pearson.
+4. At Pearson, choose online proctoring or a test center, select a date and time, and complete checkout. The price reflects any partner discount.
+5. If you have already registered, use Go to my Pearson account to schedule, take your exam, or view your results and receipts.
+6. OnVUE (online proctored) exams can be canceled or rescheduled up to one hour before your appointment, and test center exams up to 48 hours before. Later changes forfeit the exam fee. Rescheduling keeps your price, including any discount. Canceling starts an automatic refund of anything you paid at Pearson's checkout, which takes 7 to 10 business days. If you paid through the Anthropic Partner Academy before 8 a.m. PT on November 12, 2026, Anthropic refunds your payment after you cancel, which can take a few extra days. If your refund has not arrived after 10 business days, email certifications-support@anthropic.com.
 
 ## 11. Exam Policies
 
-## Identification
+### Identification
 
-On exam day you must present a valid, unexpired, government-issued photo identification. The name on your ID must match the name on your registration exactly. If you need to correct the name on your registration, contact certifications-support@anthropic.com before scheduling your exam.
+On exam day you must present a valid, unexpired, government-issued photo identification. The name on your ID must match the name on your registration exactly. If you need to correct the name on your registration, you can update this information in your exam profile within your Partner Academy profile before scheduling your exam. For OnVUE (online proctored) exams, updates sync in near real time. For test center appointments, updates sync only once per day — update your name at least 24 hours in advance, or the update may not be reflected when you check in. NOTE: You can update your name yourself once; it locks when you confirm your profile. For any later change, contact certifications-support@anthropic.com.
 
-## Accommodations
+### Accommodations
 
 Reasonable accommodations are available for candidates with documented disabilities or needs, in accordance with applicable law. Accommodations must be requested and approved by Pearson VUE before you schedule your exam. Do not schedule your appointment until your request has been approved. Request accommodations at pearsonvue.com/us/en/test-takers/accommodations.
 
-## Retake policy
+### Retake policy
 
 Candidates who do not pass may retake the exam after a required waiting period. Waiting periods increase with each failed attempt: 14 days after the first, 30 days after the second, and 90 days after the third. You may take an exam up to four times within a rolling twelve-month period. Limits apply per exam, so not passing one exam does not prevent you from registering for a different one. The exam fee applies to each attempt.
 
-## No-show and late arrival
+### No-show and late arrival
 
 Candidates who fail to appear for a scheduled exam, or who arrive after the permitted late-arrival window, forfeit the exam fee and must re-register. Cancellation and rescheduling deadlines are described in Section 10.
 
@@ -244,13 +234,10 @@ During the exam you must:
 
 - Remain within view of the proctor and webcam for the entire session, if testing online
 - Keep your workspace clear of notes, books, phones, secondary monitors, and other materials
-
-## Claude Certification Program
-
 - Refrain from communicating with any other person during the exam
 - Not capture, copy, photograph, or reproduce any exam content in any form
 
-Prohibited items include mobile phones, smart watches, headphones, study materials, and any recording device. Permitted items, if any, such as scratch paper provided by the proctor, are specified by Pearson VUE.
+Prohibited items include mobile phones, smart watches, smart glasses, headphones, study materials, and any recording device. Permitted items, if any, such as scratch paper provided by the proctor, are specified by Pearson VUE.
 
 Consequences of misconduct. Cheating, attempting to access prohibited resources, or disclosing exam content may result in invalidation of your result, revocation of your credential, and a ban from future exams.
 
@@ -260,7 +247,7 @@ Before the exam begins you must accept a confidentiality and non-disclosure agre
 
 ## 14. Credential Maintenance and Recertification
 
-The Claude Certified Architect - Professional credential is valid for 12 months from the date it is awarded. Because the underlying technology evolves rapidly, the credential is time-limited so that holders maintain current knowledge.
+The Claude Certified Architect – Professional credential is valid for 12 months from the date it is awarded. Because the underlying technology evolves rapidly, the credential is time-limited so that holders maintain current knowledge.
 
 To renew on time, you review what has changed since you certified and complete a free, non-proctored assessment on the Anthropic Partner Academy. There is no fee for on-time renewal. If your credential lapses, you must retake the full exam at the full fee to regain certified status.
 
@@ -270,24 +257,21 @@ Holders remain subject to the rules of conduct described in Section 12.
 
 ## 15. Candidate Support, Appeals, and Privacy
 
-## Support
+### Support
 
-To correct the name on your registration, contact certifications-support@anthropic.com. For all other questions, including registration, scheduling, accommodations, and results, contact Pearson VUE support at pearsonvue.com/us/en/anthropic.html.
+To correct the name on your registration, update your exam profile in your Partner Academy profile before you confirm it. For trouble signing in or reaching Pearson, an exam missing from your Pearson account, a missing partner discount, or profile details you can't change, email certifications-support@anthropic.com. For exam-day problems, other checkout issues, scheduling, rescheduling, canceling, accommodations, and results, contact Pearson support at pearsonvue.com/us/en/anthropic.html.
 
-## Appeals and complaints
+### Appeals and complaints
 
 You may appeal a decision within 14 days of the date you are notified of it, or, for a concern about your exam result, within 14 days of your exam date. Submit your appeal to Pearson VUE support at the link above. Appeals are reviewed under the program's appeals policy. The standard-setting outcome and the content of individual exam items are not subject to appeal.
 
-## Privacy
+### Privacy
 
 Personal data collected during registration and testing is handled in accordance with Anthropic's privacy policy, Pearson VUE's privacy policy, and applicable data-protection law.
 
 ## 16. Document Control
 
-Version
-
-1.0
-
-Summary of change
-
-Initial publication Date July 2026
+| Version | Summary of change | Date |
+|---|---|---|
+| 1.0 | Initial publication | July 2026 |
+| 1.1 | Registration, identification, and support updates | November 2026 |

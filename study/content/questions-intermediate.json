@@ -9057,5 +9057,3050 @@
       "overreliance",
       "verification"
     ]
+  },
+  {
+    "id": "q-1148",
+    "scenario": "A research supervisor dispatches 8 parallel workers per request. Each worker queries external sources, and the supervisor waits for all 8 before synthesizing. Latency is p50 14s, p95 71s. Traces show that in every slow request seven workers finished within 15s and one worker spent the rest of the time retrying a slow source. Product says users accept an answer that states which sources could not be reached.",
+    "stem": "Which change best reduces tail latency without silently lowering answer quality?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Raise concurrency from 8 to 16 workers per request so that a slow worker is spread across more slots and the others finish earlier."
+      },
+      {
+        "key": "B",
+        "text": "Set a per-worker deadline, synthesize from finished workers, and have the answer state which sources were missing."
+      },
+      {
+        "key": "C",
+        "text": "Dispatch a duplicate of the stuck worker's task and wait for whichever copy finishes first, with no overall deadline."
+      },
+      {
+        "key": "D",
+        "text": "Lower each worker's max_tokens so that workers finish generating sooner and the supervisor can start synthesis earlier."
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "The tail is caused by one dependency, so bounding wait time per worker caps p95. Disclosing the gap keeps the quality loss visible instead of silent.",
+      "distractors": {
+        "A": "Workers are not queued behind each other; one worker is stuck on its source, so extra concurrency changes nothing.",
+        "C": "Both copies hit the same slow source, so hedging still has an unbounded tail.",
+        "D": "The delay is source retrieval and retries, not generation length, so the tail is unchanged."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "parallel-dispatch",
+      "tail-latency",
+      "graceful-degradation"
+    ]
+  },
+  {
+    "id": "q-1149",
+    "scenario": "A refund agent has a planner worker that proposes tool calls, a human approver, and an executor worker that carries them out. The approver sees 'Refund $48 on order 7713' and clicks approve. The executor then re-derives the tool call from the conversation. An audit found a case where the approved $48 refund executed as $480 after the executor re-read a ticket note that a customer had edited during the approval wait.",
+    "stem": "Which change best closes this gap?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Make ticket notes read-only while any approval is pending, so the executor sees the same text the approver saw at review time."
+      },
+      {
+        "key": "B",
+        "text": "Add a second model call that compares the executor's proposed refund with the plan and blocks execution on any mismatch it finds."
+      },
+      {
+        "key": "C",
+        "text": "Bind the approval to the exact tool name and arguments; the executor runs only a matching call, else requests approval."
+      },
+      {
+        "key": "D",
+        "text": "Instruct the executor in its system prompt to use only the refund amount shown in the approved plan and to ignore ticket edits."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "Approval must cover the exact action that executes. Binding it to the concrete arguments, enforced in code, removes the gap between what was checked and what ran.",
+      "distractors": {
+        "A": "This blocks one edit path only; any other input that changes between approval and execution still alters the call.",
+        "B": "A model-based check is non-deterministic and sits on the same drifting inputs; it is not a hard guarantee on a financial action.",
+        "D": "A prompt instruction is advisory; the executor still derives the arguments itself and can drift."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "human-in-the-loop",
+      "approval-gates",
+      "toctou"
+    ]
+  },
+  {
+    "id": "q-1150",
+    "scenario": "A competitive-analysis supervisor sends four workers to research market segments. Two segments overlap, and two workers reported different market sizes for the overlap ($2.1B and $3.4B). The supervisor's synthesis silently used the larger figure and the report shipped to a customer.",
+    "stem": "Which TWO changes best make this kind of conflict detectable and resolvable? Select TWO.",
+    "options": [
+      {
+        "key": "A",
+        "text": "Dispatch a third worker on the overlapping segment and report whichever market-size value two of the three workers agree on."
+      },
+      {
+        "key": "B",
+        "text": "Require every worker claim to carry a source reference and retrieval date in a structured field."
+      },
+      {
+        "key": "C",
+        "text": "Lower the workers' sampling temperature so that repeated runs of each worker report the same figure every time."
+      },
+      {
+        "key": "D",
+        "text": "Add a reconciliation step where the supervisor compares overlapping claims and flags or escalates differences."
+      },
+      {
+        "key": "E",
+        "text": "Tell the supervisor to prefer the figure from whichever worker expresses higher confidence in its own answer."
+      }
+    ],
+    "correct": [
+      "B",
+      "D"
+    ],
+    "rationale": {
+      "correct": "Provenance lets the supervisor and reviewers see why figures differ, and an explicit reconciliation step turns a silent choice into a flagged, handled conflict.",
+      "distractors": {
+        "A": "A third worker likely shares the same sources, so the majority can repeat one worker's bias and still hides the disagreement.",
+        "C": "Both workers may consistently report different figures from different sources; lower temperature does not reconcile them.",
+        "E": "Stated confidence is not calibrated evidence, and it still resolves the conflict silently."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "inter-agent",
+      "provenance",
+      "reconciliation"
+    ]
+  },
+  {
+    "id": "q-1151",
+    "scenario": "An agent migrates customer accounts in 12 steps, and each step calls state-changing APIs. Checkpoints store the message transcript after each model turn. After a crash at step 8, the resume path reloads the transcript and calls the model. The model proposes a slightly different plan and re-runs steps 5 and 6 with different parameters.",
+    "stem": "Which change best makes resume safe?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Checkpoint after every tool call as well as every model turn, so that the saved transcript is always fully current at the crash point."
+      },
+      {
+        "key": "B",
+        "text": "Persist the plan and per-step status and results in a state store; on resume run only the remaining steps from it."
+      },
+      {
+        "key": "C",
+        "text": "Resume with temperature 0 so that the model reproduces its earlier plan and arrives at the same step parameters."
+      },
+      {
+        "key": "D",
+        "text": "Append an instruction on resume telling the model not to repeat any step that its transcript shows as already completed."
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "Recovery should rest on explicit, durable state, not on the model regenerating the same decisions. Step status and results make resume deterministic.",
+      "distractors": {
+        "A": "A more current transcript still leaves the model free to re-plan on resume; the root cause is transcript-based recovery.",
+        "C": "Temperature 0 does not guarantee identical output, and the context at resume time differs from the original.",
+        "D": "This relies on the model to honor the instruction and to infer what completed from the text."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "checkpointing",
+      "resumability",
+      "replay"
+    ]
+  },
+  {
+    "id": "q-1152",
+    "scenario": "A support agent keeps persistent per-customer notes that it writes itself, such as 'billing contact: J. Ortiz; prefers email'. Four months later the agent emailed a former contact. The CRM record had been updated six weeks earlier. Notes are usually right and save a lot of lookups, but errors are costly when the agent acts externally.",
+    "stem": "Which memory design change best addresses this?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Expire every note 30 days after it was written, so that stale entries cannot be used for later customer contacts."
+      },
+      {
+        "key": "B",
+        "text": "Have the agent rewrite the whole notes file from its own summary at the start of each session to keep it current."
+      },
+      {
+        "key": "C",
+        "text": "Store source and timestamp with each note, re-read CRM fields before external actions, and treat notes as hints on conflict."
+      },
+      {
+        "key": "D",
+        "text": "Mark the notes as 'verified' in the prompt so that the agent trusts them over other sources of customer information."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "Memory is a cache of facts that have an authoritative source. Provenance plus verification at the point of high-impact action keeps the benefit while limiting the cost of stale entries.",
+      "distractors": {
+        "A": "Notes can still be stale within the 30 days, and valid preferences are discarded and must be relearned.",
+        "B": "Each rewrite compounds summary drift and still has no check against the system of record.",
+        "D": "The label does not make the notes more accurate and makes the agent prefer stale data."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "persistent-memory",
+      "staleness",
+      "system-of-record"
+    ]
+  },
+  {
+    "id": "q-1153",
+    "scenario": "Long-running agent sessions are resumed by any worker from a queue once a heartbeat has been missed for 60 seconds. A worker was paused for 90 seconds by a network partition. Its session was resumed on worker B, then worker A reconnected. Both continued the session, both wrote checkpoints, and one customer received a duplicate email.",
+    "stem": "Which TWO controls most directly address this failure? Select TWO.",
+    "options": [
+      {
+        "key": "A",
+        "text": "Reject checkpoint writes lacking the current version or fencing token, so a stale worker cannot overwrite state."
+      },
+      {
+        "key": "B",
+        "text": "Raise the heartbeat timeout to 10 minutes so that healthy but briefly paused workers are rarely presumed dead."
+      },
+      {
+        "key": "C",
+        "text": "Checkpoint every few seconds so that a resumed session starts very close to where the paused worker stopped."
+      },
+      {
+        "key": "D",
+        "text": "Add a prompt instruction to check whether another worker is active on the session before it acts."
+      },
+      {
+        "key": "E",
+        "text": "Derive an idempotency key from session and step for the email tool so that a repeated step is deduplicated."
+      }
+    ],
+    "correct": [
+      "A",
+      "E"
+    ],
+    "rationale": {
+      "correct": "A fencing token stops a zombie worker from corrupting state, and an idempotency key makes a repeated side effect harmless. Both hold even when two workers briefly overlap.",
+      "distractors": {
+        "B": "This shrinks the window but cannot close it, and it delays recovery from real crashes.",
+        "C": "More frequent checkpoints do not stop two workers from running the same session.",
+        "D": "The model has no reliable view of other workers, and the check would not be enforced."
+      }
+    },
+    "lab": null,
+    "difficulty": 7,
+    "tags": [
+      "leases",
+      "fencing",
+      "idempotency"
+    ]
+  },
+  {
+    "id": "q-1154",
+    "scenario": "A triage system uses an agent loop. A review of 10,000 traces shows 93% of runs follow the same sequence (classify, look up account, fetch policy, draft reply) at about 5 model calls each. The 7% that deviate have three times the error rate, and most of those are loops. Quality is acceptable and p95 latency is 19s, which the product team wants lower.",
+    "stem": "Which next step best evolves the architecture?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Encode the dominant sequence as a fixed workflow, send validation failures to the agent, and compare on held-out traffic."
+      },
+      {
+        "key": "B",
+        "text": "Replace the agent with the fixed workflow for all requests and treat the 7% of deviating requests as out of scope for now."
+      },
+      {
+        "key": "C",
+        "text": "Keep the agent for all traffic and add more specialized tools so that it loops less often on unusual requests."
+      },
+      {
+        "key": "D",
+        "text": "Move the agent to a larger model so that the standard sequence can be resolved in fewer calls with fewer loops."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "The traces show the agent is behaving as a workflow for most traffic. Extracting that path cuts calls and latency, and keeping the agent as a fallback preserves coverage of the tail.",
+      "distractors": {
+        "B": "This drops cases that currently get handled and may include high-value or high-risk requests.",
+        "C": "More tools raise selection difficulty and do nothing for the cost and latency of the 93%.",
+        "D": "A larger model raises cost per call and does not remove steps from a path that is already fixed in practice."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "agent-to-workflow",
+      "evolve-architecture",
+      "hybrid"
+    ]
+  },
+  {
+    "id": "q-1155",
+    "scenario": "A platform team wants a shared catalog of reusable agent patterns (router, evaluator-optimizer, supervisor/worker) that 12 product teams can adopt. The teams already use different frameworks and run different workloads.",
+    "stem": "Which TWO requirements should a pattern meet before it is admitted to the catalog? Select TWO.",
+    "options": [
+      {
+        "key": "A",
+        "text": "It is built in the single framework the platform team selected, so that all teams share one maintained code path."
+      },
+      {
+        "key": "B",
+        "text": "It ships with a versioned eval suite and baseline quality, cost, and latency numbers that adopters can rerun."
+      },
+      {
+        "key": "C",
+        "text": "It has run in production for at least six months in one team's product, with no severity-one incidents in that time."
+      },
+      {
+        "key": "D",
+        "text": "It emits a standard trace and metric contract, such as token counts and stop reasons, so adopters are comparable."
+      },
+      {
+        "key": "E",
+        "text": "Its prompt wording is signed off by an architecture review board before any team may use it in a product."
+      }
+    ],
+    "correct": [
+      "B",
+      "D"
+    ],
+    "rationale": {
+      "correct": "A reusable pattern needs measurable behavior that adopters can verify, and common telemetry so that fleet-wide debugging and comparison are possible regardless of framework.",
+      "distractors": {
+        "A": "A single-framework mandate does not show that a pattern works, and it conflicts with existing team stacks.",
+        "C": "Elapsed time in one product says little about how it behaves on other teams' workloads.",
+        "E": "Wording review is slow and subjective, and does not produce measurable evidence of behavior."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "reusable-patterns",
+      "standards",
+      "governance"
+    ]
+  },
+  {
+    "id": "q-1156",
+    "scenario": "For billing-dispute tickets, a team compares two designs. A fixed workflow costs $0.02 per ticket and resolves 70%. An agent costs $0.15 per ticket and resolves 92%. Unresolved tickets go to a human at $4 each. Both designs meet the latency SLO. Nothing in the workflow's output reliably predicts which tickets it will fail. Leadership notes that the agent costs 7.5x more per ticket.",
+    "stem": "What is the best basis for the decision?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Compare expected cost per ticket including escalations (about $1.22 workflow, $0.47 agent), and confirm rates on a fresh sample."
+      },
+      {
+        "key": "B",
+        "text": "Keep the workflow because its per-ticket model cost is lower, and revisit the choice if agent costs change in future."
+      },
+      {
+        "key": "C",
+        "text": "Choose the agent because 92% resolution beats 70%, and treat the per-ticket model cost as a secondary matter."
+      },
+      {
+        "key": "D",
+        "text": "Run the workflow first and send only its failures to the agent, since the workflow is the cheaper first stage."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Escalation to a human is the dominant cost, so the correct measure is total expected cost per ticket. The agent comes out well ahead once escalations are included.",
+      "distractors": {
+        "B": "This compares only model spend and ignores that escalations dominate total cost.",
+        "C": "Resolution rate alone ignores cost; the agent's advantage must be checked against its spend.",
+        "D": "Without a reliable failure signal the failures cannot be identified in advance, so every ticket still pays for both."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "cost-per-resolution",
+      "workflow-vs-agent",
+      "decision-data"
+    ]
+  },
+  {
+    "id": "q-1157",
+    "scenario": "A coding agent runs sessions of 150+ turns and reaches about 170k tokens of context. Most of the bulk is old file reads and test output. Prompt caching is on. The team clears the oldest tool results every turn once context passes a threshold. Cache hit rate fell from 90% to 35% and session cost rose.",
+    "stem": "Which change best fixes the cost problem?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Clear in larger batches: trigger at a high-water mark, clear to a lower target, and keep the prefix stable between edits."
+      },
+      {
+        "key": "B",
+        "text": "Stop clearing tool results and rely on compaction only when the window is nearly full, so the prefix rarely changes."
+      },
+      {
+        "key": "C",
+        "text": "Turn off prompt caching, since a prefix that changes this often cannot deliver a worthwhile cache hit rate in long sessions."
+      },
+      {
+        "key": "D",
+        "text": "Move the cleared tool results to the end of the prompt so that the front of the cached prefix stays intact."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Editing earlier context invalidates the cached prefix after the edit point. Fewer, larger edits keep a stable prefix for many turns and amortize the invalidation.",
+      "distractors": {
+        "B": "The window fills with stale output sooner, and compaction rewrites the whole prefix as well.",
+        "C": "Between edits the prefix is stable and caching would pay off; the problem is the edit frequency.",
+        "D": "This leaves the stale content in context and does not remove its token cost."
+      }
+    },
+    "lab": null,
+    "difficulty": 7,
+    "tags": [
+      "context-editing",
+      "prompt-caching",
+      "cost-ceiling"
+    ]
+  },
+  {
+    "id": "q-1158",
+    "scenario": "An agent exposes 140 tools, and the definitions take about 38k tokens in every request. Usage logs show 6 tools account for 91% of calls. Wrong-tool selections cluster in the long tail, where several tools have near-identical names.",
+    "stem": "Which catalog strategy best balances cost and accuracy?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Defer all 140 tools behind tool search so that the base context is as small as possible on every request."
+      },
+      {
+        "key": "B",
+        "text": "Delete the rarely used tools until about 40 remain, to cut token cost and reduce naming confusion."
+      },
+      {
+        "key": "C",
+        "text": "Load the six common tools always, defer the rest behind tool search, and give tail tools distinct names."
+      },
+      {
+        "key": "D",
+        "text": "Keep all 140 tools loaded and cache the tool definitions, since cached reads cost far less than fresh input."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "Hot tools should stay loaded to avoid extra round trips. Deferring the tail shrinks context, and clearer names in the tail address the selection errors.",
+      "distractors": {
+        "A": "This adds a search round trip to the 91% of calls that hit the six common tools.",
+        "B": "This removes capabilities some workflows need and does not fix naming ambiguity among the tools that stay.",
+        "D": "Caching lowers token cost but leaves the 140-tool choice, and the wrong-tool errors, in place."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "tool-search",
+      "large-catalogs",
+      "usage-data"
+    ]
+  },
+  {
+    "id": "q-1159",
+    "scenario": "A research agent compacts its context at 80% of the window by summarizing the prior summary plus new turns. After the third compaction it proposed an approach the user had rejected early in the session, and it stopped using the citation format the user required.",
+    "stem": "Which change best prevents this?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Compact later, at 95% of the window, so that fewer compactions occur and less detail is lost in a session."
+      },
+      {
+        "key": "B",
+        "text": "Ask the summarizer to produce longer summaries so that more of the early detail is retained after each pass."
+      },
+      {
+        "key": "C",
+        "text": "Resend the first user message verbatim on every turn so that the user's earliest instructions always persist."
+      },
+      {
+        "key": "D",
+        "text": "Keep a decision and constraint ledger outside the rolling summary and re-inject it after each compaction."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "Repeated summarization loses detail. A separately maintained record of settled decisions and constraints is not subject to summary drift.",
+      "distractors": {
+        "A": "Fewer compactions still compress the same way, and a late compaction leaves less room to work.",
+        "B": "Longer summaries still drift when they are re-summarized, and they consume the room compaction was meant to free.",
+        "C": "Decisions made later in the session are not in the first message and would still be lost."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "compaction",
+      "summary-drift",
+      "decision-ledger"
+    ]
+  },
+  {
+    "id": "q-1160",
+    "scenario": "An order-status agent cites the wrong order in about 1 in 8 runs for customers with two open orders. Replays of failing and passing runs with the same input show this tool call and result.\nPASS: lookup_orders(customer_id=C-4410) -> [#9912 shipped, #9871 delivered]\nFAIL: lookup_orders(customer_id=C-4410) -> [#9871 delivered, #9912 shipped]\nUser asked 'where is my latest order?' and the failing reply says '#9871 was delivered'. The query has no ORDER BY clause.",
+    "stem": "Where did this failure originate, and what is the best fix?",
+    "options": [
+      {
+        "key": "A",
+        "text": "The tool returns unordered results and the model takes the first as latest; sort explicitly and add a created_at field."
+      },
+      {
+        "key": "B",
+        "text": "Sampling randomness in the model is the origin; set temperature to 0 so that the choice is stable across runs and replays."
+      },
+      {
+        "key": "C",
+        "text": "The prompt lacks a definition of 'latest'; add a rule that the latest order is the one with the highest number."
+      },
+      {
+        "key": "D",
+        "text": "The harness retries the tool call and mixes results; deduplicate tool calls within each turn of the conversation."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "The two traces differ only in tool output order. The origin is the data and tool layer, and the fix is deterministic ordering with an explicit timestamp the model can use.",
+      "distractors": {
+        "B": "The variation comes from the tool's result order; temperature 0 would just lock in whichever order arrived.",
+        "C": "This patches one query pattern in the prompt and leaves the unordered tool data that causes the instability.",
+        "D": "Each trace shows a single call with a different order, so there is no retry mixing in the evidence."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "evidence",
+      "non-determinism",
+      "tool-data"
+    ]
+  },
+  {
+    "id": "q-1161",
+    "scenario": "A finance Q&A assistant gives wrong numbers on some table questions. For one failing case, the top retrieved chunk is shown below. The index splits documents every 500 tokens. When the full table is pasted into the prompt, the model answers correctly.\nQ: What was Q3 churn?\nCHUNK 14: '| Enterprise | 412 | 389 | 17 | 3.1% |\\n| SMB | 902 | 880 | 51 | 5.8% |'\nANSWER: 'Q3 churn was 389.'",
+    "stem": "What is the most likely origin of the failure, and what is the best fix?",
+    "options": [
+      {
+        "key": "A",
+        "text": "The model hallucinates numbers; add an instruction to answer only from retrieved text and to quote the source row."
+      },
+      {
+        "key": "B",
+        "text": "Ingestion splits the table from its header row; chunk tables so that headers are preserved in every chunk."
+      },
+      {
+        "key": "C",
+        "text": "Retrieval depth is too low; increase top_k so that more chunks are returned to the model for each question."
+      },
+      {
+        "key": "D",
+        "text": "The embedding model is weak on numbers; switch to a larger embedding model so that retrieval ranks tables better."
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "Correct answers with the full table show the model is capable. The retrieved chunk lacks the header row, so the number is ambiguous, which is an ingestion fault.",
+      "distractors": {
+        "A": "The model quoted a number that is in the chunk; the chunk lacks the column headers needed to interpret it.",
+        "C": "The relevant rows were already retrieved; the issue is missing header context, not missing chunks.",
+        "D": "Retrieval found the right chunk, and a better embedding would not restore the missing headers."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "evidence",
+      "retrieval-grounding",
+      "chunking"
+    ]
+  },
+  {
+    "id": "q-1162",
+    "scenario": "In a multi-agent reporting pipeline, the final report states 'churn fell 4%'. All three worker outputs say churn fell 14%, and no worker output contains '4%'. You have full traces including each worker's output and the supervisor's request payloads.",
+    "stem": "Which TWO checks best separate a harness fault from a model fault? Select TWO.",
+    "options": [
+      {
+        "key": "A",
+        "text": "Rerun the whole pipeline 20 times and compare the rate of the wrong figure with the rate seen in production."
+      },
+      {
+        "key": "B",
+        "text": "Rewrite the supervisor prompt to say 'copy figures exactly as the workers reported them' and see if it recurs."
+      },
+      {
+        "key": "C",
+        "text": "Swap the supervisor to a larger model and see whether the error goes away on the same set of worker outputs."
+      },
+      {
+        "key": "D",
+        "text": "Diff each worker's output against what the supervisor received, looking for truncation or serialization changes."
+      },
+      {
+        "key": "E",
+        "text": "Replay the supervisor step alone with captured input several times to see if the wrong figure reproduces."
+      }
+    ],
+    "correct": [
+      "D",
+      "E"
+    ],
+    "rationale": {
+      "correct": "Comparing handoff payloads shows whether the harness altered the data. Replaying the supervisor with fixed input shows whether the model alone produces the error.",
+      "distractors": {
+        "A": "This estimates frequency but does not show which stage introduced the change.",
+        "B": "This changes behavior before the origin is known and could mask the fault.",
+        "C": "If the error disappears you still do not know whether the input was corrupted, and it could return."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "multi-agent",
+      "fault-isolation",
+      "trace-replay"
+    ]
+  },
+  {
+    "id": "q-1163",
+    "scenario": "At 09:40 an alert shows a 6% API error rate. The dashboard breakdown shows tenant T-17 at 100% failures (HTTP 400, prompt too long, after their nightly import began attaching whole archives) and all other tenants at 0.2%. No deploy happened in the last 12 hours.",
+    "stem": "What is the best immediate mitigation?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Roll back the most recent deploy to remove a possible cause of the errors across all tenants."
+      },
+      {
+        "key": "B",
+        "text": "Fail all traffic over to the secondary region to get away from whatever is failing in this one."
+      },
+      {
+        "key": "C",
+        "text": "Increase the retry count with backoff for failed requests from this tenant so that transient failures clear."
+      },
+      {
+        "key": "D",
+        "text": "Limit T-17 at the gateway with a clear oversize error and notify the tenant; leave other tenants untouched."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "The evidence scopes the incident to one tenant's invalid requests. A tenant-scoped control with communication contains it without touching healthy traffic.",
+      "distractors": {
+        "A": "No deploy happened in the window, and the errors are confined to one tenant.",
+        "B": "The failures are request errors from one tenant's payloads and would reproduce in any region.",
+        "C": "A 400 invalid-request error is deterministic, so retries only add load."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "triage",
+      "blast-radius",
+      "evidence"
+    ]
+  },
+  {
+    "id": "q-1164",
+    "scenario": "Prompt v14 of an account agent was deployed three days ago. It is now found to write incorrect 'preferred plan' notes into persistent customer memory in about 8% of sessions. The on-call engineer proposes rolling back to v13.",
+    "stem": "Which response is best?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Roll back only; v13 will correct the bad notes as customers return, since it handles plan questions properly."
+      },
+      {
+        "key": "B",
+        "text": "Delay the rollback until all bad entries are repaired, so that no new writes conflict with the cleanup work."
+      },
+      {
+        "key": "C",
+        "text": "Roll back to v13 now, then use trace version tags to find notes written under v14 and quarantine or repair them."
+      },
+      {
+        "key": "D",
+        "text": "Keep v14 and add a validator that flags suspect notes after they are written, then repair them in bulk later."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "Rollback stops new damage but does not undo state already written. Mitigate first, then identify and repair the affected data using version attribution.",
+      "distractors": {
+        "A": "v13 reads the bad notes as valid, and it never rewrites entries it has no reason to question.",
+        "B": "This keeps writing bad data during the delay; stop the source first.",
+        "D": "Bad data would continue to be created while a detector is built."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "rollback",
+      "state-repair",
+      "incident-response"
+    ]
+  },
+  {
+    "id": "q-1165",
+    "scenario": "After an incident, a summarizer intermittently (about 1 in 10 runs) omitted the cancellation clause from contract summaries following a prompt change. The postmortem action item reads 'add a regression eval'.",
+    "stem": "Which design makes this eval useful as a CI gate?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Use failing-trace cases plus variants, run each several times, check clause presence in code, gate on pass rate."
+      },
+      {
+        "key": "B",
+        "text": "Add the single incident case and require one passing run, since it reproduces the original failing input exactly."
+      },
+      {
+        "key": "C",
+        "text": "Run the incident case once at temperature 0 so that the result is deterministic and the gate is never flaky."
+      },
+      {
+        "key": "D",
+        "text": "Score overall summary quality on a random sample with a 1-5 judge and track the mean score release over release."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "An intermittent defect needs repeated trials and a specific check. Cases drawn from real failures give the gate a way to catch a recurrence.",
+      "distractors": {
+        "B": "A one-in-ten failure passes a single run about 90% of the time, so the gate would miss a recurrence.",
+        "C": "The production failure happens at production settings, so a deterministic run may not exercise it.",
+        "D": "An average quality score dilutes a specific omission and may not move when the clause is lost."
+      }
+    },
+    "lab": null,
+    "difficulty": 7,
+    "tags": [
+      "regression-evals",
+      "postmortem",
+      "non-determinism"
+    ]
+  },
+  {
+    "id": "q-1166",
+    "scenario": "A gateway wraps Claude calls with one rule: on any non-success outcome (HTTP error, stop_reason of refusal, or stop_reason of max_tokens), retry once against a secondary region and then a smaller fallback model. Last week the on-call team saw a 3x rise in spend and an unchanged rate of user complaints about truncated summaries.",
+    "stem": "Which change to the fallback rule best fits the three outcome types?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Keep the rule, but add exponential backoff with jitter between the retries so that the three outcome types stop causing the secondary region to become overloaded in turn."
+      },
+      {
+        "key": "B",
+        "text": "Retry refusals on the secondary region only, because a different region may apply a different policy, and send max_tokens outcomes straight to the smaller fallback model."
+      },
+      {
+        "key": "C",
+        "text": "Retry only 429, 5xx, and overloaded responses, honoring retry-after; continue on max_tokens; return refusals without rerouting."
+      },
+      {
+        "key": "D",
+        "text": "Keep the rule, but swap the order so the smaller model is tried first, since it is cheaper and a retry then costs less when the original outcome was a refusal or a truncation."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "Only transient transport-class failures (429, 5xx, overloaded) are fixed by trying again elsewhere. A max_tokens stop is a budget problem on the request itself, and a refusal is a model decision that resubmitting will not reliably change, so those need their own handling.",
+      "distractors": {
+        "D": "Reordering reduces the price of each wasted retry but still resubmits refusals and truncations that a different model will not fix.",
+        "A": "Backoff spaces out the retries but does not change that two of the three outcome types are not retryable, so the extra spend remains.",
+        "B": "Region does not govern refusal behavior, and a smaller model given the same max_tokens limit will truncate just as the first one did."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "fallback",
+      "stop-reason"
+    ]
+  },
+  {
+    "id": "q-1167",
+    "scenario": "A shared circuit breaker in front of Claude opens when more than 20% of calls fail in a 30-second window. Twice this month it opened because one batch-ingest tenant sent a burst that produced 429s, and interactive tenants with healthy quota also got fast-failed for a minute each time. Provider 5xx rates were flat.",
+    "stem": "Which redesign best removes the collateral impact while keeping the breaker useful?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Count only 5xx, timeouts, and overloaded responses toward the shared breaker, and handle 429s with per-tenant limiting and queueing."
+      },
+      {
+        "key": "B",
+        "text": "Lengthen the open period and add a half-open probe, so that the breaker recovers gradually after a burst and interactive tenants see fewer abrupt failures."
+      },
+      {
+        "key": "C",
+        "text": "Raise the failure threshold from 20% to 60% so that a single tenant's burst of 429s is unlikely to reach the level at which the shared breaker opens for everyone."
+      },
+      {
+        "key": "D",
+        "text": "Remove the breaker for 429 responses and replace it with a longer client timeout on each call, so that slow responses are absorbed instead of counted as failures."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "A breaker should signal that the dependency is unhealthy. A 429 reflects one tenant's quota consumption, not provider health, so it belongs in per-tenant limiting, and the breaker then reacts only to shared-fate failures.",
+      "distractors": {
+        "C": "A higher threshold also delays opening during a genuine provider incident, and a large enough burst still trips it.",
+        "B": "Half-open probing changes recovery, not what trips the breaker, so the tenants who were never over quota are still failed.",
+        "D": "Longer timeouts hold connections open and add latency, and they do nothing to separate one tenant's 429s from provider health."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "circuit-breaker",
+      "multi-tenant"
+    ]
+  },
+  {
+    "id": "q-1168",
+    "scenario": "A document-analysis service normally uses a beta tool and prompt caching on its primary platform. The team adds a second platform as a failover target. In a game-day test the failover worked for plain requests, but about 15% of failed-over requests returned errors or noticeably worse answers.",
+    "stem": "Which TWO actions best make the failover dependable? Select TWO.",
+    "options": [
+      {
+        "key": "A",
+        "text": "Maintain a feature-parity matrix for the secondary platform and run the full regression and eval suite against it on a schedule."
+      },
+      {
+        "key": "B",
+        "text": "Define an explicit degraded mode for requests that depend on features missing on the secondary platform, such as dropping the beta tool and flagging the response."
+      },
+      {
+        "key": "C",
+        "text": "Switch the failover trigger to fire on stop_reason values of end_turn so that completed answers are re-run on the secondary platform for comparison."
+      },
+      {
+        "key": "D",
+        "text": "Route a small fixed share of live traffic to the secondary platform without telling users, and rely on the error rate alone to detect any problems."
+      },
+      {
+        "key": "E",
+        "text": "Copy the primary request payload unchanged to the secondary platform, since the same model family produces the same behavior on any platform."
+      }
+    ],
+    "correct": [
+      "A",
+      "B"
+    ],
+    "rationale": {
+      "correct": "Features and behavior differ across platforms, so parity has to be discovered by testing the failover path continuously. Where a feature is genuinely unavailable, a designed and labeled degraded mode is safer than a request that errors or silently loses capability.",
+      "distractors": {
+        "C": "Re-running finished answers doubles cost and does nothing to address the failures that happen when the primary is unavailable.",
+        "D": "Error rate alone misses the quality loss seen in the 15%, and silent shadow traffic gives no per-feature signal about what is missing.",
+        "E": "Unchanged payloads are what caused the errors, since the secondary platform does not support every feature the primary request uses."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "fallback",
+      "platform-parity"
+    ]
+  },
+  {
+    "id": "q-1169",
+    "scenario": "A summarization workload sends 40 requests per minute, each with a 60k-token document. The team sees repeated 429s. Response headers on rejected calls show requests remaining near 900 of 1000 per minute, and input tokens remaining at 0 of the per-minute allowance. The proposed fix is a request-per-second throttle in the client.",
+    "stem": "What is the binding constraint, and what is the best response?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Request rate is binding, so lower the client throttle to 10 requests per second and the 429s will stop as the request counter stays well below its limit."
+      },
+      {
+        "key": "B",
+        "text": "Input token throughput is binding, so reduce tokens per request or cache the shared parts, and pace work by a token budget rather than a request count."
+      },
+      {
+        "key": "C",
+        "text": "Batch economics is binding, so move the whole workload to the Message Batches API since it avoids all per-minute limits and is cheaper per token."
+      },
+      {
+        "key": "D",
+        "text": "Output token throughput is binding, so lower max_tokens on every call, which frees allowance for input tokens in the same one-minute window."
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "The headers show request capacity is nearly untouched while the input-token allowance is exhausted. Pacing needs to be in tokens, and cutting or caching input addresses the actual limit.",
+      "distractors": {
+        "A": "The request counter is already far from its limit, so throttling requests changes nothing about the token allowance that is exhausted.",
+        "C": "Batch could be a good option for latency-tolerant work, but the scenario states no tolerance, and it is an economic change rather than a diagnosis of this limit.",
+        "D": "The exhausted allowance is for input tokens, so a lower output cap does not relieve it."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "rate-limits",
+      "binding-constraint",
+      "evidence"
+    ]
+  },
+  {
+    "id": "q-1170",
+    "scenario": "A nightly pipeline classifies 300,000 records through the Message Batches API, split into batches of 10,000. Results are due by 7 a.m. Monitoring shows 2% of requests in each batch finish as errored, mostly from malformed input rows, and the current job resubmits any batch with an error in full.",
+    "stem": "Which redesign best meets the deadline and cost goals?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Switch the pipeline to synchronous calls so each failure is seen immediately, using the highest concurrency the rate limit allows to finish by 7 a.m."
+      },
+      {
+        "key": "B",
+        "text": "Read results in order and match them to input rows by position, then resubmit any batch where the count of results differs from the count submitted."
+      },
+      {
+        "key": "C",
+        "text": "Shrink the batches to 500 requests so errors are isolated, and submit all of them at once to guarantee that each batch completes before the 7 a.m. deadline."
+      },
+      {
+        "key": "D",
+        "text": "Join results by custom_id, resubmit only the errored requests after fixing or dropping malformed rows, and keep headroom against the 24-hour batch window."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "custom_id lets the pipeline treat each request independently, so only the 2% that failed are repaired and rerun. Because batch completion is within a window rather than a guaranteed time, the start time needs margin before the deadline.",
+      "distractors": {
+        "C": "Smaller batches do not guarantee completion by a given hour, since the window is up to 24 hours.",
+        "B": "Batch results are not ordered, so positional matching can attach outputs to the wrong rows.",
+        "A": "Synchronous calls give up the batch discount, and the concurrency then competes with the rate limit for all 300,000 requests."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "batch",
+      "custom-id"
+    ]
+  },
+  {
+    "id": "q-1171",
+    "scenario": "Three tenants share one API key and a single worker pool. A tenant running a backfill enqueued 80,000 requests; interactive tenants' queue wait rose from 1 second to 4 minutes, though overall utilization stayed under the account's rate limit.",
+    "stem": "Which design change best restores isolation for interactive tenants?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Increase the worker pool size until the backfill drains faster, since overall utilization is under the rate limit and there is room for more concurrent calls."
+      },
+      {
+        "key": "B",
+        "text": "Use per-tenant queues with weighted fair scheduling and concurrency caps, and apply a bounded queue depth that rejects or defers excess backfill work."
+      },
+      {
+        "key": "C",
+        "text": "Give interactive tenants a higher priority in the single queue so they always go first, and leave the backfill tenant's queue unbounded behind them."
+      },
+      {
+        "key": "D",
+        "text": "Issue a separate API key per tenant while keeping a single shared FIFO queue, so that each tenant's rate-limit allowance is tracked independently."
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "Starvation comes from a shared FIFO with unbounded intake. Per-tenant queues with fair weights and a bound keep one tenant's backlog from consuming shared capacity, and rejecting or deferring excess gives backpressure.",
+      "distractors": {
+        "A": "More workers speed the drain but, with a shared FIFO, interactive requests still sit behind the backfill and the organization-level limit may then be hit.",
+        "C": "Strict priority starves the backfill indefinitely and an unbounded queue still grows memory without applying backpressure to the producer.",
+        "D": "Separate keys change how limits are tracked, but the starvation is in the shared queue, which would be unchanged."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "multi-tenant",
+      "backpressure"
+    ]
+  },
+  {
+    "id": "q-1172",
+    "scenario": "A remote MCP server exposes a tool lookup_order(order_id). The team wants to rename the parameter to id and add a required region field. Fourteen internal agents and two partner integrations call the tool, and the partners deploy on their own schedule.",
+    "stem": "Which approach best handles this breaking change?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Publish the new schema as a separate versioned tool alongside the old one, mark the old one deprecated with a sunset date, and watch call volume before removing it."
+      },
+      {
+        "key": "B",
+        "text": "Update the existing tool in place and announce the change, since the tool description is sent to clients on each session and the models will adapt to the new fields."
+      },
+      {
+        "key": "C",
+        "text": "Deploy the change to the server on a weekend and revert it if error alerts fire, because the number of callers is small and a revert is quick."
+      },
+      {
+        "key": "D",
+        "text": "Make region optional and keep both parameter names accepted on the same tool permanently, so that no caller ever needs to migrate to a new version."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Running old and new versions side by side lets callers on independent schedules migrate and gives usage data to decide when the old version is safe to retire. A breaking change should not land in place.",
+      "distractors": {
+        "B": "Partners with cached or hard-coded integrations will break at once, and in-flight agent prompts may refer to the old parameter name.",
+        "D": "Permanent dual acceptance leaves an ambiguous schema and defers the migration indefinitely, and a required region cannot be made optional without changing semantics.",
+        "C": "A revert after alerts means customers have already seen failures, and partners may not notice errors until later."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "mcp",
+      "versioning"
+    ]
+  },
+  {
+    "id": "q-1173",
+    "scenario": "A team edited its system prompt to reduce verbosity. Offline evals on 200 cases improved. They plan to ship to all traffic. Past prompt changes have shifted behavior on rare request types that the eval set underrepresents, and sessions span multiple turns.",
+    "stem": "Which rollout plan best manages that risk?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Expand the offline eval to 2,000 cases and ship once it passes, since a larger sample removes the need for a live comparison on production traffic."
+      },
+      {
+        "key": "B",
+        "text": "Ship to the whole user base during a low-volume window and monitor aggregate error rate, since the offline eval already shows the new prompt is an improvement."
+      },
+      {
+        "key": "C",
+        "text": "Version the prompt, send a small sticky-per-session cohort to it, compare guardrail and quality metrics to control, and keep rollback ready."
+      },
+      {
+        "key": "D",
+        "text": "Alternate the old and new prompt turn by turn within each session so that each user experiences both variants and the comparison is balanced."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "Only live traffic reveals the rare request types the eval underrepresents. Sticky per-session assignment avoids mixing prompts within a conversation, and a small cohort with rollback limits blast radius.",
+      "distractors": {
+        "B": "Aggregate error rate will not show a quality or tone regression, and a full rollout has the maximum blast radius.",
+        "D": "Switching mid-session makes behavior inconsistent and confounds the comparison.",
+        "A": "A larger offline set still shares the sampling bias against rare real-world requests."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "prompt-versioning",
+      "progressive-rollout"
+    ]
+  },
+  {
+    "id": "q-1174",
+    "scenario": "A team is moving a production agent to a newer model version. The existing suite checks only that responses are non-empty. The agent depends on strict JSON tool arguments and on specific stop_reason handling in its loop.",
+    "stem": "Which TWO migration checks best expose breaking behavior changes before full cutover? Select TWO.",
+    "options": [
+      {
+        "key": "A",
+        "text": "Point the model alias at the new version in a staging environment for one full day and check that no exceptions were thrown."
+      },
+      {
+        "key": "B",
+        "text": "Rewrite the prompts to the newest recommended style on the day of cutover so that the new model performs at its best from the very start."
+      },
+      {
+        "key": "C",
+        "text": "Run a low-traffic canary on live requests, compare task success and loop length against the old model, and keep rollback ready."
+      },
+      {
+        "key": "D",
+        "text": "Replay recorded production requests against the new model and compare tool calls, argument schemas, and stop_reason mix."
+      },
+      {
+        "key": "E",
+        "text": "Compare the two models on a public benchmark leaderboard and proceed if the newer one scores higher on average across tasks."
+      }
+    ],
+    "correct": [
+      "C",
+      "D"
+    ],
+    "rationale": {
+      "correct": "Replaying real traffic checks the specific contracts the agent depends on, and a monitored canary catches differences that replay cannot, with a rollback path. Both test the actual workload, not a proxy.",
+      "distractors": {
+        "E": "Leaderboard averages say nothing about this agent's JSON arguments or loop handling.",
+        "A": "No exceptions in staging does not show that outputs are equivalent, and the existing suite only checks for non-empty responses.",
+        "B": "Changing prompts and the model in one step makes any regression impossible to attribute, and it adds a second untested change."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "model-migration",
+      "regression-testing"
+    ]
+  },
+  {
+    "id": "q-1175",
+    "scenario": "A support assistant gives wrong answers on 18% of a labeled set. The team measured stages on the failures: the correct passage is in the top 50 candidates from the vector search 94% of the time, in the top 5 passed to Claude 58% of the time, and when it is in the top 5 Claude answers correctly 96% of the time.",
+    "stem": "Where should the team invest next?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Change the chunk size to 2x larger, since bigger passages carry more context and so will move the correct one closer to the top 5."
+      },
+      {
+        "key": "B",
+        "text": "Re-embed the corpus with a larger embedding model, since only 94% of the correct passages appear in the top 50 candidates."
+      },
+      {
+        "key": "C",
+        "text": "Improve the generation prompt, since the model must be misreading the passages and the 96% figure would rise with better instructions."
+      },
+      {
+        "key": "D",
+        "text": "Add or tune a reranker over the top 50 candidates, since the correct passage is retrieved but is not being ranked into the top 5."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "The large drop is between the candidate set (94%) and the top 5 (58%), so ranking is the failing stage. Generation is already 96% when the passage is present, and recall at 50 is high.",
+      "distractors": {
+        "C": "Given the right passage, the model is already correct 96% of the time, so the prompt is not the main loss.",
+        "B": "A 94% recall at 50 is a small loss compared with the 36-point loss between 50 and 5.",
+        "A": "Chunking changes may help recall but do not target the ranking loss, and bigger chunks dilute relevance and use more context."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "retrieval",
+      "reranking",
+      "evidence"
+    ]
+  },
+  {
+    "id": "q-1176",
+    "scenario": "An internal knowledge assistant uses embedding search. Queries such as 'error E-4471 after upgrade' and 'policy PX-209 exceptions' return thematically related but wrong documents, while paraphrased conceptual questions work well. The corpus has many near-identical product pages.",
+    "stem": "Which retrieval change best addresses the failing queries?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Lower the similarity threshold so that more of the near-identical pages pass the filter and appear in the results returned to the model."
+      },
+      {
+        "key": "B",
+        "text": "Increase the number of retrieved chunks from 5 to 40 and let the model pick the relevant ones from the larger set in its context."
+      },
+      {
+        "key": "C",
+        "text": "Add lexical (keyword) search alongside the vector search and merge the results, then rerank, so exact identifiers can match directly."
+      },
+      {
+        "key": "D",
+        "text": "Replace the vector search with an agentic loop that issues the same embedding query repeatedly with small rewordings until the answer appears."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "Dense embeddings capture meaning and blur rare exact tokens such as error codes and IDs, which lexical matching handles well. Hybrid retrieval with fusion and reranking keeps the strength on paraphrased questions.",
+      "distractors": {
+        "B": "Retrieving more adds noise and cost, and the exact-match document may still not rank in the top 40 among near-duplicates.",
+        "D": "Rewording the same query repeats the same weakness with respect to identifiers.",
+        "A": "A lower threshold admits more look-alike pages and does nothing to favor the exact identifier."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "hybrid-search"
+    ]
+  },
+  {
+    "id": "q-1177",
+    "scenario": "A regulated-industry assistant answers from retrieved policy passages. Auditors want each claim traceable, and the team wants the model to decline when the evidence is thin. In testing, the model sometimes cites a passage that does not support the claim, and answers confidently when retrieval returns only weak matches.",
+    "stem": "Which TWO controls best address both issues? Select TWO.",
+    "options": [
+      {
+        "key": "A",
+        "text": "Have the model quote the supporting span with its source ID, and verify in code that each quote appears in the cited passage."
+      },
+      {
+        "key": "B",
+        "text": "Ask the model to state a confidence percentage in its answer and show that number to users as the reliability indicator."
+      },
+      {
+        "key": "C",
+        "text": "Add a system prompt line instructing the model to cite sources when confident and avoid speculation, and rely on this wording across query types."
+      },
+      {
+        "key": "D",
+        "text": "Increase the number of passages in context to 30 so the model has some supporting text available when it writes a claim."
+      },
+      {
+        "key": "E",
+        "text": "Gate generation on retrieval quality, such as a score threshold calibrated on labeled queries, and return an explicit insufficient-evidence response below it."
+      }
+    ],
+    "correct": [
+      "A",
+      "E"
+    ],
+    "rationale": {
+      "correct": "Quote-level citations checked in code make traceability verifiable instead of trusted, and a calibrated retrieval gate turns weak evidence into a deliberate decline before the model can improvise.",
+      "distractors": {
+        "B": "A self-reported confidence number is not calibrated and gives auditors nothing they can verify.",
+        "D": "More passages add noise and make unsupported citations more likely, and they do not create evidence that is missing.",
+        "C": "A prompt instruction is not a verifiable control, and it does nothing about the citation mismatches already seen."
+      }
+    },
+    "lab": null,
+    "difficulty": 7,
+    "tags": [
+      "grounding",
+      "citations",
+      "uncertainty"
+    ]
+  },
+  {
+    "id": "q-1178",
+    "scenario": "A service caches a 6k-token system prompt with a cache breakpoint. Usage data shows that for a long tail of 400 prompt variants (one per customer configuration), each variant is called about once every 30 minutes. Total input spend went up after caching was enabled, and cache write tokens are about 8x cache read tokens.",
+    "stem": "What is the most likely cause, and the best response?",
+    "options": [
+      {
+        "key": "A",
+        "text": "The breakpoint is in the wrong place, so move it to the end of the latest user message so that more tokens are cached on each request."
+      },
+      {
+        "key": "B",
+        "text": "Spend rose because of output growth, so cap max_tokens on each request and keep caching enabled for the variants as they are now."
+      },
+      {
+        "key": "C",
+        "text": "The cache is working, but the 6k prefix is too small to benefit from it, so pad the prompt to a larger size to improve the cache hit ratio overall."
+      },
+      {
+        "key": "D",
+        "text": "Writes carry a premium and entries expire before the next call, so reads are rare; cache only high-reuse prefixes and share one prefix."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "With one call per variant every half hour, entries expire before reuse, so the team pays the write premium repeatedly and rarely reads. Caching pays off only when a stable prefix is reused within its lifetime.",
+      "distractors": {
+        "C": "Padding adds tokens to every request and creates no additional reuse.",
+        "A": "A breakpoint after the changing user message would never match a later request, and the write-to-read ratio would worsen.",
+        "B": "The evidence of 8x write-to-read tokens points to caching behavior, not output growth."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "caching",
+      "cost-diagnostics",
+      "evidence"
+    ]
+  },
+  {
+    "id": "q-1179",
+    "scenario": "A team is designing a two-tier cascade: a small model answers first, and a validator escalates uncertain cases to a large model. Per request, the small model costs 1 unit including validation and the large model costs 5 units. A pilot shows 55% of requests escalate.",
+    "stem": "Which statement best guides the decision?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Expected cost is 0.45 × 1 + 0.55 × 5 = 3.2 units, so the cascade saves money and quality does not need to be measured separately."
+      },
+      {
+        "key": "B",
+        "text": "Expected cost is 1 + 0.55 × 5 = 3.75 units against 5 for the large model alone, so it saves money if quality holds in evals."
+      },
+      {
+        "key": "C",
+        "text": "A cascade saves money whenever the small model is cheaper per request, so the pilot's 55% escalation rate does not affect the choice to adopt it."
+      },
+      {
+        "key": "D",
+        "text": "The cascade cannot save money at an escalation rate above 50%, because more than half of the requests then pay for both of the models."
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "Every request pays for the small model, and the escalated share also pays for the large one. The saving depends on the escalation rate, and it must be paired with evidence that the accepted small-model answers meet the quality bar.",
+      "distractors": {
+        "C": "The escalation rate sets the expected cost; at an 80% rate this cascade would cost 5 units, the same as using the large model.",
+        "A": "Escalated requests also paid for the small attempt, so this undercounts, and skipping quality measurement ignores the risk of accepting wrong cheap answers.",
+        "D": "The break-even here is an 80% escalation rate, not 50%, since the small model costs only one fifth of the large one."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "model-routing",
+      "cascade",
+      "cost-modeling"
+    ]
+  },
+  {
+    "id": "q-1180",
+    "scenario": "A platform sells Claude features to 200 tenants through one shared account. Finance wants per-tenant budgets that prevent a runaway tenant from consuming the monthly spend, without hurting well-behaved tenants. Currently, spend is reviewed from the monthly invoice.",
+    "stem": "Which TWO measures best enforce the budgets? Select TWO.",
+    "options": [
+      {
+        "key": "A",
+        "text": "Meter tokens per tenant at the gateway from the usage fields on each response, in near real time."
+      },
+      {
+        "key": "B",
+        "text": "Divide the account's budget equally across the tenants and shut each one off when its equal share is used up, regardless of its plan."
+      },
+      {
+        "key": "C",
+        "text": "Apply tiered actions as a budget is used: alert at a soft threshold, then degrade to a cheaper model, then hard-stop at the cap."
+      },
+      {
+        "key": "D",
+        "text": "Ask each tenant's application to count its own tokens and enforce its own limit, since the tenant knows its own usage best of all."
+      },
+      {
+        "key": "E",
+        "text": "Review the invoice weekly instead of monthly and contact the tenants whose spend looks high, so that overruns are found sooner."
+      }
+    ],
+    "correct": [
+      "A",
+      "C"
+    ],
+    "rationale": {
+      "correct": "Enforcement needs authoritative per-tenant metering in the request path and graduated responses that limit the blast radius before a hard cap. Together, they work in near real time without penalizing normal tenants.",
+      "distractors": {
+        "D": "Client-side counts are not authoritative, can be wrong or bypassed, and give the platform no control.",
+        "B": "Equal shares ignore plans and workload size, so legitimate large tenants are cut off while small ones leave budget unused.",
+        "E": "A weekly manual review is still slower than a runaway tenant can spend and has no automatic control."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "budget-enforcement",
+      "multi-tenant"
+    ]
+  },
+  {
+    "id": "q-1181",
+    "scenario": "An assistant writes long reports. Traces show time to first token is 0.9 seconds at p95, total latency is 22 seconds, and output averages 2,400 tokens. The product requirement is that the complete report be ready within 12 seconds. The team proposes enabling streaming.",
+    "stem": "Which action best meets the requirement?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Reduce generated output with a tighter format, or split sections into parallel calls, then re-measure total latency."
+      },
+      {
+        "key": "B",
+        "text": "Add a cache breakpoint on the system prompt, because the 0.9-second first-token time shows that the prompt is the main source of latency."
+      },
+      {
+        "key": "C",
+        "text": "Move the work to the Message Batches API, so that the report runs in a throughput-optimized path and so finishes in less time."
+      },
+      {
+        "key": "D",
+        "text": "Enable streaming, because showing text sooner will bring the complete report in under the 12-second target for the users."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Total time is dominated by generating about 2,400 tokens, not by the 0.9-second wait for the first. Meeting a completion target means producing fewer sequential tokens or parallelizing sections.",
+      "distractors": {
+        "D": "Streaming improves time to first token and perceived speed but does not shorten the total time to a complete report.",
+        "B": "First-token latency is already low, so prefix caching targets a stage that is not the bottleneck.",
+        "C": "Batch is asynchronous and can take up to 24 hours, so it cannot satisfy a 12-second target."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "ttft",
+      "total-latency",
+      "evidence"
+    ]
+  },
+  {
+    "id": "q-1182",
+    "scenario": "An agent answering a customer question needs account, order, and shipment lookups. In traces, the model returns one assistant message with three tool_use blocks, but the harness executes them one after another, each taking about 700 ms, and then the next model call begins. The three calls do not depend on each other.",
+    "stem": "Which change reduces end-to-end latency the most for this step?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Cache the tool results for the length of the conversation so that repeating the same three lookups costs nothing on later turns."
+      },
+      {
+        "key": "B",
+        "text": "Execute the three tool calls concurrently in the harness and return all three results together in a single user message."
+      },
+      {
+        "key": "C",
+        "text": "Instruct the model in the prompt to ask for one tool at a time so each result can inform the next, which reduces wasted lookups."
+      },
+      {
+        "key": "D",
+        "text": "Stream the model's response, which shortens the apparent wait while the harness keeps running the three lookups in sequence."
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "The calls are independent, so running them concurrently cuts about 2.1 seconds of serial waiting to about 0.7 seconds, and the model sees all results in one turn. The gain comes from the harness, not from the model.",
+      "distractors": {
+        "C": "One tool per turn adds extra model round trips and is slower for independent lookups.",
+        "D": "Streaming does not help here since the delay is in the tool executions after the model has finished its turn.",
+        "A": "The slowdown is on the first execution, and result caching does not help on the first call."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "parallel-tools"
+    ]
+  },
+  {
+    "id": "q-1183",
+    "scenario": "A multi-turn assistant has a 30k-token static policy document. The system prompt, which contains the document, has a cache breakpoint. By turn 12, the history has grown to 25k tokens, and time to first token has risen from 1.2 to 5 seconds, even though cache read tokens for the policy document remain high.",
+    "stem": "Which change best fixes the growth in first-token latency?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Raise the max_tokens limit to give the model more room, since long histories need larger output budgets to avoid truncated answers."
+      },
+      {
+        "key": "B",
+        "text": "Move the policy document to the end of the user message so that its position changes the cached part of the prompt less often."
+      },
+      {
+        "key": "C",
+        "text": "Summarize the history down to 2k tokens on every turn so the prompt the model must process before the first token is smaller."
+      },
+      {
+        "key": "D",
+        "text": "Add a second breakpoint at the end of the previous turn so the growing history is read from cache and only the new turn is fresh."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "The static prefix is cached, but the history after it is processed uncached each turn and grows. A checkpoint after the previous turn lets the next request reuse the cached history.",
+      "distractors": {
+        "B": "Moving stable content to the end of the prompt removes it from the cached prefix and makes the cache hit rate worse.",
+        "A": "max_tokens governs output length and does not affect the time to process the input before the first token.",
+        "C": "Rewriting history each turn invalidates the cache from that point on, so the reduced prompt gets reprocessed in full every turn."
+      }
+    },
+    "lab": null,
+    "difficulty": 7,
+    "tags": [
+      "cache-checkpoint",
+      "ttft"
+    ]
+  },
+  {
+    "id": "q-1184",
+    "scenario": "An ingestion service places each document on a message queue. Separate workers pull messages, call Claude, and store results. The trace backend shows the API gateway span and, as unrelated traces, the worker spans, so engineers cannot connect a slow end-to-end result to the Claude call that caused it.",
+    "stem": "Which fix best restores end-to-end traces?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Log the user ID on the gateway span and on each worker span, then join the two sets by user ID and time window."
+      },
+      {
+        "key": "B",
+        "text": "Raise the gateway trace sampling rate so that more worker spans can be matched to gateway spans by timestamp."
+      },
+      {
+        "key": "C",
+        "text": "Put the trace context in the message headers at enqueue, and have each worker extract it as its spans' parent."
+      },
+      {
+        "key": "D",
+        "text": "Run the Claude call synchronously inside the gateway request so a single process emits every span."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "Propagating context through the message carrier makes worker spans children of the original request, so the whole path appears as one trace despite the asynchronous hop.",
+      "distractors": {
+        "A": "A user submits many documents, so the join is ambiguous, and it does not give parent-child timing.",
+        "B": "Sampling decisions are made independently on each side, and more samples do not create a link between them.",
+        "D": "This removes the queue's decoupling and load leveling to fix a propagation gap that header context solves directly."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "tracing",
+      "context-propagation",
+      "queues"
+    ]
+  },
+  {
+    "id": "q-1185",
+    "scenario": "A client wrapper retries 429 and overloaded responses up to three times with backoff. It records one span per logical request, measured from the first attempt to the final result. The dashboard shows p95 latency of 14 s, while provider-side model latency for the same period is about 4 s. Engineers cannot see where the other time goes.",
+    "stem": "Which instrumentation change best explains the gap?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Emit a child span per attempt with status code, retry-after value, and backoff wait."
+      },
+      {
+        "key": "B",
+        "text": "Record the final response's output token count on the logical span so latency can be normalized by length."
+      },
+      {
+        "key": "C",
+        "text": "Change the logical span to cover only the final attempt so its duration matches the provider's figure."
+      },
+      {
+        "key": "D",
+        "text": "Add a requests-per-minute metric so load spikes can be compared with latency on the same dashboard."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Per-attempt spans separate model time from retry waits, so the 10 s difference is attributed to specific 429 or overload episodes and backoff sleeps.",
+      "distractors": {
+        "B": "Output length explains generation time, but the model-side figure is already 4 s; the gap is time spent outside the model.",
+        "C": "This hides the retry and backoff time users actually wait through and removes the evidence needed to diagnose it.",
+        "D": "Request rate may correlate with the slowdown, but it cannot show how much time went to retries versus waiting."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "retries",
+      "spans",
+      "latency"
+    ]
+  },
+  {
+    "id": "q-1186",
+    "scenario": "A deployment under a zero-data-retention agreement must not store prompt or completion text anywhere in its own telemetry. Engineers still need to diagnose why a given request produced a bad answer after a prompt change.",
+    "stem": "Which TWO telemetry additions best preserve debuggability within that constraint? Select TWO.",
+    "options": [
+      {
+        "key": "A",
+        "text": "Record the prompt template version and a hash of each assembled prompt segment, plus retrieved document IDs."
+      },
+      {
+        "key": "B",
+        "text": "Store full prompts and completions in an encrypted bucket with a seven-day expiry and restricted access."
+      },
+      {
+        "key": "C",
+        "text": "Record the request ID, stop_reason, token counts by type, and ordered tool-call names with latencies for each trace."
+      },
+      {
+        "key": "D",
+        "text": "Capture raw text for a random 1% of requests and delete it once the investigation closes."
+      },
+      {
+        "key": "E",
+        "text": "Log only the HTTP status code and total latency per request, because richer fields might expose content."
+      }
+    ],
+    "correct": [
+      "A",
+      "C"
+    ],
+    "rationale": {
+      "correct": "Versions and hashes show exactly which prompt parts changed between good and bad requests without retaining any text. Content-free structure such as stop_reason, token mix, and tool sequence shows how a run behaved and supports correlation with provider support.",
+      "distractors": {
+        "B": "Encryption and expiry do not change that the text is retained, which the agreement prohibits.",
+        "D": "Any raw capture, even sampled and short-lived, is retention of prompt text and violates the requirement.",
+        "E": "Status and latency alone cannot show a changed prompt segment or a bad tool sequence, and content-free fields carry no leakage risk."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "zero-data-retention",
+      "structured-logs",
+      "privacy"
+    ]
+  },
+  {
+    "id": "q-1187",
+    "scenario": "A team defines its SLI as the share of responses that pass a schema check, with a 99.5% monthly SLO. The on-call is paged when the 5-minute success rate falls below 95%. That rule fires several times a week for blips that self-resolve, yet last month a slow decline to 98.8% lasted two days and never paged.",
+    "stem": "Which alerting design best fixes both problems?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Lower the 5-minute threshold to 99.5% so that any shortfall against the SLO pages the on-call right away."
+      },
+      {
+        "key": "B",
+        "text": "Replace the 5-minute window with a 24-hour window that pages when the daily rate falls below 99.5%, as a smoother signal."
+      },
+      {
+        "key": "C",
+        "text": "Keep the current rule and add a weekly report of the monthly success rate for the team to review."
+      },
+      {
+        "key": "D",
+        "text": "Page on error-budget burn rate over paired short and long windows; ticket slower burn."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "Burn-rate alerts scale urgency to budget consumption, so brief blips do not page, while a sustained 98.8% rate consumes budget fast enough to trigger.",
+      "distractors": {
+        "A": "This would page even more often on self-resolving blips, and it still has no notion of how much budget a deviation consumes.",
+        "B": "A daily window reacts to a true outage many hours late, and it ignores how quickly budget is being spent.",
+        "C": "A weekly report would still leave two-day degradations unnoticed until the review, and it leaves the noisy page unchanged."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "slo",
+      "burn-rate",
+      "alerting"
+    ]
+  },
+  {
+    "id": "q-1188",
+    "scenario": "A refusal-rate alert (stop_reason = refusal) fired after a model snapshot update. Overall refusal rose from 1.0% to 1.5%. Per category, week over week: billing 0.5% to 0.5%, account security 4.0% to 4.0%, general 0.4% to 0.4%. The share of traffic in account security rose from 15% to 30% after a phishing notice went to customers.",
+    "stem": "What is the best conclusion and next step?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Roll back the snapshot, because the alert fired in the same week as the update and the timing implicates it."
+      },
+      {
+        "key": "B",
+        "text": "Traffic mix shifted, not the snapshot; compare refusal by category and re-baseline the alert against the mix."
+      },
+      {
+        "key": "C",
+        "text": "Raise the alert threshold to 2% so that normal week-to-week variation no longer pages."
+      },
+      {
+        "key": "D",
+        "text": "Run a judge-based evaluation of refusal appropriateness on the new snapshot before drawing any conclusion about cause."
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "Every category's rate is unchanged, so the overall rise comes from more traffic in the high-refusal category rather than a behavioral change.",
+      "distractors": {
+        "A": "Per-category rates are flat, so rolling back would not change the overall number and would discard a healthy update.",
+        "C": "The change is explained by mix, not random variation, and a higher threshold would also mask a real regression in one category.",
+        "D": "The category breakdown already answers the cause question; a judge pass would add cost and not change the diagnosis."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "evidence",
+      "drift",
+      "mix-shift",
+      "stop-reason"
+    ]
+  },
+  {
+    "id": "q-1189",
+    "scenario": "A support assistant is on a pager rotation. The team may page only for conditions that are user-impacting and need immediate action, and sends everything else to a ticket queue. Candidate alerts are listed below.",
+    "stem": "Which TWO alerts should page the on-call? Select TWO.",
+    "options": [
+      {
+        "key": "A",
+        "text": "Task-success error budget is burning at 10x the sustainable rate over both 5-minute and 1-hour windows."
+      },
+      {
+        "key": "B",
+        "text": "The daily token total exceeds the 30-day average by 12%, with no change in request volume."
+      },
+      {
+        "key": "C",
+        "text": "More than 2% of requests end in a terminal 429 after all retries are exhausted, sustained for 10 minutes."
+      },
+      {
+        "key": "D",
+        "text": "The prompt cache read ratio has fallen below its weekly average, and cost per request is slightly up."
+      },
+      {
+        "key": "E",
+        "text": "Median output length has shifted by 8% compared with last week, with no change in stop_reason mix."
+      }
+    ],
+    "correct": [
+      "A",
+      "C"
+    ],
+    "rationale": {
+      "correct": "A fast burn confirmed on two windows signals sustained user impact that will exhaust the budget soon. Exhausted retries mean users receive failures now, which calls for action such as shedding load or raising capacity.",
+      "distractors": {
+        "B": "A modest cost drift is worth a ticket and investigation, but no user is harmed right now.",
+        "D": "A lower cache ratio raises cost and latency gradually; it is a diagnostic signal for a ticket, not a user-facing failure.",
+        "E": "A small distribution shift may hint at drift, but it needs analysis rather than immediate response."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "alerting",
+      "paging",
+      "slo"
+    ]
+  },
+  {
+    "id": "q-1190",
+    "scenario": "A platform keeps 100% of traces that contain an error or failed task, plus a uniform 2% of all other traces. Today's store holds 3,000 failed-task traces and 10,000 successful traces. An engineer reports a failure rate of 3,000 / 13,000, about 23%.",
+    "stem": "What is the best estimate of the true daily failure rate?",
+    "options": [
+      {
+        "key": "A",
+        "text": "About 23%, because the stored traces are the best available record of what actually happened that day."
+      },
+      {
+        "key": "B",
+        "text": "About 0.01%, from 3,000 failures scaled down by the 2% rate over roughly 503,000 requests."
+      },
+      {
+        "key": "C",
+        "text": "About 0.6%: 10,000 kept successes stand for about 500,000, so 3,000 of roughly 503,000."
+      },
+      {
+        "key": "D",
+        "text": "It cannot be estimated, because tail sampling discards the information about how many successes occurred."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "Kept successes were sampled at 2%, so each stands for 50 requests. Failures were kept in full and need no weight.",
+      "distractors": {
+        "A": "The store over-represents failures by design, so the stored share is a biased estimate of the real rate.",
+        "B": "Failures were retained in full, so scaling them down mistakenly applies a sampling weight that was never applied to them.",
+        "D": "The known 2% rate on successes lets the discarded count be reconstructed, so an estimate is possible."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "sampling",
+      "tail-based",
+      "weighting"
+    ]
+  },
+  {
+    "id": "q-1191",
+    "scenario": "Failure analysis of 50,000 agent traces, by tenant and by use of the export_report tool (failed / total):\nAcme with export_report: 300 / 3,000\nOther tenants with export_report: 200 / 2,000\nAcme without export_report: 20 / 1,000\nOther tenants without export_report: 880 / 44,000\nAcme fails 8.0% overall; other tenants fail 2.3%. A tenant-specific fix for Acme is proposed.",
+    "stem": "What does the breakdown indicate, and what should the team do?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Failure tracks export_report use (10% vs 2%) in both groups, not tenant; investigate that tool path for all tenants."
+      },
+      {
+        "key": "B",
+        "text": "Acme has a tenant-specific problem, since its overall rate of 8.0% is more than three times the others' 2.3%."
+      },
+      {
+        "key": "C",
+        "text": "Both effects are real: add the tenant fix for Acme and a separate fix for the tool, since each shows a higher failure rate."
+      },
+      {
+        "key": "D",
+        "text": "Collect more Acme traces first, because 4,000 traces is too few to say whether the tenant has a problem."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Within each tool stratum Acme and other tenants fail at the same rate, so Acme's higher overall rate comes from its heavier use of the tool.",
+      "distractors": {
+        "B": "The overall comparison is confounded by tool usage; within each stratum the tenant rates are identical.",
+        "C": "Only the tool shows a difference once stratified; Acme's rate matches others at 10% and at 2%.",
+        "D": "The stratified rates already match closely; more Acme data would not change which variable explains the failures."
+      }
+    },
+    "lab": null,
+    "difficulty": 7,
+    "tags": [
+      "evidence",
+      "cohort-analysis",
+      "confounding"
+    ]
+  },
+  {
+    "id": "q-1192",
+    "scenario": "A refund agent fails on about 3% of refund tasks. In the failed traces the last step differs: some end in tool timeouts, some in malformed tool arguments, and some in an apologetic give-up. Engineers reading the final errors see no pattern. Successful refund traces are plentiful.",
+    "stem": "Which analysis is most likely to surface a systemic cause?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Group the failed traces by final error message and fix the largest group first, then repeat on what remains in the backlog."
+      },
+      {
+        "key": "B",
+        "text": "Raise the sampling rate for failed traces so that each final error type has enough examples to read closely."
+      },
+      {
+        "key": "C",
+        "text": "Add a retry on the final step so that late errors recover automatically and stop reaching the user."
+      },
+      {
+        "key": "D",
+        "text": "Compare failed traces with successful same-task traces, find where they first diverge, and aggregate there."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "The visible last error may be a downstream symptom; the first divergence from successful runs points at where the failure originates.",
+      "distractors": {
+        "A": "Final errors differ because they are symptoms at different points, so grouping on them fragments a shared upstream cause.",
+        "B": "More examples of the same scattered symptoms would not reveal a common origin that comparison with successes would.",
+        "C": "A retry can mask the symptom, but if the cause is earlier, the retry repeats the same bad input and adds cost."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "failure-analysis",
+      "aggregation",
+      "trace-comparison"
+    ]
+  },
+  {
+    "id": "q-1193",
+    "scenario": "A regression suite has 300 pass/fail cases. Prompt v2 scores 84.0% and v1 scores 82.0% on the same cases. Case-level results: both pass 240; only v1 passes 6; only v2 passes 12; both fail 42. The gate currently passes any candidate that scores higher than the baseline.",
+    "stem": "What is the best conclusion about the gate and v2?",
+    "options": [
+      {
+        "key": "A",
+        "text": "v2 is better, because it passes 6 more cases on identical inputs and the paired design removes case-to-case noise."
+      },
+      {
+        "key": "B",
+        "text": "Within noise: only 18 cases differ, split 12 to 6, so enlarge the suite or require a margin in the gate."
+      },
+      {
+        "key": "C",
+        "text": "The suite is saturated near 83% pass, so it should be retired and replaced with a harder one for the next release."
+      },
+      {
+        "key": "D",
+        "text": "Rerun v2 at temperature 0 and trust that result, because it eliminates sampling variation."
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "A paired comparison depends only on the discordant cases. A 12 to 6 split is not statistically reliable, and a bare higher-score rule will let noise through.",
+      "distractors": {
+        "A": "Pairing removes between-case variation but the decision still rests on 18 discordant cases, which is too few to separate from chance.",
+        "C": "Pass rates in the low 80s with 42 shared failures leave headroom; saturation does not apply.",
+        "D": "Fixing temperature does not enlarge the sample of discordant cases, so the statistical weakness remains."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "evidence",
+      "ci-gate",
+      "paired-comparison"
+    ]
+  },
+  {
+    "id": "q-1194",
+    "scenario": "A code-fix agent is evaluated only on hidden tests passing. A new version raises the suite pass rate from 61% to 63%. Production review of the new version shows it edits files outside the target module in 9% of tasks (previously 1%) and makes 2.5 times as many tool calls per task.",
+    "stem": "Which evaluation change best prevents shipping this kind of regression?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Enlarge the hidden-test suite so that the 2-point pass-rate gain becomes statistically reliable before any release decision."
+      },
+      {
+        "key": "B",
+        "text": "Add an LLM judge that rates the quality of each final patch on a 1 to 10 scale and gate on its average."
+      },
+      {
+        "key": "C",
+        "text": "Add trajectory checks, such as out-of-scope file edits and tool calls per task, with thresholds beside pass rate."
+      },
+      {
+        "key": "D",
+        "text": "Tell the agent in its system prompt to stay inside the target module and to use as few tool calls as possible."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "Outcome-only scoring cannot see behavior in the path; explicit checks on the trajectory turn those behaviors into gating criteria.",
+      "distractors": {
+        "A": "A more reliable pass rate would still say nothing about out-of-scope edits or tool usage.",
+        "B": "A judge on the patch looks at the outcome, not at scope violations or cost in the trajectory.",
+        "D": "An instruction may help, but without a measured check nothing would catch the behavior if it persists."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "agentic",
+      "trajectory",
+      "release-criteria"
+    ]
+  },
+  {
+    "id": "q-1195",
+    "scenario": "A team will replace the model behind a contract-clause classifier. The suite has 600 cases in six categories. One category, indemnification (40 cases), carries legal risk. The candidate model improves overall accuracy by 1.5 points.",
+    "stem": "Which TWO release criteria best fit this change? Select TWO.",
+    "options": [
+      {
+        "key": "A",
+        "text": "Require indemnification accuracy to be non-inferior to the current model, judged with a confidence interval."
+      },
+      {
+        "key": "B",
+        "text": "Require overall accuracy to exceed the current model's, since the weighted average already covers every category."
+      },
+      {
+        "key": "C",
+        "text": "Require no category to fall below a floor set from the current model's per-category results, minus a stated margin."
+      },
+      {
+        "key": "D",
+        "text": "Require the average of the six per-category accuracies to exceed the current model's by a stated margin on the full suite."
+      },
+      {
+        "key": "E",
+        "text": "Require a higher overall score on a freshly regenerated suite that replaces the existing one and its baseline."
+      }
+    ],
+    "correct": [
+      "A",
+      "C"
+    ],
+    "rationale": {
+      "correct": "The risky category gets its own statistical bar, so a small sample cannot hide a regression behind the average. Per-category floors catch targeted regressions that the overall score would hide.",
+      "distractors": {
+        "B": "A pooled average can rise while a small high-risk category falls, because larger categories dominate.",
+        "D": "A macro average still lets a large indemnification drop be offset by small gains in the other categories.",
+        "E": "Discarding the current suite removes the like-for-like baseline needed to compare the two models."
+      }
+    },
+    "lab": null,
+    "difficulty": 7,
+    "tags": [
+      "release-criteria",
+      "model-swap",
+      "non-inferiority"
+    ]
+  },
+  {
+    "id": "q-1196",
+    "scenario": "A judge scores helpfulness from 1 to 10. The release gate accepts a response at a score of 7 or higher, a value chosen by intuition. On a 400-item human-labeled set, at that cutoff the gate accepts 30% of responses that humans labeled unacceptable. The team wants this under 10%.",
+    "stem": "What is the best next step?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Sweep the cutoff on labeled data, take the lowest value meeting the 10% limit, and confirm on held-out data."
+      },
+      {
+        "key": "B",
+        "text": "Keep the cutoff at 7 and average three judge samples per response to remove the noisy false accepts."
+      },
+      {
+        "key": "C",
+        "text": "Raise the cutoff to 10 so that only perfect scores pass the gate, which makes false accepts unlikely."
+      },
+      {
+        "key": "D",
+        "text": "Change the judge's scale to 1 to 5 so that the model discriminates more coarsely between responses and gives steadier scores."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Setting the cutoff from labeled data targets the stated error limit, and the lowest qualifying value avoids rejecting more good responses than needed.",
+      "distractors": {
+        "B": "Averaging reduces run-to-run noise but does not fix a cutoff that is miscalibrated against human labels.",
+        "C": "This would cut false accepts but reject most acceptable responses and throw away the calibration data that would pick a better value.",
+        "D": "A coarser scale reduces resolution and still needs a cutoff chosen against human labels."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "calibration",
+      "threshold",
+      "judge"
+    ]
+  },
+  {
+    "id": "q-1197",
+    "scenario": "A judge rates the factual correctness of answers to product-specification questions. It gives high scores to fluent answers that contain wrong specifications, and its agreement with human graders on correctness is 58%. The judge sees only the question and the answer.",
+    "stem": "Which change should the team make first?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Ask the judge to reason at length about the answer before scoring so that it can catch wrong specifications."
+      },
+      {
+        "key": "B",
+        "text": "Give the judge the reference answer or source spec, and have it score consistency with that source."
+      },
+      {
+        "key": "C",
+        "text": "Switch to a larger judge model so that it has better knowledge of the product specifications."
+      },
+      {
+        "key": "D",
+        "text": "Average the judge's score over five samples per answer to reduce variance in the ratings."
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "The judge cannot verify product facts it was never given; grounding it in the reference turns a knowledge problem into a comparison.",
+      "distractors": {
+        "A": "Longer reasoning helps with logic, but the judge has no source for the specifications, so it will still rate fluent errors highly.",
+        "C": "Even a stronger model does not know this company's product details, so the missing information remains.",
+        "D": "The errors are systematic, rooted in missing information, so averaging repeats the same wrong preference."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "rubric",
+      "reference-grounding",
+      "judge"
+    ]
+  },
+  {
+    "id": "q-1198",
+    "scenario": "A team tuned a judge's rubric over several rounds against a 500-item human-labeled set for 'policy-compliant reply', reaching 91% agreement. They now need evidence that the judge is fit to gate releases.",
+    "stem": "Which TWO steps best establish that? Select TWO.",
+    "options": [
+      {
+        "key": "A",
+        "text": "Label a fresh sample that the rubric was never tuned on and measure agreement there."
+      },
+      {
+        "key": "B",
+        "text": "Run the judge twice on the 500 items and report the high run-to-run consistency."
+      },
+      {
+        "key": "C",
+        "text": "Report agreement by category and by reply-length bucket as well as overall."
+      },
+      {
+        "key": "D",
+        "text": "Keep tuning the rubric until agreement on the 500 items exceeds 95%."
+      },
+      {
+        "key": "E",
+        "text": "Compare verdicts with a second judge from another model family and ship if the two agree on 90% of items."
+      }
+    ],
+    "correct": [
+      "A",
+      "C"
+    ],
+    "rationale": {
+      "correct": "Agreement on tuned data is optimistic; a held-out sample gives an unbiased estimate of how the judge will behave. Slice-level agreement exposes weak areas that a strong overall number hides, such as one category with poor agreement.",
+      "distractors": {
+        "B": "Consistency shows the judge is repeatable, which says nothing about whether it agrees with humans.",
+        "D": "More tuning on the same items increases overfitting and makes the measure less informative.",
+        "E": "Two judges agreeing can share the same bias, and the standard is agreement with human labels."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "judge-validation",
+      "held-out",
+      "slicing"
+    ]
+  },
+  {
+    "id": "q-1199",
+    "scenario": "A support assistant's true outcome is whether the customer reopens the ticket within 14 days, which arrives too late to gate daily prompt changes. A judge-based online quality score is available within minutes of each conversation.",
+    "stem": "What is the best way to use these two signals?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Gate daily changes on the judge score alone, since its agreement with humans was verified once at launch."
+      },
+      {
+        "key": "B",
+        "text": "Wait 14 days after each prompt change and judge it only on reopen rates, however slow that makes releases."
+      },
+      {
+        "key": "C",
+        "text": "Use thumbs-up rates collected during the conversation as the replacement for reopen rates."
+      },
+      {
+        "key": "D",
+        "text": "Use the judge score for daily changes, and periodically check it against reopen rates on matured cohorts."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "A fast proxy enables daily decisions, and rechecking it against the slow outcome keeps it from drifting away from what matters.",
+      "distractors": {
+        "A": "The relationship between proxy and outcome can drift as traffic and prompts change, so it needs rechecking.",
+        "B": "This makes iteration far too slow and delays discovery of real problems.",
+        "C": "Thumbs ratings come from a self-selected minority and may not track reopens, so they are another proxy needing validation."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "online-eval",
+      "proxy-metric",
+      "lagging-outcome"
+    ]
+  },
+  {
+    "id": "q-1200",
+    "scenario": "An A/B test assigns users by hash to prompt A or prompt B, intended as 50/50. After a week, A has 101,200 users and B has 94,800. The completion rate favors B by 2.0 points with p < 0.01.",
+    "stem": "What is the best next step?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Ship B, since the lift is statistically significant and extra users in A only add noise to the control group."
+      },
+      {
+        "key": "B",
+        "text": "Randomly drop A users until the arms match, then rerun the significance test."
+      },
+      {
+        "key": "C",
+        "text": "Investigate the assignment and logging pipeline for the imbalance before trusting the completion result."
+      },
+      {
+        "key": "D",
+        "text": "Extend the test another week so that the split converges to 50/50."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "A split this far from 50/50 at this sample size is a sample ratio mismatch, which usually signals a bug that biases the comparison.",
+      "distractors": {
+        "A": "Significance computed on a biased comparison is not trustworthy, and missing B users may be a systematically different group.",
+        "B": "Dropping users at random does not restore the B users that were lost for non-random reasons.",
+        "D": "A real random split would already be close at this sample size, and more time will not repair a pipeline defect."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "ab-testing",
+      "sample-ratio-mismatch",
+      "experiment-design"
+    ]
+  },
+  {
+    "id": "q-1201",
+    "scenario": "A team generates summaries of sales calls that reps can edit before saving. They want online quality measures that move when summary quality changes.",
+    "stem": "Which TWO measures best fit? Select TWO.",
+    "options": [
+      {
+        "key": "A",
+        "text": "Scores from a human-calibrated judge on a stratified sample of live summaries."
+      },
+      {
+        "key": "B",
+        "text": "Edit distance between the generated draft and the saved version, tracked per cohort."
+      },
+      {
+        "key": "C",
+        "text": "Thumbs-up rate alone, because it captures satisfaction directly from the users."
+      },
+      {
+        "key": "D",
+        "text": "N-gram overlap between each summary and one reference summary written for its call type."
+      },
+      {
+        "key": "E",
+        "text": "Mean summary length, since longer summaries carry more information for reps."
+      }
+    ],
+    "correct": [
+      "A",
+      "B"
+    ],
+    "rationale": {
+      "correct": "A calibrated judge on sampled live traffic estimates quality directly across segments at tolerable cost. Heavy edits are an implicit signal that the draft fell short, and they come from every user, not just those who rate.",
+      "distractors": {
+        "C": "Few users rate, and those who do are self-selected, so the rate is noisy and biased.",
+        "D": "Valid summaries can differ in wording, so overlap with one reference penalizes good output.",
+        "E": "Length does not indicate quality and can move in either direction when quality changes."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "metric-selection",
+      "generation",
+      "implicit-feedback"
+    ]
+  },
+  {
+    "id": "q-1202",
+    "scenario": "A support agent's output filter uses one regex to catch US Social Security numbers in replies. Last week it blocked 4% of legitimate replies because order numbers share the nine-digit shape, while a manual audit found two replies that exposed a full name with a home address, which the filter does not look for. Security wants fewer false positives without a higher leak rate.",
+    "stem": "Which change best reduces both error types?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Raise the filter's match threshold so replies with several matches are blocked, and rely on the periodic manual audit process to catch the remaining misses."
+      },
+      {
+        "key": "B",
+        "text": "Add format and context checks to the SSN detector, add a name-and-address detector, and measure precision and recall on labeled replies first."
+      },
+      {
+        "key": "C",
+        "text": "Replace the regex layer with a system prompt rule that tells the model not to print nine-digit numbers or home addresses in replies it writes to customers."
+      },
+      {
+        "key": "D",
+        "text": "Exempt replies for order-status intents from the filter, since those intents account for most of the false positives and carry little other sensitive content."
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "Each error has a different cause: the SSN pattern is too loose (false positives) and the detector set is incomplete (false negatives). Tightening the pattern, adding detectors, and measuring both rates on labeled real traffic tunes the filter without trading one error for the other.",
+      "distractors": {
+        "A": "A higher threshold lets single-match leaks through, which raises false negatives while the missing name-and-address detector stays unfixed.",
+        "C": "A prompt rule is not an enforceable boundary and removes the deterministic layer that catches leaks the model misses.",
+        "D": "Exempting a whole intent removes protection exactly where order data and customer details appear together, and fixes only one symptom."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "pii-redaction",
+      "false-positives",
+      "guardrail-tuning"
+    ]
+  },
+  {
+    "id": "q-1203",
+    "scenario": "An infrastructure agent can run shell commands against staging and production through one tool, and it must run varied commands for routine staging work. A PreToolUse hook blocks commands matching the regex 'terraform destroy|rm -rf'. During a test the agent ran 'D=destroy; terraform $D -auto-approve' against a production workspace and the hook did not fire. The team wants a control that holds even when command text is obfuscated.",
+    "stem": "Which design best closes the gap?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Extend the regex list with variable-expansion and quoting patterns, and review it after each red-team run."
+      },
+      {
+        "key": "B",
+        "text": "Switch the hook to an allowlist of exact command strings and reject everything else, accepting the added friction for routine staging work that the agent performs."
+      },
+      {
+        "key": "C",
+        "text": "Add a system prompt rule that forbids destructive commands in production and tell the agent to ask a human for confirmation before it runs anything risky."
+      },
+      {
+        "key": "D",
+        "text": "Give the agent credentials that cannot modify production, and send production changes through a separate tool whose hook requires human approval for the resolved target."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "The command string is attacker- or model-controlled and can be rewritten, so text matching cannot be complete. Removing the capability from the credential and gating production changes on the resolved target with human approval is deterministic and does not depend on how a command is spelled.",
+      "distractors": {
+        "A": "Pattern lists chase obfuscation one variant at a time, and shell offers endless ways to build the same command.",
+        "B": "An exact-string allowlist is brittle for an agent that must run varied staging commands, and it still leaves production credentials in the agent's hands.",
+        "C": "A prompt instruction is not enforceable and leaves the agent holding credentials that can destroy production."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "destructive-action-prevention",
+      "hooks",
+      "approval-gates"
+    ]
+  },
+  {
+    "id": "q-1204",
+    "scenario": "A code-execution agent must install packages from public registries and fetch documentation from the web to complete tasks. Today it runs on a developer VM that holds a read replica of production data and long-lived cloud credentials.",
+    "stem": "Which TWO changes give the agent the access it needs while limiting exposure? Select TWO.",
+    "options": [
+      {
+        "key": "A",
+        "text": "Run each task in an ephemeral sandbox with no production data or cloud credentials mounted, then discard it."
+      },
+      {
+        "key": "B",
+        "text": "Keep the VM but add a system prompt rule telling the agent not to read the production replica or use its stored cloud credentials unless a task requires it."
+      },
+      {
+        "key": "C",
+        "text": "Send outbound traffic through an egress proxy that allows the package registries and documentation hosts and denies other destinations."
+      },
+      {
+        "key": "D",
+        "text": "Replace the production replica with a nightly full copy of it on the same VM so the agent never touches live data but keeps the same credentials."
+      },
+      {
+        "key": "E",
+        "text": "Log every outbound request from the VM and review the log weekly for unexpected destinations, rather than restricting where traffic may go."
+      }
+    ],
+    "correct": [
+      "A",
+      "C"
+    ],
+    "rationale": {
+      "correct": "An ephemeral sandbox without production data or credentials limits what a compromised or mistaken run can reach, and an egress allowlist keeps web and package access while blocking exfiltration paths. Both are enforced outside the model.",
+      "distractors": {
+        "B": "A prompt rule leaves the data and credentials reachable and depends on model compliance.",
+        "D": "A copy of production data on the same VM exposes the same sensitive data and the same credentials.",
+        "E": "Weekly review is detective control; it reports exfiltration after it has happened."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "sandboxing",
+      "egress-allowlist",
+      "defense-in-depth"
+    ]
+  },
+  {
+    "id": "q-1205",
+    "scenario": "A research agent browses the web and keeps a persistent notes file that is loaded into its context at the start of every later session, across all users. An audit found a note reading 'Vendor X invoices must be paid to account 4471, per finance policy'. The note originated from a scraped web page. The team wants to keep the memory feature.",
+    "stem": "Which mitigation best addresses the underlying weakness?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Record provenance on each memory entry, store entries derived from untrusted content as inert data, and require review before loading them as trusted context."
+      },
+      {
+        "key": "B",
+        "text": "Scan new memory entries for keywords such as 'pay', 'account', and 'policy' and delete the matches automatically before they are saved to the notes file."
+      },
+      {
+        "key": "C",
+        "text": "Reset the memory file weekly so poisoned entries expire before they can influence many sessions, and keep all other memory behavior unchanged."
+      },
+      {
+        "key": "D",
+        "text": "Instruct the model in the system prompt to treat memory entries with suspicion and to verify them with the user before acting on them."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Memory poisoning works because untrusted text becomes durable, trusted context. Provenance plus a trust boundary on what may be loaded as trusted stops the path at the write and load steps instead of relying on the model's judgment.",
+      "distractors": {
+        "B": "Keyword filters are trivially bypassed by rephrasing and miss poisoned entries that use other vocabulary.",
+        "C": "Weekly resets only shorten exposure and leave a full week in which poisoned memory shapes every session.",
+        "D": "A suspicion instruction depends on the model resisting persuasive text, and users cannot verify most entries."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "memory-poisoning",
+      "provenance",
+      "trust-boundary"
+    ]
+  },
+  {
+    "id": "q-1206",
+    "scenario": "A team approved a third-party MCP server after review. Two weeks later its tool description for 'export_report' changed to include extra text telling the model to attach the user's session context to every call. The server's tool name and schema were unchanged, and nothing in the team's pipeline alerted.",
+    "stem": "Which control best prevents a repeat?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Require the vendor to sign a security agreement committing to notify the team before changes to tool descriptions or tool behavior."
+      },
+      {
+        "key": "B",
+        "text": "Restrict the server's tool to read-only operations and trust the existing approval of its description going forward without further checks."
+      },
+      {
+        "key": "C",
+        "text": "Pin the approved server version and a hash of its tool definitions, and block the server for re-review whenever the hash changes."
+      },
+      {
+        "key": "D",
+        "text": "Add a system prompt rule telling the model to ignore instructions embedded in tool descriptions and to use the tool's name and schema."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "Tool descriptions are model-visible instructions supplied by a server that can change after review. Pinning and hashing the definitions makes any change detectable and forces a new review, which catches the substitution regardless of how it is worded.",
+      "distractors": {
+        "A": "A contractual promise is not a technical control and provides no detection if the vendor errs or is compromised.",
+        "B": "Read-only scope limits some actions but the injected text can still make the model leak session context through the call arguments.",
+        "D": "A prompt rule asks the model to resist text it must read to use the tool, and it is not an enforceable boundary."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "mcp-security",
+      "tool-poisoning",
+      "supply-chain"
+    ]
+  },
+  {
+    "id": "q-1207",
+    "scenario": "A team plans a red-team exercise for an agent that reads email, searches an internal wiki, and can post to a chat channel. The agent will change with each prompt edit, model upgrade, and new tool.",
+    "stem": "Which TWO design choices make the exercise most useful? Select TWO.",
+    "options": [
+      {
+        "key": "A",
+        "text": "Judge each attack by whether the model's reply sounds like a refusal, since that is the behavior that users see in the chat window."
+      },
+      {
+        "key": "B",
+        "text": "Draw attacks from a published list of jailbreak prompts so that results can be compared with other organizations' published results."
+      },
+      {
+        "key": "C",
+        "text": "Place injected instructions in each untrusted channel the agent reads, such as email bodies and wiki pages, and score by whether an unauthorized action occurred."
+      },
+      {
+        "key": "D",
+        "text": "Run one deep manual exercise just before launch, then repeat it annually when the architecture is reviewed by the security team."
+      },
+      {
+        "key": "E",
+        "text": "Convert successful attacks into a regression suite that runs on every prompt, model, and tool change."
+      }
+    ],
+    "correct": [
+      "C",
+      "E"
+    ],
+    "rationale": {
+      "correct": "Agentic attacks arrive through untrusted content and succeed through actions, so outcomes at the tool and data-flow level are what should be scored. Because the system keeps changing, found attacks need to rerun automatically as regressions.",
+      "distractors": {
+        "A": "A refusal-sounding reply says nothing about whether a tool call or data transfer happened.",
+        "B": "Public jailbreak lists target the chat surface and miss injection through the agent's own content sources.",
+        "D": "A single pre-launch exercise goes stale at the next prompt edit or model change."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "red-team",
+      "prompt-injection",
+      "regression"
+    ]
+  },
+  {
+    "id": "q-1208",
+    "scenario": "A CI pipeline calls the Claude API using one long-lived API key stored as a repository secret shared by twelve teams' workflows. A security review wants spend and activity attributable per pipeline and wants a leaked credential to be useless within minutes.",
+    "stem": "Which change best meets both goals?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Move the key to a secrets manager and rotate it every 90 days, with access limited to the platform team's administrators."
+      },
+      {
+        "key": "B",
+        "text": "Create one key per team and store each as a repository secret, then audit each key's usage once a month for anomalies or overspend."
+      },
+      {
+        "key": "C",
+        "text": "Encrypt the repository secret at rest and mask it in build logs so that it cannot be copied out of the pipeline's output or console."
+      },
+      {
+        "key": "D",
+        "text": "Federate the pipeline's workload identity to obtain short-lived, per-pipeline credentials at job start, with no static key stored."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "Workload identity federation exchanges the pipeline's verified identity for short-lived credentials, so each run is attributable and a stolen token expires quickly. A static key, however stored or rotated, remains a copyable long-lived secret.",
+      "distractors": {
+        "A": "A 90-day rotation leaves a stolen key valid for weeks, and a single key still cannot attribute activity per pipeline.",
+        "B": "Per-team keys improve attribution coarsely but remain long-lived, copyable secrets with a monthly detection delay.",
+        "C": "Masking and encryption do not stop a workflow author from using or exfiltrating the key, and the credential still lives until revoked."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "workload-identity",
+      "secrets",
+      "short-lived-credentials"
+    ]
+  },
+  {
+    "id": "q-1209",
+    "scenario": "An agent platform handles refunds on behalf of signed-in support staff. After a disputed refund, investigators found that application logs record only 'refund tool called' with a timestamp. Compliance requires reconstructing who authorized what, and the investigation must remain trustworthy even if the agent's runtime is compromised.",
+    "stem": "Which audit design best meets the requirement?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Log each tool call with staff member, agent identity, tool, redacted arguments, policy decision, and request ID to append-only storage outside the runtime."
+      },
+      {
+        "key": "B",
+        "text": "Store the full prompt and completion text of each session in the application log so investigators can read the model's reasoning behind each refund decision."
+      },
+      {
+        "key": "C",
+        "text": "Have the agent write a natural-language summary of each action to a case note once the action completes, so reviewers see what the agent says it did."
+      },
+      {
+        "key": "D",
+        "text": "Log denied or failed tool calls, because allowed calls are already recorded by the downstream refund system and would duplicate its own records."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Reconstruction needs who, what, and under which decision, tied to a correlation ID, and tamper resistance requires storage outside the runtime's write reach. Structured, redacted records meet both without hoarding sensitive text.",
+      "distractors": {
+        "B": "Full transcripts bury the authorization facts, store customer data in logs, and sit in storage the runtime may be able to alter.",
+        "C": "Agent-written summaries are self-reported and can be wrong or manipulated, so they are not trustworthy evidence.",
+        "D": "Skipping allowed calls loses who authorized the refund, and downstream records lack the staff and agent identity context."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "audit-logging",
+      "tamper-resistance",
+      "agent-identity"
+    ]
+  },
+  {
+    "id": "q-1210",
+    "scenario": "Three agents (triage, billing, and reporting) share one service account that has read and write access to the customer database, the ticketing system, and the payments API. A prompt injection against the reporting agent led to a payment-API write.",
+    "stem": "Which TWO changes most directly apply least privilege here? Select TWO.",
+    "options": [
+      {
+        "key": "A",
+        "text": "Give each agent its own identity so that actions are attributable and permissions can differ per agent."
+      },
+      {
+        "key": "B",
+        "text": "Rotate the shared service account's credential daily to shorten the value of a stolen secret to an attacker."
+      },
+      {
+        "key": "C",
+        "text": "Add a monitoring alert on payments API writes from the shared account so that the security team is notified when one occurs."
+      },
+      {
+        "key": "D",
+        "text": "Scope each agent's tools to the operations it needs, so reporting gets read-only database access and no payments tool."
+      },
+      {
+        "key": "E",
+        "text": "Add a line to the reporting agent's system prompt stating that payment writes are outside its role and must be refused."
+      }
+    ],
+    "correct": [
+      "A",
+      "D"
+    ],
+    "rationale": {
+      "correct": "Separate identities allow permissions to differ per agent, and trimming each agent to the operations it needs removes the capability the injection abused. Together they bound blast radius deterministically.",
+      "distractors": {
+        "B": "Daily rotation shortens secret lifetime but leaves all three agents with the same broad rights while the credential is valid.",
+        "C": "An alert is detection and still lets the write succeed, and it cannot tell which agent acted on a shared account.",
+        "E": "A role statement in the prompt is exactly what the injection overrode and does not remove the permission."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "least-privilege",
+      "agent-identity",
+      "blast-radius"
+    ]
+  },
+  {
+    "id": "q-1211",
+    "scenario": "A platform team fans out 40 agents, each on its own git worktree, to migrate 40 services to a new logging library. Each agent edits its own service plus a shared 'dependencies.lock' and a shared 'logging/index.ts' barrel file. Roughly a third of pull requests conflict when the next one merges, and agents spend most of their tokens rebasing.",
+    "stem": "Which approach best reduces the conflicts?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Make agents rebase and retry up to five times before escalating to a human, since most conflicts resolve themselves on a later retry."
+      },
+      {
+        "key": "B",
+        "text": "Run the agents sequentially so that no two ever modify the shared files at the same time, even if the total run takes much longer."
+      },
+      {
+        "key": "C",
+        "text": "Give agents a lock file they must acquire before touching any shared file, and hold it until their pull request has been reviewed and merged."
+      },
+      {
+        "key": "D",
+        "text": "Give each agent only its own service as write set, and apply shared-file updates in one integration step after the merges."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "Conflicts come from overlapping write sets. Disjoint ownership lets the parallel work merge cleanly, and consolidating shared files into one serialized step removes the contention without losing parallelism for the bulk of the work.",
+      "distractors": {
+        "A": "Retrying rebases burns more tokens on the same overlapping edits and does not change what collides.",
+        "B": "Sequential execution removes conflicts but gives up the parallel speedup the fan-out was meant to deliver.",
+        "C": "A lock held until merge serializes most agents behind review latency, which effectively recreates sequential execution."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "worktrees",
+      "task-decomposition",
+      "merge-conflicts"
+    ]
+  },
+  {
+    "id": "q-1212",
+    "scenario": "A fleet runs 30 parallel coding agents per batch. Fleet telemetry for the last 10 batches:\nagent-level task success: 91%\nmerged PRs per batch: 12 (target 25)\nfailures after rebase caused by edits to files also edited by another agent: 64%\ntokens per merged PR: up 2.3x vs. the first batch\nconcurrency changes during this period: none",
+    "stem": "Which action does the evidence support best?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Add more agents per batch, because agent-level success is already high and the extra volume should raise the number of merged PRs per batch."
+      },
+      {
+        "key": "B",
+        "text": "Re-decompose so agents own disjoint files, sequence tasks that must share a file, and compare merged PRs per batch afterward."
+      },
+      {
+        "key": "C",
+        "text": "Switch each agent to a larger model to raise task success above 91%, since agent quality is the metric that limits throughput."
+      },
+      {
+        "key": "D",
+        "text": "Disable the post-rebase test step, since it rejects work that already passed in the agent's own worktree before the rebase."
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "High per-agent success with low merged throughput and mostly overlap-driven failures points to decomposition, not agent quality. Reducing overlap addresses the dominant cause and should also bring tokens per merged PR back down.",
+      "distractors": {
+        "A": "More agents raise overlap and rebase failures, which would worsen throughput and token cost.",
+        "C": "Agent-level success is already 91%, and the failures occur at integration after rebase, where model strength does not help.",
+        "D": "The post-rebase tests are catching real integration breaks, and disabling them would merge broken code."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "evidence",
+      "fleet-telemetry",
+      "decomposition"
+    ]
+  },
+  {
+    "id": "q-1213",
+    "scenario": "Several coding agents run in parallel worktrees on one build host. Integration tests fail intermittently with 'port already in use' and with rows missing from a shared local test database. Failures disappear when a single agent runs alone.",
+    "stem": "Which TWO actions best fix the root cause and make future occurrences diagnosable? Select TWO.",
+    "options": [
+      {
+        "key": "A",
+        "text": "Give each worktree its own database schema and port range derived from the worktree ID."
+      },
+      {
+        "key": "B",
+        "text": "Retry failed integration tests up to three times before marking the task failed, which should absorb the intermittent collisions."
+      },
+      {
+        "key": "C",
+        "text": "Reduce the fleet to one agent per host and accept the lower throughput that comes with running a single agent."
+      },
+      {
+        "key": "D",
+        "text": "Tag every test run and log line with the worktree ID and branch, so cross-agent interference is visible in telemetry."
+      },
+      {
+        "key": "E",
+        "text": "Move all agents onto one shared branch so they see each other's changes immediately and avoid divergent state."
+      }
+    ],
+    "correct": [
+      "A",
+      "D"
+    ],
+    "rationale": {
+      "correct": "The failures come from shared mutable state outside git, which worktrees do not isolate. Per-worktree resources remove the collision, and tagging runs with the worktree makes any remaining interference attributable.",
+      "distractors": {
+        "B": "Retries hide the contention and can still corrupt shared data, so they mask the cause.",
+        "C": "Single-agent runs avoid the collision but give up the parallelism that the fleet exists to provide.",
+        "E": "One shared branch creates more conflicts and does nothing about shared ports or database state."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "worktrees",
+      "isolation",
+      "flaky-tests"
+    ]
+  },
+  {
+    "id": "q-1214",
+    "scenario": "A team wants an AI reviewer to block merges on high-severity findings. Human reviewers currently approve every pull request. Leadership asks to turn the gate on next week because the reviewer 'looks accurate in demos'.",
+    "stem": "What should the team do first?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Run the reviewer in shadow mode on live pull requests, then compare its blocking findings with human decisions and later defects."
+      },
+      {
+        "key": "B",
+        "text": "Enable the gate for the high-severity category, and let developers override a block by adding a comment to the pull request thread."
+      },
+      {
+        "key": "C",
+        "text": "Have developers rate each AI comment as helpful or unhelpful, and enable the gate once the helpful rate stays above 80% for a month."
+      },
+      {
+        "key": "D",
+        "text": "Give the reviewer a stricter prompt so it flags more issues, then enable the gate to catch what the human reviewers are missing today."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "A gate needs measured precision on real traffic before it can block work. Shadow mode produces that evidence without cost to developers, and per-category results show where the reviewer can be trusted to block.",
+      "distractors": {
+        "B": "Overrides without measured precision train developers to click past the gate, and false blocks stall delivery.",
+        "C": "Helpfulness ratings capture sentiment, not whether blocking findings correspond to real defects.",
+        "D": "A stricter prompt tends to raise false positives, which makes a blocking gate less trustworthy."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "shadow-mode",
+      "calibration",
+      "merge-gating"
+    ]
+  },
+  {
+    "id": "q-1215",
+    "scenario": "Agents now open about 300 pull requests per week, up from 40 when only people wrote code. Reviewers approve 95% of them within three minutes, and two escaped defects last month were in authentication changes. Team size and reviewer hours are fixed.",
+    "stem": "Which oversight design best fits these constraints?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Require two human approvals on each pull request so that each change has redundant review, whether it is small or risky."
+      },
+      {
+        "key": "B",
+        "text": "Let agent pull requests merge automatically when tests pass, and audit a random 5% of the merged changes each week afterward by hand."
+      },
+      {
+        "key": "C",
+        "text": "Run automated checks, then route pull requests by risk: deep review for authentication and migrations, lighter review for the rest."
+      },
+      {
+        "key": "D",
+        "text": "Limit agents to 40 pull requests per week so that reviewers can keep today's review process and the same attention on each pull request."
+      }
+    ],
+    "correct": "C",
+    "rationale": {
+      "correct": "With fixed reviewer hours, review attention must go where defects cost most. Deterministic checks filter the volume and risk-based routing concentrates human effort on high-impact paths such as authentication, where the escapes occurred.",
+      "distractors": {
+        "A": "Doubling approvals spreads fixed hours thinner and encourages the rubber-stamping already visible in three-minute approvals.",
+        "B": "Passing tests did not prevent the authentication escapes, and a 5% audit finds defects only after they merge.",
+        "D": "Capping output discards the productivity gain and does not improve review quality on the pull requests that remain."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "human-oversight",
+      "risk-tiering",
+      "review-capacity"
+    ]
+  },
+  {
+    "id": "q-1216",
+    "scenario": "An AI reviewer uses the same model and the same prompt context as the agent that wrote the code. In shadow mode it agrees with the author's approach on 97% of pull requests, but humans later find defects in many of those. The team wants to raise real defect detection before gating.",
+    "stem": "Which TWO changes most directly reduce the correlated blind spots? Select TWO.",
+    "options": [
+      {
+        "key": "A",
+        "text": "Add a deterministic verification layer, such as tests and static analysis, whose results the reviewer sees but cannot overrule."
+      },
+      {
+        "key": "B",
+        "text": "Instruct the reviewer to be more critical and to find at least three issues in every pull request it reads."
+      },
+      {
+        "key": "C",
+        "text": "Review in a fresh context with its own instructions and without the author's reasoning, so it judges the diff."
+      },
+      {
+        "key": "D",
+        "text": "Have the author agent re-read its own pull request and certify that it is correct before the review begins."
+      },
+      {
+        "key": "E",
+        "text": "Let the reviewer see the author's full conversation so it understands the intent behind each change it examines."
+      }
+    ],
+    "correct": [
+      "A",
+      "C"
+    ],
+    "rationale": {
+      "correct": "A reviewer that shares the author's context inherits its assumptions. Independent signals from deterministic checks and a fresh-context review of the diff break that correlation.",
+      "distractors": {
+        "B": "A quota of findings produces padded or invented comments and does not give the reviewer independent information.",
+        "D": "Self-certification repeats the same reasoning that produced the defect.",
+        "E": "The author's conversation carries the author's assumptions into the review, which worsens the correlation."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "ai-code-review",
+      "independence",
+      "verification"
+    ]
+  },
+  {
+    "id": "q-1217",
+    "scenario": "An agent runs overnight toward the goal 'migrate 600 modules to the new API'. Last night it crashed after about 380 modules because of a host restart. The next morning the team restarted it and it began again from module 1, redoing work and opening duplicate pull requests.",
+    "stem": "Which design best fixes this?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Give the agent a larger context window so the whole run's history, including completed modules, survives a host restart without extra state files."
+      },
+      {
+        "key": "B",
+        "text": "Keep a durable checkpoint of completed modules written with each commit, and make module work idempotent so a restart resumes there."
+      },
+      {
+        "key": "C",
+        "text": "Run the migration as one job of 600 modules and require all of it to pass before any pull request is opened for the owning teams."
+      },
+      {
+        "key": "D",
+        "text": "Run two copies of the agent in parallel on the same module list so that one can continue the work when the other copy fails or restarts."
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "A restart loses process memory, so progress must live in durable state outside the model. Recording completion with each unit and making each unit safe to repeat lets the run resume cleanly without duplicates.",
+      "distractors": {
+        "A": "A larger context lives in the crashed process and does not survive a host restart.",
+        "C": "Batching everything into one all-or-nothing job loses all work on a failure and delays feedback.",
+        "D": "Two copies on the same list collide and create more duplicate pull requests, and neither knows what the other finished."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "checkpointing",
+      "idempotency",
+      "unattended-agents"
+    ]
+  },
+  {
+    "id": "q-1218",
+    "scenario": "A first-response agent is triggered when the main-branch CI build fails. It can read logs, check out the repo, and open pull requests. Deployments to production run from main every hour. On-call engineers say they do not want more pages, but a past incident went unnoticed for six hours.",
+    "stem": "Which design best balances autonomy, notification, and escalation?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Let the agent revert any commit that breaks the build and merge the revert automatically, then post a summary in the team channel afterward."
+      },
+      {
+        "key": "B",
+        "text": "Page on-call for a failed build with the agent's logs attached, since a human should decide what happens in each case, however minor."
+      },
+      {
+        "key": "C",
+        "text": "Collect the failures into a daily digest of agent findings that the team reads each morning during its stand-up meeting and then triages."
+      },
+      {
+        "key": "D",
+        "text": "Post a diagnosis and draft fix, notify the channel, and page on-call only if the build stays red past a time budget or confidence is low."
+      }
+    ],
+    "correct": "D",
+    "rationale": {
+      "correct": "This keeps the agent's write authority to a reviewable draft and sends cheap notifications by default. A time budget and a confidence trigger escalate only when the failure is persistent or uncertain, which avoids both alert fatigue and the six-hour miss.",
+      "distractors": {
+        "A": "Automatic reverts to a branch that deploys hourly put an unreviewed change into production on the agent's diagnosis alone.",
+        "B": "Paging on every failure creates the alert fatigue on-call already complained about, including for transient failures.",
+        "C": "A daily digest repeats the long-delay failure, since a red main build could sit for most of a day."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "incident-response",
+      "escalation",
+      "event-driven-agents"
+    ]
+  },
+  {
+    "id": "q-1219",
+    "scenario": "A webhook triggers an agent each time a security advisory is published for a dependency. The provider retries deliveries on timeouts, and the agent's runs take longer than the provider's timeout. The team now has several duplicate upgrade pull requests for the same advisory.",
+    "stem": "Which fix is best?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Ask the model at the start of each run to check whether an open pull request already exists for the advisory and stop if so."
+      },
+      {
+        "key": "B",
+        "text": "Acknowledge the webhook immediately, dedupe on the delivery or advisory ID, and hold a per-dependency lease during runs."
+      },
+      {
+        "key": "C",
+        "text": "Raise the webhook timeout so the provider waits for the agent to finish before it retries."
+      },
+      {
+        "key": "D",
+        "text": "Run the agent on a schedule every hour instead of on webhook events and process the whole advisory list each time."
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "Redelivery on timeout is normal webhook behavior, so the handler must be idempotent. Fast acknowledgement stops the retries, and deterministic dedupe plus a lease prevents concurrent or repeated runs on the same dependency.",
+      "distractors": {
+        "A": "A model-based existence check is nondeterministic and races when two runs start at once before either opens a pull request.",
+        "C": "Providers cap how long they wait, and a longer timeout couples delivery to run duration without making repeated deliveries safe.",
+        "D": "Scheduled sweeps can still overlap or repeat work without a dedupe key and delay response to urgent advisories."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "webhooks",
+      "idempotency",
+      "deduplication"
+    ]
+  },
+  {
+    "id": "q-1220",
+    "scenario": "A company with 80 engineering teams wants every Claude Code session to count against per-team budgets, be logged centrally, and use only approved models. Teams currently set their own API keys and endpoints in local settings.",
+    "stem": "Which approach best provides enforceable attribution and control?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Publish a policy document and ask each team to export its usage reports to finance every month for budget reconciliation and review."
+      },
+      {
+        "key": "B",
+        "text": "Route agent traffic through an organization gateway with team-scoped credentials, set the endpoint in managed settings, and block direct API egress."
+      },
+      {
+        "key": "C",
+        "text": "Ask each team to add a CLAUDE.md instruction naming the approved models and a budget cap for that team's sessions and repositories."
+      },
+      {
+        "key": "D",
+        "text": "Collect client-side telemetry from each developer machine and alert the platform team on sessions that use unapproved endpoints or exceed a team's budget."
+      }
+    ],
+    "correct": "B",
+    "rationale": {
+      "correct": "A gateway is a single enforcement point where identity, budget, logging, and model policy are applied. Managed settings that cannot be overridden locally plus blocked direct egress keep traffic from bypassing it.",
+      "distractors": {
+        "A": "A policy and monthly reports rely on voluntary compliance and give no enforcement or real-time budget control.",
+        "C": "A CLAUDE.md instruction guides the model and is not an enforced limit on endpoint, model, or spend.",
+        "D": "Client telemetry detects bypass after the fact and can be missing for sessions that skip the client configuration."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "gateway",
+      "managed-settings",
+      "governance"
+    ]
+  },
+  {
+    "id": "q-1221",
+    "scenario": "Teams share Claude Code Skills through a wiki where anyone can paste a new version. One team's Skill was edited to run a broader shell command, and several teams picked it up without review. Platform leadership wants sharing to continue but with a quality and safety bar.",
+    "stem": "Which governance model best fits?",
+    "options": [
+      {
+        "key": "A",
+        "text": "Publish Skills from a versioned repository where changes need owner review, declare tool permissions, and pass a smoke test."
+      },
+      {
+        "key": "B",
+        "text": "Centralize Skill authoring in the platform team, which writes and maintains each Skill that the teams request."
+      },
+      {
+        "key": "C",
+        "text": "Keep the wiki but add a banner asking authors to describe any shell commands that their Skill runs, so readers can judge risk."
+      },
+      {
+        "key": "D",
+        "text": "Approve a Skill once it has been used by at least five teams without a reported incident, and mark it approved on the wiki."
+      }
+    ],
+    "correct": "A",
+    "rationale": {
+      "correct": "Shared Skills behave like shared code: they need ownership, review on change, declared permissions, and tests before release, with versions that consumers can pin. This keeps sharing open while controlling the path that caused the problem.",
+      "distractors": {
+        "B": "A single platform team becomes a bottleneck for every team's Skill requests and removes domain knowledge from authors.",
+        "C": "A banner is voluntary documentation and would not have stopped the unreviewed broadening of the shell command.",
+        "D": "Usage count measures popularity, and a quiet harmful change can spread widely before anyone reports an incident."
+      }
+    },
+    "lab": null,
+    "difficulty": 5,
+    "tags": [
+      "skills-governance",
+      "change-review",
+      "sharing"
+    ]
+  },
+  {
+    "id": "q-1222",
+    "scenario": "Product teams ask to add several MCP servers to the organization's allowlist, including a vendor-hosted remote server that exposes a ticketing API with read and write tools.",
+    "stem": "Which TWO requirements should the platform team set before approving a server? Select TWO.",
+    "options": [
+      {
+        "key": "A",
+        "text": "Review the exposed tools and permission scopes, and require authenticated, least-privilege access for remote servers."
+      },
+      {
+        "key": "B",
+        "text": "A high popularity score in public MCP directories, as evidence that the server is safe and well maintained by its authors."
+      },
+      {
+        "key": "C",
+        "text": "Approval of any server hosted on the vendor's primary domain once one of that vendor's servers has been approved."
+      },
+      {
+        "key": "D",
+        "text": "Assign a named owner and a pinned version, with re-review on version changes and removal when the server is unused."
+      },
+      {
+        "key": "E",
+        "text": "A statement from the requesting team that they will use only the read tools of the ticketing API."
+      }
+    ],
+    "correct": [
+      "A",
+      "D"
+    ],
+    "rationale": {
+      "correct": "Approval should be tied to what the server can do, how it authenticates, who is accountable, and how change is controlled. Scope review with authentication, together with an owner and pinned version, supports safe allowlisting.",
+      "distractors": {
+        "B": "Directory popularity does not show that a server's tools are scoped safely or unchanged.",
+        "C": "One approved server says nothing about other servers on the same domain, whose tools and permissions differ.",
+        "E": "A team's intention is not enforced, and the write tools stay available to anyone using the allowlisted server."
+      }
+    },
+    "lab": null,
+    "difficulty": 6,
+    "tags": [
+      "mcp-allowlist",
+      "governance",
+      "least-privilege"
+    ]
   }
 ]

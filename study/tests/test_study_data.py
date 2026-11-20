@@ -24,10 +24,13 @@ Mirrors the labs' philosophy: the content cannot silently break the web app.
 
 from __future__ import annotations
 
+import html as htmllib
 import json
 import math
 import re
+import sys
 import tomllib
+from collections import Counter
 from pathlib import Path
 
 import jsonschema
@@ -266,6 +269,75 @@ def test_exam_identity_and_guide(slug):
     assert exam["slug"] == slug, f"exams/{slug}/exam.json declares slug {exam['slug']!r}"
     assert exam["code"].replace("-", "").lower() == slug, f"{exam['code']} doesn't match slug {slug}"
     assert (EXAMS_DIR / slug / exam["guide"]).is_file(), f"{slug}: missing guide {exam['guide']}"
+
+
+# --------------------------------------------------------------------------- #
+# Guide view: overview facts + the generated inline exam guide                 #
+# --------------------------------------------------------------------------- #
+sys.path.insert(0, str(STUDY_ROOT / "tools"))
+import build_guides  # noqa: E402
+
+# Exams whose Guide view shows the guide inline. Add a slug here once its
+# guide.html is built and reviewed; every other exam falls back to a PDF link.
+GUIDE_INLINE = ["ccarp", "ccdvf", "ccarf", "ccdvp"]
+
+
+def _words(text: str, html: bool = False) -> Counter:
+    if html:
+        text = re.sub(r"<[^>]+>", " ", text)
+    text = htmllib.unescape(text.replace("<br>", " "))
+    return Counter(re.findall(r"\w+", text.lower()))
+
+
+
+@pytest.mark.parametrize("slug", ALL_EXAMS)
+def test_guide_source_is_clean(slug):
+    """Guide Markdown is kept free of PDF-extraction artifacts (running page headers,
+    split paragraphs, <br> in cells, loose lists): cleaning it again changes nothing."""
+    src = (EXAMS_DIR / slug / EXAMS[slug]["guide"]).read_text(encoding="utf-8")
+    assert build_guides.clean_markdown(src).strip() == src.strip(), (
+        f"{slug}: guide still has extraction artifacts; run build_guides.clean_markdown on it"
+    )
+
+
+@pytest.mark.parametrize("slug", ALL_EXAMS)
+def test_overview_facts_appear_in_guide(slug):
+    ov = EXAMS[slug].get("overview")
+    if not ov:
+        pytest.skip("no overview authored")
+    md = (EXAMS_DIR / slug / EXAMS[slug]["guide"]).read_text(encoding="utf-8")
+    for fact in ov["facts"]:
+        assert fact["value"] in md, f"{slug}: overview fact {fact} is not in the guide"
+
+
+@pytest.mark.parametrize("slug", GUIDE_INLINE)
+def test_guide_html_is_current(slug):
+    src = (EXAMS_DIR / slug / EXAMS[slug]["guide"]).read_text(encoding="utf-8")
+    built = EXAMS_DIR / slug / build_guides.OUT_NAME
+    assert built.is_file(), f"{slug}: run `uv run study/tools/build_guides.py`"
+    assert built.read_text(encoding="utf-8") == build_guides.render(src), (
+        f"{slug}: guide.html is stale; run `uv run study/tools/build_guides.py`"
+    )
+
+
+@pytest.mark.parametrize("slug", GUIDE_INLINE)
+def test_guide_html_changes_only_layout_artifacts(slug):
+    """The inline guide is verbatim: the only words removed are the PDF's running
+    headers, and nothing is added."""
+    src = (EXAMS_DIR / slug / EXAMS[slug]["guide"]).read_text(encoding="utf-8")
+    out = (EXAMS_DIR / slug / build_guides.OUT_NAME).read_text(encoding="utf-8")
+    # Numbered-list markers ("1.") become <ol> numbering, not text.
+    src = src.replace("Claude C|ertification Program", build_guides.PAGE_HEADER)  # a header split across table cells
+    before, after = _words(re.sub(r"^\d+\.\s", "", src, flags=re.M)), _words(out, html=True)
+    assert not (after - before), f"{slug}: words added: {after - before}"
+    removed = before - after
+    # Running headers: each is one "Claude Certification Program", and "Exam guide" where the
+    # PDF repeated it (as its own line or a table-header cell).
+    headers = src.count(build_guides.PAGE_HEADER)
+    exam_guides = len(re.findall(r"(?:^|\|)[ #]*Exam guide[ ]*(?:\||$)", src, flags=re.M))
+    allowed = Counter({w: n * headers for w, n in _words(build_guides.PAGE_HEADER).items()})
+    allowed += Counter({"exam": exam_guides, "guide": exam_guides})
+    assert not (removed - allowed), f"{slug}: words lost beyond page headers: {removed - allowed}"
 
 
 @pytest.mark.parametrize("slug", ALL_EXAMS)

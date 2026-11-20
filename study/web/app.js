@@ -1,6 +1,6 @@
 /* ==========================================================================
    Claude certification study app (vanilla JS, no dependencies)
-   Loads exams/ + content/ JSON, routes 5 views by hash (#/<exam>/<view>), tracks cumulative progress in
+   Loads exams/ + content/ JSON, routes 6 views by hash (#/<exam>/<view>), tracks cumulative progress in
    localStorage, and renders a readiness dashboard. Serve over http://localhost
    (see ../serve.py) so fetch() of the local JSON works.
    ========================================================================== */
@@ -264,9 +264,9 @@
   /* ---- router ----------------------------------------------------------- */
   // Routes carry the exam: #/<exam>/<view> (e.g. #/ccarf/quiz). A bare legacy
   // route (#/quiz) or an unknown view is rewritten in place to the active exam
-  // + a real view. A route naming a different exam saves it and reloads, so
+  // + a real view (Guide, the front page). A route naming a different exam saves it and reloads, so
   // that exam's data and storage namespace boot cleanly.
-  var ROUTES = { concepts: renderConcepts, flashcards: renderFlashcards, labs: renderLabs, quiz: renderQuiz, readiness: renderReadiness };
+  var ROUTES = { guide: renderGuide, concepts: renderConcepts, flashcards: renderFlashcards, labs: renderLabs, quiz: renderQuiz, readiness: renderReadiness };
   var EXAM = null, EXAM_SLUGS = []; // active exam slug + all slugs; set at boot
   function parseHash() {
     var parts = (location.hash || "").replace(/^#\/?/, "").split("/");
@@ -276,7 +276,7 @@
   function viewHref(name, slug) { return "#/" + (slug || EXAM) + "/" + name; }
   function currentRoute() {
     var v = parseHash().view;
-    return ROUTES[v] ? v : "concepts";
+    return ROUTES[v] ? v : "guide";
   }
   function router() {
     var r = parseHash();
@@ -326,6 +326,110 @@
       o += '<option value="' + t.id + '"' + (t.id === taskSel ? " selected" : "") + ">" + esc(t.id) + " · " + esc(t.title) + "</option>";
     });
     return o;
+  }
+
+  /* ======================================================================
+     GUIDE  (front page: overview, study plan, official exam guide)
+     ==================================================================== */
+  // Horizontal-bar SVG of the domain weights. Bars share one scale (0 to the
+  // largest weight rounded up to a multiple of 5) so lengths compare honestly.
+  function domainChart(domains, byPercent) {
+    if (byPercent) {
+      domains = domains.slice().sort(function (a, b) { return b.weight - a.weight || a.id - b.id; });
+    }
+    var W = 640, LEFT = 0, RIGHT = 56, ROW = 46, BAR = 14, TOP = 4;
+    // Guides that give fractional weights (14.7%) print every weight with one decimal (11.0%).
+    var fractional = domains.some(function (d) { return d.weight % 1 !== 0; });
+    function pct(w) { return (fractional ? w.toFixed(1) : String(w)) + "%"; }
+    var max = Math.max.apply(null, domains.map(function (d) { return d.weight; }));
+    var scale = Math.ceil(max / 5) * 5;
+    var trackW = W - LEFT - RIGHT, H = TOP + domains.length * ROW;
+    var rows = domains.map(function (d, i) {
+      var y = TOP + i * ROW, w = Math.max(2, Math.round(trackW * d.weight / scale));
+      return '<g><text class="dchart__label" x="' + LEFT + '" y="' + (y + 15) + '">' + "D" + d.id + " · " + esc(d.name) + "</text>" +
+        '<rect class="dchart__track" x="' + LEFT + '" y="' + (y + 22) + '" width="' + trackW + '" height="' + BAR + '" rx="7"/>' +
+        '<rect x="' + LEFT + '" y="' + (y + 22) + '" width="' + w + '" height="' + BAR + '" rx="7" style="fill:' + domainColor(d.id) + '"/>' +
+        '<text class="dchart__val" x="' + (W - RIGHT + 10) + '" y="' + (y + 34) + '">' + pct(d.weight) + "</text></g>";
+    }).join("");
+    var aria = "Exam weight by domain: " + domains.map(function (d) { return d.name + " " + pct(d.weight); }).join("; ");
+    return '<svg class="dchart" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(aria) + '">' + rows + "</svg>";
+  }
+  function sum(arr) { return arr.reduce(function (a, b) { return a + b; }, 0); }
+
+  function studyPlan() {
+    var m = DATA.meta;
+    var nFc = sum(Object.keys(DATA.flashcardSets).map(function (k) { return DATA.flashcardSets[k].length; }));
+    var labSlugs = {};
+    m.task_statements.forEach(function (t) { t.labs.forEach(function (l) { labSlugs[l] = true; }); });
+    var tiers = DATA.sets.questions.map(function (e) { return e.label; });
+    var steps = [
+      { scroll: "exam-guide", name: "Exam Guide", href: null,
+        text: "Start here. Skim the official guide below for the format, the domain blueprint, and the objectives you will be tested on. Come back to it whenever you want to check a topic against the blueprint." },
+      { view: "concepts", name: "Concepts",
+        text: "Work through the " + DATA.concepts.length + " concept explainers, one per objective, in domain order. Read each one to build the mental model before you drill." },
+      { view: "flashcards", name: "Flashcards",
+        text: "Drill the " + nFc + " flashcards to lock in definitions and distinctions. Mark each card as known or missed; the missed-only filter replays what you got wrong." },
+      { view: "labs", name: "Labs",
+        text: "Build it. " + Object.keys(labSlugs).length + " hands-on labs cover the objectives that benefit from practice. Each has starter code, tests, and a reference solution." },
+      { view: "quiz", name: "Quiz",
+        text: "Test yourself with " + DATA.sets.questions.length + " question sets (" + tiers.join(", ") + "), including “select N” items like the real exam. Every answer shows a rationale for each option." },
+      { view: "readiness", name: "Readiness",
+        text: "Check your progress by domain, weighted like the exam. Aim for the " + PASS_THRESHOLD + "% line, then revisit the focus areas it lists." },
+    ];
+    return '<ol class="plan">' + steps.map(function (s, i) {
+      var go = s.view
+        ? '<a class="btn" href="' + viewHref(s.view) + '">Open ' + esc(s.name) + " →</a>"
+        : '<button class="btn" type="button" data-scroll="' + s.scroll + '">Read the guide ↓</button>';
+      return '<li class="plan__step"><span class="plan__num">' + (i + 1) + "</span>" +
+        '<div class="plan__body"><h3>' + esc(s.name) + "</h3><p>" + esc(s.text) + "</p></div>" + go + "</li>";
+    }).join("") + "</ol>";
+  }
+
+  function renderGuide() {
+    var m = DATA.meta, ov = m.overview;
+    view.innerHTML = '<div class="view-head"><h1>Guide</h1><p>' + esc(m.code) + " · " + esc(m.name) + "</p></div>";
+
+    var facts = ov ? '<div class="stat-tiles stat-tiles--facts">' + ov.facts.map(function (f) { return tile(f.value, f.label); }).join("") + "</div>" : "";
+    view.insertAdjacentHTML("beforeend",
+      '<section class="card" aria-labelledby="g-overview"><h2 class="guide-h" id="g-overview">Exam Overview</h2>' +
+      (ov ? '<p class="guide-lead">' + esc(ov.summary) + "</p>" : "") + facts +
+      '<div class="chart-tabs" role="tablist" aria-label="Chart order">' +
+        '<button type="button" role="tab" class="chart-tab" id="ct-domain" aria-selected="true" aria-controls="chart-box">Exam weight by domain</button>' +
+        '<button type="button" role="tab" class="chart-tab" id="ct-percent" aria-selected="false" aria-controls="chart-box">Exam weight by percent</button>' +
+      '</div><div id="chart-box" role="tabpanel">' + domainChart(m.domains, false) + "</div></section>");
+    ["domain", "percent"].forEach(function (k) {
+      document.getElementById("ct-" + k).addEventListener("click", function () {
+        document.getElementById("ct-domain").setAttribute("aria-selected", String(k === "domain"));
+        document.getElementById("ct-percent").setAttribute("aria-selected", String(k === "percent"));
+        document.getElementById("chart-box").innerHTML = domainChart(m.domains, k === "percent");
+      });
+    });
+
+    view.insertAdjacentHTML("beforeend",
+      '<section class="card" aria-labelledby="g-plan"><h2 class="guide-h" id="g-plan">Study Plan</h2>' +
+      '<p class="guide-lead">Work through the exam in this order. Each step links to the matching section of this site.</p>' + studyPlan() + "</section>");
+
+    view.insertAdjacentHTML("beforeend",
+      '<section class="card" id="exam-guide" aria-labelledby="g-guide"><h2 class="guide-h" id="g-guide">Exam Guide</h2>' +
+      '<div class="guide-note"><strong>This is the official ' + esc(m.code) + ' Exam Guide, reformatted for this page.</strong> ' +
+      "The wording is unchanged; only layout artifacts from the PDF (repeated page headers, broken tables) were repaired. " +
+      'Read the original: <a href="' + esc(m.guide_pdf_url) + '" target="_blank" rel="noopener noreferrer">official ' + esc(m.code) + " Exam Guide (PDF) ↗</a></div>" +
+      '<div class="guide-doc" id="guide-doc"><p class="muted">Loading the guide…</p></div></section>');
+
+    view.querySelectorAll("[data-scroll]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var el = document.getElementById(b.getAttribute("data-scroll"));
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+
+    var doc = document.getElementById("guide-doc"), slug = EXAM;
+    fetch("../exams/" + slug + "/guide.html", { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
+      .then(function (html) { if (EXAM === slug && doc.isConnected) doc.innerHTML = html; })
+      .catch(function () {
+        if (doc.isConnected) doc.innerHTML = '<p class="muted">The guide text is not available inline yet. Use the PDF link above.</p>';
+      });
   }
 
   /* ======================================================================
@@ -1095,6 +1199,8 @@
   function initExamChrome(exam, exams) {
     document.getElementById("exam-name").textContent = exam.name;
     document.title = exam.code + " · Claude Certification Study";
+    // Level cue: the active tab and selected exam pill turn blue for Professional (-P) exams.
+    document.documentElement.setAttribute("data-level", /-P$/.test(exam.code) ? "professional" : "foundation");
     var sw = document.getElementById("exam-switch");
     if (exams.length > SWITCH_MAX_SEGMENTS) {
       sw.innerHTML = '<select class="exam-switch__select" aria-label="Exam">' + exams.map(function (e) {
@@ -1106,7 +1212,7 @@
       return;
     }
     sw.innerHTML = exams.map(function (e) {
-      return '<a class="exam-switch__opt" data-exam="' + esc(e.slug) + '" href="' + viewHref("concepts", e.slug) + '" title="' + esc(e.name) + '"' +
+      return '<a class="exam-switch__opt" data-exam="' + esc(e.slug) + '" href="' + viewHref("guide", e.slug) + '" title="' + esc(e.name) + '"' +
         (e.slug === exam.slug ? ' aria-current="true"' : "") + ">" + esc(e.code) + "</a>";
     }).join("");
   }
