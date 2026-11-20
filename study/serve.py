@@ -27,7 +27,7 @@ import threading
 import webbrowser
 from pathlib import Path
 
-__version__ = "3.2.1"
+__version__ = "3.2.2"
 
 STUDY_ROOT = Path(__file__).resolve().parent
 
